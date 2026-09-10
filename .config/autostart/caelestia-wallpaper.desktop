@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Exec=sh -c "python3 $HOME/.local/share/caelestia-wallpaper/wallpaper_daemon.py"
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name=Wallpaper Switcher
-Comment=Bento Wallpaper Switcher Daemon

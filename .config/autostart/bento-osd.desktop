@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=sh -c "python3 $HOME/.local/share/bento-osd/osd.py"
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Bento Modern Pill OSD
+Comment=Catppuccin Floating Pill OSD Daemon

@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Exec=sh -c "python3 $HOME/.local/share/caelestia-clip/clip_daemon.py"
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name=Caelestia Clipboard
-Comment=Catppuccin Bento Clipboard Manager Daemon

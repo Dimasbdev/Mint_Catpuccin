@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bento Bento Control Center</title>
+  <style>
+    :root {
+      --bg-base: rgba(24, 24, 37, 0.85);
+      --card-bg: rgba(30, 30, 46, 0.65);
+      --card-hover: rgba(49, 50, 68, 0.75);
+      
+      --accent: #f5c2e7;
+      --accent-subtle: rgba(245, 194, 231, 0.14);
+      --accent-glow: rgba(245, 194, 231, 0.35);
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --border-active: rgba(245, 194, 231, 0.45);
+      
+      --flamingo: #f5c2e7;
+      --mauve: #cba6f7;
+      --pink: #f5c2e7;
+      --peach: #fab387;
+      --yellow: #f9e2af;
+      --green: #a6e3a1;
+      --teal: #94e2d5;
+      --sapphire: #74c7ec;
+      --blue: #89b4fa;
+      --red: #f38ba8;
+      
+      --text: #cdd6f4;
+      --subtext: #a6adc8;
+      --surface0: #313244;
+      --surface1: #45475a;
+      --mantle: #181825;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "JetBrains Mono", "SF Pro Display", "Inter", sans-serif;
+      color: var(--text);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-base);
+      backdrop-filter: blur(32px) saturate(190%);
+      -webkit-backdrop-filter: blur(32px) saturate(190%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 194, 231, 0.08);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 14px;
+      animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* ----------------------------------------------------
+       1. HEADER ROW: Clear hierarchy, Bold username, Subtle stats
+       ---------------------------------------------------- */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 2px;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar-ring {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .user-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      color: #ffffff;
+    }
+
+    .system-stats {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--subtext);
+      transition: all 0.2s ease;
+    }
+
+    .stat-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
+    .stat-pill svg {
+      width: 13px;
+      height: 13px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--subtext);
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
+    .btn-icon svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* ----------------------------------------------------
+       2. TOGGLE GRID: Stateful 2x2 grid
+          - Drop nested icon squircle boxes
+          - Icon sits directly on card with tinting
+          - Clean surface separation, no border clutter
+       ---------------------------------------------------- */
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .toggle-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toggle-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .toggle-card:active {
+      transform: scale(0.98);
+    }
+
+    .toggle-card.active {
+      background: var(--accent-subtle);
+      border-color: var(--border-active);
+      box-shadow: 0 4px 20px -4px var(--accent-glow);
+    }
+
+    /* Direct icon placement: no nested squircle */
+    .toggle-icon-box {
+      width: 26px;
+      height: 26px;
+      background: transparent !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toggle-icon-box svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--subtext);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .toggle-card:hover .toggle-icon-box svg {
+      stroke: var(--text);
+      transform: scale(1.06);
+    }
+
+    .toggle-card.active .toggle-icon-box svg {
+      stroke: var(--accent);
+      filter: drop-shadow(0 0 6px var(--accent-glow));
+    }
+
+    .toggle-info {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .toggle-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.1px;
+    }
+
+    .toggle-card.active .toggle-title {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .toggle-status {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--subtext);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .toggle-card.active .toggle-status {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ----------------------------------------------------
+       3. SLIDERS: Connected control group, unified accent fill
+       ---------------------------------------------------- */
+    .sliders-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 18px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .slider-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .slider-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: scale(1.08);
+    }
+
+    .slider-btn.muted {
+      color: var(--red);
+    }
+
+    .slider-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .range-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 20px;
+      background: transparent;
+      outline: none;
+      cursor: pointer;
+      margin: 0;
+      padding: 0;
+      --slider-color: var(--accent);
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 9999px;
+      background: linear-gradient(to right, var(--slider-color) var(--slider-pct, 50%), var(--surface0) var(--slider-pct, 50%));
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2.5px solid var(--slider-color);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+      margin-top: -4px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input[type="range"]:hover::-webkit-slider-thumb {
+      transform: scale(1.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 10px var(--accent-glow);
+    }
+
+    input[type="range"]:active::-webkit-slider-thumb {
+      transform: scale(1.25);
+    }
+
+    .slider-val {
+      font-size: 11.5px;
+      font-weight: 600;
+      min-width: 36px;
+      text-align: right;
+      color: var(--text);
+    }
+
+    /* ----------------------------------------------------
+       4. MEDIA PLAYER: Hero section with 64px art & breathing room
+       ---------------------------------------------------- */
+    .media-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.35);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .media-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.09);
+    }
+
+    .media-art {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(49, 50, 68, 0.8), rgba(30, 30, 46, 0.9));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .media-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .media-art svg {
+      width: 28px;
+      height: 28px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.8;
+      opacity: 0.85;
+    }
+
+    .media-details {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .media-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    .media-artist {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--subtext);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+
+    .media-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-media {
+      background: transparent;
+      border: none;
+      color: var(--subtext);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-media:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+      transform: scale(1.1);
+    }
+
+    .btn-media.play-pause {
+      width: 38px;
+      height: 38px;
+      background: var(--accent);
+      color: var(--mantle);
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .btn-media.play-pause:hover {
+      transform: scale(1.08);
+      filter: brightness(1.12);
+      box-shadow: 0 6px 18px var(--accent-glow);
+    }
+
+    .btn-media.play-pause svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--mantle);
+      fill: var(--mantle);
+    }
+
+    /* ----------------------------------------------------
+       5. QUICK ACTIONS: Differentiated from toggles
+          - Horizontal flatter button-like pill treatment
+          - Clear affordance as fire-once action buttons
+       ---------------------------------------------------- */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--subtext);
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+      transform: scale(0.96);
+    }
+
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--subtext);
+      fill: none;
+      stroke-width: 2;
+      transition: stroke 0.2s ease;
+    }
+
+    .action-btn:hover svg {
+      stroke: var(--accent);
+    }
+
+    .action-btn span {
+      font-size: 11px;
+      font-weight: 600;
+      color: inherit;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Top Header -->
+    <div class="header">
+      <div class="user-profile">
+        <div class="avatar-ring">
+          <img src="avatar.jpeg" alt="avatar" class="avatar-img" id="userAvatar">
+        </div>
+        <div class="user-meta">
+          <span class="user-name" id="userNameLabel">df@t480</span>
+        </div>
+      </div>
+
+      <div class="system-stats">
+        <div class="stat-pill" id="batPill" title="Battery">
+          <svg viewBox="0 0 24 24"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"></rect><line x1="23" y1="11" x2="23" y2="13"></line></svg>
+          <span id="batPct">85%</span>
+        </div>
+        <div class="stat-pill" id="tempPill" title="CPU Temperature">
+          <svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
+          <span id="cpuTemp">45°C</span>
+        </div>
+        <button class="btn-icon" id="btnClose" title="Close (Esc)">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2x2 Bento Toggles (Stateful Controls) -->
+    <div class="toggle-grid">
+      <!-- Wi-Fi -->
+      <div class="toggle-card" id="btnWifi">
+        <div class="toggle-icon-box">
+          <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+        </div>
+        <div class="toggle-info">
+          <span class="toggle-title">Wi-Fi</span>
+          <span class="toggle-status" id="wifiStatus">Wi-Fi</span>
+        </div>
+      </div>
+
+      <!-- Bluetooth -->
+      <div class="toggle-card" id="btnBt">
+        <div class="toggle-icon-box">
+          <svg viewBox="0 0 24 24"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"></polyline></svg>
+        </div>
+        <div class="toggle-info">
+          <span class="toggle-title">Bluetooth</span>
+          <span class="toggle-status" id="btStatus">Disabled</span>
+        </div>
+      </div>
+
+      <!-- Night Light -->
+      <div class="toggle-card" id="btnNightLight">
+        <div class="toggle-icon-box">
+          <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </div>
+        <div class="toggle-info">
+          <span class="toggle-title">Night Light</span>
+          <span class="toggle-status" id="nightLightStatus">Off</span>
+        </div>
+      </div>
+
+      <!-- Do Not Disturb -->
+      <div class="toggle-card" id="btnDnd">
+        <div class="toggle-icon-box">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>
+        </div>
+        <div class="toggle-info">
+          <span class="toggle-title">DND</span>
+          <span class="toggle-status" id="dndStatus">Off</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sliders (Unified Control Group) -->
+    <div class="sliders-card">
+      <!-- Volume -->
+      <div class="slider-group">
+        <button class="slider-btn" id="btnMute" title="Toggle Mute">
+          <svg id="volIcon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        </button>
+        <div class="range-wrap">
+          <input type="range" id="volSlider" min="0" max="100" value="50">
+        </div>
+        <span class="slider-val" id="volVal">50%</span>
+      </div>
+
+      <!-- Brightness -->
+      <div class="slider-group">
+        <button class="slider-btn" title="Brightness">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+        <div class="range-wrap">
+          <input type="range" id="brightnessSlider" min="5" max="100" value="100">
+        </div>
+        <span class="slider-val" id="brightVal">100%</span>
+      </div>
+    </div>
+
+    <!-- Media Player (Hero glanceable card) -->
+    <div class="media-card">
+      <div class="media-art" id="mediaArtBox">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+      </div>
+      <div class="media-details">
+        <span class="media-title" id="mediaTitle">No Media Playing</span>
+        <span class="media-artist" id="mediaArtist">Music is idle</span>
+      </div>
+      <div class="media-controls">
+        <button class="btn-media" id="btnPrev" title="Previous">
+          <svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5" stroke-width="2"></line></svg>
+        </button>
+        <button class="btn-media play-pause" id="btnPlayPause" title="Play / Pause">
+          <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </button>
+        <button class="btn-media" id="btnNext" title="Next">
+          <svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke-width="2"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Bento Actions (Flatter button pills) -->
+    <div class="actions-grid">
+      <div class="action-btn" id="btnActionScreenshot">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        <span>Screenshot</span>
+      </div>
+
+      <div class="action-btn" id="btnActionClipboard">
+        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+        <span>Clipboard</span>
+      </div>
+
+      <div class="action-btn" id="btnActionLock">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span>Lock Screen</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function sendAction(action, value = null) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.control) {
+        window.webkit.messageHandlers.control.postMessage(JSON.stringify({ action: action, value: value }));
+      }
+    }
+
+    // State bindings
+    const btnWifi = document.getElementById('btnWifi');
+    const wifiStatus = document.getElementById('wifiStatus');
+    const btnBt = document.getElementById('btnBt');
+    const btStatus = document.getElementById('btStatus');
+    const btnNightLight = document.getElementById('btnNightLight');
+    const nightLightStatus = document.getElementById('nightLightStatus');
+    const btnDnd = document.getElementById('btnDnd');
+    const dndStatus = document.getElementById('dndStatus');
+
+    const volSlider = document.getElementById('volSlider');
+    const volVal = document.getElementById('volVal');
+    const btnMute = document.getElementById('btnMute');
+    const volIcon = document.getElementById('volIcon');
+
+    const brightnessSlider = document.getElementById('brightnessSlider');
+    const brightVal = document.getElementById('brightVal');
+
+    const mediaArtBox = document.getElementById('mediaArtBox');
+    const mediaTitle = document.getElementById('mediaTitle');
+    const mediaArtist = document.getElementById('mediaArtist');
+    const playIcon = document.getElementById('playIcon');
+
+    const batPct = document.getElementById('batPct');
+    const cpuTemp = document.getElementById('cpuTemp');
+    const userNameLabel = document.getElementById('userNameLabel');
+
+    let isUserDraggingVol = false;
+    let isUserDraggingBright = false;
+
+    // Listeners
+    btnWifi.addEventListener('click', () => sendAction('toggle_wifi'));
+    btnBt.addEventListener('click', () => sendAction('toggle_bluetooth'));
+    btnNightLight.addEventListener('click', () => sendAction('toggle_nightlight'));
+    btnDnd.addEventListener('click', () => sendAction('toggle_dnd'));
+
+    btnMute.addEventListener('click', () => sendAction('toggle_mute'));
+
+    volSlider.addEventListener('mousedown', () => isUserDraggingVol = true);
+    window.addEventListener('mouseup', () => {
+      if (isUserDraggingVol) {
+        isUserDraggingVol = false;
+        sendAction('set_volume', volSlider.value);
+      }
+      if (isUserDraggingBright) {
+        isUserDraggingBright = false;
+        sendAction('set_brightness', brightnessSlider.value);
+      }
+    });
+
+    function setSliderPct(slider, val) {
+      slider.value = val;
+      slider.style.setProperty('--slider-pct', val + '%');
+    }
+
+    volSlider.addEventListener('input', (e) => {
+      volVal.textContent = e.target.value + '%';
+      volSlider.style.setProperty('--slider-pct', e.target.value + '%');
+      sendAction('set_volume', e.target.value);
+    });
+
+    brightnessSlider.addEventListener('mousedown', () => isUserDraggingBright = true);
+    brightnessSlider.addEventListener('input', (e) => {
+      brightVal.textContent = e.target.value + '%';
+      brightnessSlider.style.setProperty('--slider-pct', e.target.value + '%');
+      sendAction('set_brightness', e.target.value);
+    });
+
+    document.getElementById('btnPrev').addEventListener('click', () => sendAction('media', 'prev'));
+    document.getElementById('btnPlayPause').addEventListener('click', () => sendAction('media', 'play_pause'));
+    document.getElementById('btnNext').addEventListener('click', () => sendAction('media', 'next'));
+
+    document.getElementById('btnActionScreenshot').addEventListener('click', () => sendAction('action_screenshot'));
+    document.getElementById('btnActionClipboard').addEventListener('click', () => sendAction('action_clipboard'));
+    document.getElementById('btnActionLock').addEventListener('click', () => sendAction('action_lock'));
+    document.getElementById('btnClose').addEventListener('click', () => sendAction('close'));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        sendAction('close');
+      }
+    });
+
+    // Public update function called by Python
+    window.updateControlCenter = function(state) {
+      if (!state) return;
+
+      if (state.user) {
+        userNameLabel.textContent = state.user;
+      }
+
+      // Battery & Temp
+      if (state.battery) {
+        batPct.textContent = (state.battery.pct || 0) + '%';
+        if (state.battery.charging) {
+          batPct.textContent += ' ⚡';
+        }
+        if (state.battery.temp) {
+          cpuTemp.textContent = state.battery.temp + '°C';
+        }
+      }
+
+      // Wi-Fi
+      if (state.wifi) {
+        if (state.wifi.enabled) {
+          btnWifi.classList.add('active');
+          wifiStatus.textContent = state.wifi.ssid || 'Connected';
+        } else {
+          btnWifi.classList.remove('active');
+          wifiStatus.textContent = 'Disabled';
+        }
+      }
+
+      // Bluetooth
+      if (state.bluetooth) {
+        if (state.bluetooth.enabled) {
+          btnBt.classList.add('active');
+          btStatus.textContent = 'Enabled';
+        } else {
+          btnBt.classList.remove('active');
+          btStatus.textContent = 'Disabled';
+        }
+      }
+
+      // Night Light
+      if (state.night_light) {
+        btnNightLight.classList.add('active');
+        nightLightStatus.textContent = 'Warm';
+      } else {
+        btnNightLight.classList.remove('active');
+        nightLightStatus.textContent = 'Off';
+      }
+
+      // DND
+      if (state.dnd) {
+        btnDnd.classList.add('active');
+        dndStatus.textContent = 'Silent';
+      } else {
+        btnDnd.classList.remove('active');
+        dndStatus.textContent = 'Normal';
+      }
+
+      // Volume
+      if (!isUserDraggingVol) {
+        setSliderPct(volSlider, state.volume);
+        if (state.muted) {
+          volVal.textContent = 'Muted';
+          btnMute.classList.add('muted');
+          volIcon.innerHTML = '<line x1="1" y1="1" x2="23" y2="23"></line><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>';
+        } else {
+          volVal.textContent = state.volume + '%';
+          btnMute.classList.remove('muted');
+          volIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
+        }
+      }
+
+      // Brightness
+      if (!isUserDraggingBright) {
+        setSliderPct(brightnessSlider, state.brightness);
+        brightVal.textContent = state.brightness + '%';
+      }
+
+      // Media
+      if (state.media && state.media.active) {
+        mediaTitle.textContent = state.media.title;
+        mediaArtist.textContent = state.media.artist || 'Unknown Artist';
+        if (state.media.art) {
+          mediaArtBox.innerHTML = `<img src="${state.media.art}" alt="art">`;
+        } else {
+          mediaArtBox.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>';
+        }
+
+        if (state.media.status === 'Playing') {
+          playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+        } else {
+          playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+        }
+      } else {
+        mediaTitle.textContent = 'No Media Playing';
+        mediaArtist.textContent = 'Music is idle';
+        mediaArtBox.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>';
+        playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+      }
+      sendAction("ready");
+    };
+    sendAction("ready");
+  </script>
+</body>
+</html>

@@ -7,7 +7,7 @@ const Gio = imports.gi.Gio;
 
 function getThemeColors() {
     try {
-        let path = GLib.get_home_dir() + '/.cache/caelestia/colors.json';
+        let path = GLib.get_home_dir() + '/.cache/bento/colors.json';
         let [ok, content] = GLib.file_get_contents(path);
         if (ok) {
             let str = imports.byteArray ? imports.byteArray.toString(content) : content.toString();
@@ -57,7 +57,7 @@ WorkspaceNanoApplet.prototype = {
         this._wsNumChangedId = global.workspace_manager.connect('notify::n-workspaces', () => this._rebuild());
 
         try {
-            let colorsFile = Gio.File.new_for_path(GLib.get_home_dir() + '/.cache/caelestia/colors.json');
+            let colorsFile = Gio.File.new_for_path(GLib.get_home_dir() + '/.cache/bento/colors.json');
             this._themeMonitor = colorsFile.monitor_file(Gio.FileMonitorFlags.NONE, null);
             this._themeMonitor.connect('changed', (mon, file, other_file, event_type) => {
                 if (event_type === Gio.FileMonitorEvent.CHANGED ||

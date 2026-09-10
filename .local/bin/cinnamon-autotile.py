@@ -11,7 +11,7 @@ BOTTOM = 66
 is_tiling_queued = False
 
 TILED_CLASSES = {"kitty", "alacritty", "gnome-terminal", "wezterm", "xterm", "tilix", "terminal"}
-IGNORED_NAMES = {"caelestia", "lockscreen", "looking glass", "cinnamon-screensaver"}
+IGNORED_NAMES = {"bento", "lockscreen", "looking glass", "cinnamon-screensaver"}
 
 def compute_dwindle_layout(n, screen_w, screen_h, gap=GAP, top=TOP, bottom=BOTTOM):
     if n <= 0:

@@ -11,9 +11,9 @@
 [![Shell Prompt](https://img.shields.io/badge/Prompt-Starship-DD0B78?style=flat-square&logo=starship&logoColor=white)](https://starship.rs/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-*Kumpulan dotfiles dan konfigurasi ricing personal untuk Linux Mint Cinnamon bernuansa Catppuccin.*
+*Dotfiles dan konfigurasi ricing personal untuk Linux Mint Cinnamon dengan tampilan modern, bersih, dan kohesif.*
 
-[Fitur](#-fitur-utama) • [Spesifikasi](#-spesifikasi-ricing) • [Instalasi](#-instalasi) • [Struktur](#-struktur-repositori) • [Pintasan](#-shortcut--perintah)
+[Showcase](#-showcase) • [Fitur](#-fitur-utama) • [Spesifikasi](#-spesifikasi-ricing) • [Instalasi](#-instalasi) • [Struktur](#-struktur-repositori) • [Pintasan](#-shortcut--perintah)
 
 </div>
 
@@ -21,13 +21,19 @@
 
 ## 📸 Showcase
 
-> Simpan screenshot desktop Anda di folder `assets/screenshots/` dan tampilkan di sini.
-
 <div align="center">
 
-| 🖥️ Wallpaper Default |
-|:---:|
-| ![Wallpaper](assets/wallpapers/default.jpg) |
+| 🖥️ Desktop Overview | 💻 Fastfetch & Terminal |
+|:---:|:---:|
+| ![Desktop](assets/screenshots/1_desktop.png) | ![Terminal](assets/screenshots/2_fastfetch.png) |
+
+| 🎛️ Control Center & Music | 📊 Btop System Monitor |
+|:---:|:---:|
+| ![Control](assets/screenshots/3_control.png) | ![Btop](assets/screenshots/4_btop.png) |
+
+| 📋 Bento Clipboard Manager | ⏻ Power & Session Menu |
+|:---:|:---:|
+| ![Clipboard](assets/screenshots/5_clipboard.png) | ![Power](assets/screenshots/6_power.png) |
 
 </div>
 
@@ -35,27 +41,27 @@
 
 ## ✨ Fitur Utama
 
-- **🎨 Tema Catppuccin Flamingo:** Tema GTK dan panel Cinnamon `Catppuccin-Flamingo-Dark`, ikon `Papirus-Dark`, dan kursor `catppuccin-mocha-flamingo`.
+- **🎨 Tema Catppuccin Flamingo:** Tema GTK dan panel Cinnamon `Catppuccin-Flamingo-Dark`, icon pack `Papirus-Dark`, dan kursor `catppuccin-mocha-flamingo`.
 - **🧩 Custom Cinnamon Applets (`@df`):**
-  - `menu-search@df`: Menu launcher pencarian cepat pada panel.
+  - `menu-search@df`: Menu pencarian aplikasi cepat di panel kiri.
   - `workspace-nano@df`: Switcher workspace minimalis berbentuk pill.
-  - `hwmonitor@df`: Monitor penggunaan CPU dan RAM langsung di panel.
+  - `hwmonitor@df`: Monitoring suhu CPU dan penggunaan RAM di panel secara real-time.
   - `storage-monitor@df`: Indikator pemakaian penyimpanan disk.
-  - `power-button@df`: Tombol menu power di ujung panel.
-- **🖥️ Desktop UI & Utility Modules:**
-  - **Control Center**: Panel quick settings untuk audio, display, dan status baterai.
-  - **Clipboard Manager**: Pengelola riwayat salinan teks dan gambar berbasis grid.
-  - **Floating OSD**: Indikator pop-up volume dan brightness mengambang.
-  - **Lock Screen & Power Menu**: Layar kunci dan dialog shutdown / reboot / suspend.
-  - **Wallpaper Switcher**: Daemon pengatur wallpaper dinamis per-workspace.
-- **💻 Terminal & CLI Tools:**
-  - **Kitty**: Konfigurasi terminal emulator dengan tema gelap.
-  - **Starship**: Prompt shell modern dengan tema Catppuccin.
-  - **Fastfetch**: Konfigurasi tampilan info sistem.
-  - **Btop**: Monitor sistem interaktif bertema Catppuccin.
-  - **Cava**: Audio visualizer bar.
-  - **Sptlrx**: Tampilan lirik lagu sinkron via MPRIS.
-- **⚓ Dock:** Konfigurasi Plank dock di bagian bawah layar.
+  - `power-button@df`: Tombol menu power cepat di panel kanan.
+- **🖥️ Bento Desktop Modules:**
+  - **`bento-control`**: Control Center terpadu untuk toggle Wi-Fi, Bluetooth, Night Light, DND, volume, kecerahan, dan mini player musik.
+  - **`bento-clip`**: Clipboard manager berbasis Bento grid dengan pencarian riwayat teks dan gambar.
+  - **`bento-osd`**: Floating pill OSD pop-up untuk indikator volume dan brightness.
+  - **`bento-lock`**: Layar pengunci estetik dengan avatar, jam digital, dan statistik.
+  - **`bento-power`**: Menu session & power (Lock, Logout, Suspend, Hibernate, Reboot, Shutdown).
+  - **`bento-wallpaper`**: Daemon pengganti wallpaper dinamis dengan dukungan workspace.
+- **⚡ Terminal & CLI Experience:**
+  - **Kitty Terminal**: Terminal GPU-accelerated dengan font dan skema warna gelap yang selaras.
+  - **Fastfetch**: Info sistem lengkap dengan rendering grafis Kitty direct protocol.
+  - **Starship Prompt**: Prompt shell elegan menampilkan direktori, status git, dan waktu.
+  - **Btop**: Monitor sistem interaktif bertema pastel Catppuccin.
+  - **Cava & Sptlrx**: Audio visualizer bar dan sinkronisasi lirik musik via MPRIS.
+- **⚓ Floating Dock:** Dock Plank transparan di bagian bawah layar.
 
 ---
 
@@ -64,14 +70,15 @@
 | Komponen | Pilihan / Konfigurasi |
 | :--- | :--- |
 | **Distro** | Linux Mint 22.x (Zena) |
-| **Desktop** | Cinnamon |
+| **Desktop Environment** | Cinnamon |
+| **Window Manager** | Muffin (X11) |
 | **GTK Theme** | Catppuccin-Flamingo-Dark |
 | **Icon Theme** | Papirus-Dark |
-| **Cursor** | catppuccin-mocha-flamingo-cursors |
+| **Cursor Theme** | catppuccin-mocha-flamingo-cursors |
 | **Terminal** | Kitty |
 | **Shell & Prompt** | Bash + Starship |
-| **Fetch Tool** | Fastfetch |
-| **System Monitor** | btop |
+| **Fetch Tool** | Fastfetch (Kitty Direct Graphics) |
+| **Resource Monitor** | btop |
 | **Audio Visualizer** | Cava |
 | **Lyrics Display** | Sptlrx |
 | **Dock** | Plank |
@@ -91,15 +98,15 @@ cd mint-catppuccin
 ./install.sh
 ```
 
-Menu instalasi menyediakan:
-1. **Full Install:** Cek dependensi paket, backup file lama ke `~/.dotfiles_backup/`, pasang konfigurasi `.config` dan `.local`, tema GTK, serta restore pengaturan dconf.
+Menu installer menyediakan:
+1. **Full Install (Rekomendasi):** Memeriksa dependensi sistem, membuat backup konfigurasi lama ke `~/.dotfiles_backup/`, memasang semua file ke `.config`, `.local`, tema GTK, dan memulihkan layout Cinnamon via `dconf`.
 2. **Konfigurasi Saja:** Hanya menyalin file konfigurasi tanpa mengubah paket sistem.
-3. **Dconf Saja:** Hanya restore pengaturan panel Cinnamon, shortcut, dan tema.
+3. **Dconf Saja:** Hanya memulihkan pengaturan panel Cinnamon, shortcut, dan tema.
 
 ### 3. Terapkan Perubahan
 Setelah selesai, muat ulang Cinnamon:
 - Tekan `Alt + F2`, ketik `r`, lalu tekan `Enter`.
-- Atau logout dan login kembali.
+- Atau logout dan login kembali ke sesi Anda.
 
 ---
 
@@ -108,19 +115,19 @@ Setelah selesai, muat ulang Cinnamon:
 ```text
 mint-catppuccin/
 ├── .config/
-│   ├── autostart/             # Autostart modul desktop & Plank
+│   ├── autostart/             # Autostart daemon Bento & Plank
 │   ├── bento-wallpaper/       # Pemetaan wallpaper per-workspace
 │   ├── btop/                  # Konfigurasi btop & tema Catppuccin
-│   ├── cava/                  # Konfigurasi audio visualizer cava
+│   ├── cava/                  # Konfigurasi visualizer audio
 │   ├── fastfetch/             # Konfigurasi fastfetch
-│   ├── kitty/                 # Konfigurasi Kitty terminal & tema
+│   ├── kitty/                 # Konfigurasi Kitty terminal
 │   ├── plank/                 # Pengaturan dock Plank & launchers
 │   ├── sptlrx/                # Konfigurasi lirik musik sptlrx
-│   └── starship.toml          # Prompt Starship
+│   └── starship.toml          # Prompt Starship Catppuccin
 ├── .local/
-│   ├── bin/                   # Skrip utilitas & launcher modul UI
+│   ├── bin/                   # Skrip utilitas & launcher modul Bento
 │   └── share/
-│       ├── clip/control/lock/osd/power/toast/wallpaper  # Modul antarmuka desktop
+│       ├── bento-*            # Modul antarmuka Bento UI
 │       └── cinnamon/applets/  # Custom Cinnamon applets (@df)
 ├── dconf/
 │   ├── cinnamon.dconf         # Pengaturan panel, applet, dan tema Cinnamon
@@ -129,8 +136,9 @@ mint-catppuccin/
 ├── themes/
 │   └── Catppuccin-Flamingo-Dark/  # Tema GTK lengkap
 ├── assets/
-│   ├── wallpapers/            # Wallpaper default & per-workspace
-│   └── icons/                 # Aset gambar / ikon pendukung
+│   ├── screenshots/           # Screenshot showcase ricing
+│   ├── wallpapers/            # Wallpaper default & workspace
+│   └── icons/                 # Aset grafis (eva.png)
 ├── install.sh                 # Skrip instalasi interaktif
 ├── .gitignore                 # Filter cache, riwayat db, dan file temporary
 ├── LICENSE                    # Lisensi MIT
@@ -143,15 +151,15 @@ mint-catppuccin/
 
 | Modul / Aksi | Perintah Eksekusi |
 | :--- | :--- |
-| **Control Center** | `caelestia-control` |
-| **Clipboard History** | `caelestia-clip` |
-| **Lock Screen** | `caelestia-lock` |
-| **Power Menu** | `caelestia-power` |
-| **Wallpaper Switcher**| `caelestia-wallpaper` |
+| **Control Center** | `bento-control` |
+| **Clipboard History** | `bento-clip` |
+| **Lock Screen** | `bento-lock` |
+| **Power Menu** | `bento-power` |
+| **Wallpaper Switcher**| `bento-wallpaper` |
 | **Auto Tiling Toggle**| `cinnamon-autotile.py` |
 | **Terminal Kitty** | `kitty-fast` |
 
-*Catatan:* Anda dapat mengatur tombol pintasan keyboard (*Keyboard Shortcuts*) melalui **System Settings > Keyboard > Shortcuts > Custom Shortcuts**.
+*Catatan:* Anda dapat mengatur tombol pintasan keyboard melalui **System Settings > Keyboard > Shortcuts > Custom Shortcuts**.
 
 ---
 

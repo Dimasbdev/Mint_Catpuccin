@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Bento Toast Launcher & Daemon Manager
+
+if pgrep -f "/bento-toast/toast.py" >/dev/null; then
+    exit 0
+fi
+
+nohup python3 ~.local/share/bento-toast/toast.py" >/dev/null 2>&1 &

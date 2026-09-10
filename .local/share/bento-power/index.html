@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bento Wlogout Power Menu</title>
+  <style>
+    :root {
+      --bg: rgba(17, 17, 27, 0.86);
+      --card-bg: rgba(30, 30, 46, 0.78);
+      --card-hover: rgba(49, 50, 68, 0.88);
+      --border: rgba(255, 255, 255, 0.08);
+
+      --flamingo: #f5c2e7;
+      --mauve: #cba6f7;
+      --pink: #f5c2e7;
+      --peach: #fab387;
+      --yellow: #f9e2af;
+      --green: #a6e3a1;
+      --teal: #94e2d5;
+      --sapphire: #74c7ec;
+      --blue: #89b4fa;
+      --red: #f38ba8;
+
+      --text: #cdd6f4;
+      --subtext: #a6adc8;
+      --surface0: #313244;
+      --surface1: #45475a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg);
+      backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      font-family: -apple-system, BlinkMacSystemFont, "JetBrains Mono", "SF Pro Display", "Inter", sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      cursor: default;
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* TOP HEADER */
+    .header-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 40px;
+      pointer-events: none;
+    }
+
+    .time-display {
+      font-size: 54px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #ffffff;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .date-display {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--subtext);
+      margin-top: -6px;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(30, 30, 46, 0.7);
+      border: 1px solid var(--border);
+      padding: 6px 16px 6px 8px;
+      border-radius: 9999px;
+      margin-top: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .avatar-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .avatar-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .user-divider {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--surface1);
+    }
+
+    .uptime-text {
+      font-size: 12px;
+      color: var(--subtext);
+    }
+
+    /* CARDS CONTAINER */
+    .cards-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 10;
+    }
+
+    .power-card {
+      width: 140px;
+      height: 180px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 16px 18px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+    }
+
+    .power-card:hover, .power-card.focused {
+      background: var(--card-hover);
+      border-color: var(--card-color);
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 20px var(--card-glow);
+    }
+
+    .power-card:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+
+    .icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: rgba(49, 50, 68, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--card-color);
+      transition: all 0.22s ease;
+    }
+
+    .power-card:hover .icon-wrap, .power-card.focused .icon-wrap {
+      background: var(--card-color);
+      color: #11111b;
+      box-shadow: 0 0 16px var(--card-glow);
+      transform: scale(1.08);
+    }
+
+    .icon-wrap svg {
+      width: 28px;
+      height: 28px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.2px;
+      transition: color 0.18s ease;
+    }
+
+    .power-card:hover .card-label, .power-card.focused .card-label {
+      color: #ffffff;
+    }
+
+    .key-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 8px;
+      background: rgba(49, 50, 68, 0.7);
+      color: var(--subtext);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: "JetBrains Mono", monospace;
+      transition: all 0.18s ease;
+    }
+
+    .power-card:hover .key-badge, .power-card.focused .key-badge {
+      color: var(--card-color);
+      border-color: var(--card-color);
+      background: rgba(17, 17, 27, 0.85);
+    }
+
+    /* CARD THEMES */
+    #cardLock {
+      --card-color: var(--flamingo);
+      --card-glow: rgba(245, 194, 231, 0.35);
+    }
+    #cardLogout {
+      --card-color: var(--mauve);
+      --card-glow: rgba(203, 166, 247, 0.35);
+    }
+    #cardSuspend {
+      --card-color: var(--sapphire);
+      --card-glow: rgba(116, 199, 236, 0.35);
+    }
+    #cardHibernate {
+      --card-color: var(--teal);
+      --card-glow: rgba(148, 226, 213, 0.35);
+    }
+    #cardReboot {
+      --card-color: var(--peach);
+      --card-glow: rgba(250, 179, 135, 0.35);
+    }
+    #cardShutdown {
+      --card-color: var(--red);
+      --card-glow: rgba(243, 139, 168, 0.4);
+    }
+
+    /* FOOTER HINT */
+    .footer-hint {
+      position: absolute;
+      bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--subtext);
+      pointer-events: none;
+    }
+
+    .hint-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hint-key {
+      background: rgba(49, 50, 68, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 700;
+      color: var(--text);
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header with Clock & User -->
+  <div class="header-panel">
+    <div class="time-display" id="clockTime">12:00</div>
+    <div class="date-display" id="clockDate">Monday, 07 September</div>
+    <div class="user-pill">
+      <div class="avatar-circle">
+        <img src="avatar.jpeg" alt="avatar">
+      </div>
+      <span class="user-name" id="userNameLabel">df@t480</span>
+      <div class="user-divider"></div>
+      <span class="uptime-text" id="uptimeLabel">up 4h 20m</span>
+    </div>
+  </div>
+
+  <!-- Wlogout Cards Row -->
+  <div class="cards-row" id="cardsRow">
+    <!-- Lock -->
+    <div class="power-card" id="cardLock" data-action="lock" tabindex="1">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <span class="card-label">Lock</span>
+      <span class="key-badge">L</span>
+    </div>
+
+    <!-- Logout -->
+    <div class="power-card" id="cardLogout" data-action="logout" tabindex="2">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </div>
+      <span class="card-label">Logout</span>
+      <span class="key-badge">E</span>
+    </div>
+
+    <!-- Suspend -->
+    <div class="power-card" id="cardSuspend" data-action="suspend" tabindex="3">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </div>
+      <span class="card-label">Suspend</span>
+      <span class="key-badge">U</span>
+    </div>
+
+    <!-- Hibernate -->
+    <div class="power-card" id="cardHibernate" data-action="hibernate" tabindex="4">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      </div>
+      <span class="card-label">Hibernate</span>
+      <span class="key-badge">H</span>
+    </div>
+
+    <!-- Reboot -->
+    <div class="power-card" id="cardReboot" data-action="reboot" tabindex="5">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+      </div>
+      <span class="card-label">Reboot</span>
+      <span class="key-badge">R</span>
+    </div>
+
+    <!-- Shutdown -->
+    <div class="power-card" id="cardShutdown" data-action="shutdown" tabindex="6">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+      </div>
+      <span class="card-label">Shutdown</span>
+      <span class="key-badge">S</span>
+    </div>
+  </div>
+
+  <!-- Bottom keyboard navigation tips -->
+  <div class="footer-hint">
+    <div class="hint-item"><span class="hint-key">L</span> Lock</div>
+    <div class="hint-item"><span class="hint-key">E</span> Logout</div>
+    <div class="hint-item"><span class="hint-key">U</span> Suspend</div>
+    <div class="hint-item"><span class="hint-key">H</span> Hibernate</div>
+    <div class="hint-item"><span class="hint-key">R</span> Reboot</div>
+    <div class="hint-item"><span class="hint-key">S</span> Shutdown</div>
+    <div class="hint-item"><span class="hint-key">Esc</span> Cancel</div>
+  </div>
+
+  <script>
+    function sendAction(action) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.power) {
+        window.webkit.messageHandlers.power.postMessage(JSON.stringify({ action: action }));
+      }
+    }
+
+    // Clock update
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('clockTime').textContent = `${hours}:${mins}`;
+
+      const opts = { weekday: 'long', day: '2-digit', month: 'long' };
+      document.getElementById('clockDate').textContent = now.toLocaleDateString('en-US', opts);
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Cards click handling
+    const cards = document.querySelectorAll('.power-card');
+    cards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = card.getAttribute('data-action');
+        sendAction(action);
+      });
+    });
+
+    // Clicking on backdrop (outside cards) closes menu
+    document.body.addEventListener('click', (e) => {
+      if (!e.target.closest('.power-card')) {
+        sendAction('close');
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (key === 'escape') {
+        sendAction('close');
+      } else if (key === 'l') {
+        sendAction('lock');
+      } else if (key === 'e') {
+        sendAction('logout');
+      } else if (key === 'u') {
+        sendAction('suspend');
+      } else if (key === 'h') {
+        sendAction('hibernate');
+      } else if (key === 'r') {
+        sendAction('reboot');
+      } else if (key === 's') {
+        sendAction('shutdown');
+      } else if (key === 'arrowright' || key === 'arrowleft') {
+        // Arrow navigation between cards
+        const focused = document.activeElement;
+        const cardArr = Array.from(cards);
+        let idx = cardArr.indexOf(focused);
+        if (key === 'arrowright') {
+          idx = (idx + 1) % cardArr.length;
+        } else {
+          idx = (idx - 1 + cardArr.length) % cardArr.length;
+        }
+        cardArr[idx].focus();
+      }
+    });
+
+    // Public method for Python to update details
+    window.updatePowerDetails = function(data) {
+      if (!data) return;
+      if (data.user) document.getElementById('userNameLabel').textContent = data.user;
+      if (data.uptime) document.getElementById('uptimeLabel').textContent = data.uptime;
+    };
+  </script>
+</body>
+</html>

@@ -24,6 +24,6 @@ Thumbs.db
 
 # Logs
 *.log
-.local/share/caelestia-clip/images/*
-!.local/share/caelestia-clip/images/.gitkeep
+.local/share/bento-clip/images/*
+!.local/share/bento-clip/images/.gitkeep
 *.orig

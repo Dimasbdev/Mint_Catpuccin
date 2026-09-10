@@ -123,8 +123,8 @@ deploy_configs() {
         success "Skrip terpasang di ~/.local/bin/ (Module launchers, utilities)"
     fi
 
-    # Backup & deploy .local/share/caelestia-*
-    for app in "$DOTFILES_DIR/.local/share"/caelestia-*; do
+    # Backup & deploy .local/share/bento-*
+    for app in "$DOTFILES_DIR/.local/share"/bento-*; do
         if [ -d "$app" ]; then
             local aname="$(basename "$app")"
             backup_item "$HOME/.local/share/$aname"

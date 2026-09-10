@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Exec=sh -c "python3 $HOME/.local/share/caelestia-osd/osd.py"
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name=Caelestia Modern Pill OSD
-Comment=Catppuccin Floating Pill OSD Daemon

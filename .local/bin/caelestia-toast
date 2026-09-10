@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-# Caelestia Toast Launcher & Daemon Manager
-
-if pgrep -f "/caelestia-toast/toast.py" >/dev/null; then
-    exit 0
-fi
-
-nohup python3 ~.local/share/caelestia-toast/toast.py" >/dev/null 2>&1 &

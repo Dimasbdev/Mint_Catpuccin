@@ -2423,7 +2423,7 @@ class CinnamonMenuApplet extends Applet.TextIconApplet {
 
         button.activate = () => {
             this.menu.close();
-            Util.spawnCommandLine("/home/df/.local/bin/caelestia-power");
+            Util.spawnCommandLine("/home/df/.local/bin/bento-power");
         };
 
         this.systemBox.add(button.actor, { y_align: St.Align.MIDDLE, y_fill: false });

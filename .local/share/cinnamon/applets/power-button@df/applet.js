@@ -15,7 +15,7 @@ PowerButtonApplet.prototype = {
     },
 
     on_applet_clicked: function(event) {
-        Util.spawnCommandLine("/home/df/.local/bin/caelestia-power");
+        Util.spawnCommandLine("/home/df/.local/bin/bento-power");
     }
 };
 

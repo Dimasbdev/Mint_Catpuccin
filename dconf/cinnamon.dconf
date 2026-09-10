@@ -84,8 +84,8 @@ name='Move All Windows to Prev Workspace'
 
 [desktop/keybindings/custom-keybindings/custom18]
 binding=['<Super>v']
-command='/home/df/.local/bin/caelestia-clip'
-name='Caelestia Bento Clipboard'
+command='/home/df/.local/bin/bento-clip'
+name='Bento Bento Clipboard'
 
 [desktop/keybindings/custom-keybindings/custom19]
 binding=['<Super>Return']
@@ -99,23 +99,23 @@ name='Auto Tile Windows'
 
 [desktop/keybindings/custom-keybindings/custom20]
 binding=['<Super>c']
-command='/home/df/.local/bin/caelestia-control'
-name='Caelestia Bento Control Center'
+command='/home/df/.local/bin/bento-control'
+name='Bento Bento Control Center'
 
 [desktop/keybindings/custom-keybindings/custom21]
 binding=['<Super>Escape', 'XF86PowerOff']
-command='/home/df/.local/bin/caelestia-power'
-name='Caelestia Power Menu'
+command='/home/df/.local/bin/bento-power'
+name='Bento Power Menu'
 
 [desktop/keybindings/custom-keybindings/custom22]
 binding=['<Super>w']
-command='/home/df/.local/bin/caelestia-wallpaper'
-name='Caelestia Bento Wallpaper Switcher'
+command='/home/df/.local/bin/bento-wallpaper'
+name='Bento Bento Wallpaper Switcher'
 
 [desktop/keybindings/custom-keybindings/custom3]
 binding=['<Super>l', '<Control><Alt>l']
-command='/home/df/.local/bin/caelestia-lock'
-name='Caelestia Bento Lockscreen'
+command='/home/df/.local/bin/bento-lock'
+name='Bento Bento Lockscreen'
 
 [desktop/keybindings/custom-keybindings/custom4]
 binding=['<Super>2']

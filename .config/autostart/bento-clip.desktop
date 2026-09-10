@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=sh -c "python3 $HOME/.local/share/bento-clip/clip_daemon.py"
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Bento Clipboard
+Comment=Catppuccin Bento Clipboard Manager Daemon
