@@ -89,6 +89,7 @@ class WallpaperDaemon:
         except Exception:
             self.gnome_bg_settings = None
 
+        self.update_workspaces_palette_cache()
         self.wnck_screen = Wnck.Screen.get_default()
         if self.wnck_screen:
             self.wnck_screen.force_update()
@@ -231,8 +232,27 @@ class WallpaperDaemon:
         except Exception:
             return orig_path, self.get_fallback_palette(orig_path)
 
+    def update_workspaces_palette_cache(self):
+        try:
+            mapping = self.load_workspaces_config()
+            all_palettes = {}
+            for ws_idx, wp_path in mapping.items():
+                if os.path.exists(wp_path):
+                    _, pal = self.get_optimized_and_palette(wp_path)
+                    all_palettes[ws_idx] = {
+                        "wallpaper": wp_path,
+                        "primary": pal["primary"],
+                        "border": pal["border_active"]
+                    }
+            cache_file = os.path.join(SHARED_THEME_DIR, "workspaces_palette.json")
+            with open(cache_file, "w") as f:
+                json.dump(all_palettes, f, indent=2)
+        except Exception as e:
+            print(f"Error updating workspaces palette cache: {e}", file=sys.stderr)
+
     def on_config_changed(self, monitor, file, other_file, event_type):
         if event_type in (Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.CREATED):
+            self.update_workspaces_palette_cache()
             if self.wnck_screen:
                 self.wnck_screen.force_update()
                 curr = self.wnck_screen.get_active_workspace()
@@ -267,24 +287,26 @@ class WallpaperDaemon:
             dynamic_section = f"""{marker_start}
 /* Universal Capsule Base (applies to ALL applet-box in panel: hwmonitor, calendar, tray, power, etc.) */
 #panel .applet-box {{
-    background-color: rgba(24, 24, 37, 0.85);
-    border: 1px solid {border_active};
-    border-radius: 9999px;
-    padding: 0 8px;
-    margin: 6px 2px;
-    height: 28px;
-    color: #cdd6f4;
+    background-color: rgba(24, 24, 37, 0.85) !important;
+    border: 1px solid {border_active} !important;
+    border-radius: 9999px !important;
+    padding: 0 8px !important;
+    margin: 6px 2px !important;
+    height: 28px !important;
+    color: #cdd6f4 !important;
     transition-duration: 150ms;
 }}
 
+/* Non-hover state: icons MUST NOT stay green/colored! Clean Catppuccin text #cdd6f4 */
 #panel .applet-box .applet-icon,
 #panel .applet-box StIcon {{
-    color: {primary};
+    color: #cdd6f4 !important;
 }}
 
 /* Workspace Switcher: outer shell must stay transparent and borderless */
 #panel .workspace-nano-df-applet,
-.workspace-nano-df-applet {{
+.workspace-nano-df-applet,
+#panelLeft .applet-box:nth-child(2) {{
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -292,10 +314,11 @@ class WallpaperDaemon:
     margin: 6px 2px !important;
 }}
 
+/* Hover state: ONLY when hovered do border, icon, and label change to workspace accent! */
 #panel .applet-box:hover {{
-    background-color: rgba(36, 36, 54, 0.95);
-    border-color: {border_hover};
-    color: {primary};
+    background-color: rgba(36, 36, 54, 0.95) !important;
+    border-color: {border_hover} !important;
+    color: {primary} !important;
 }}
 
 #panel .applet-box:hover .applet-icon,

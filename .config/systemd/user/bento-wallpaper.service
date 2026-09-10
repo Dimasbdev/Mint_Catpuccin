@@ -1,0 +1,13 @@
+[Unit]
+Description=Bento Wallpaper & Dynamic Theme Daemon
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/df/.local/share/bento-wallpaper/wallpaper_daemon.py
+Restart=always
+RestartSec=1
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target
