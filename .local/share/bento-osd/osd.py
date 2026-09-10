@@ -91,7 +91,7 @@ class BentoOSDWindow(Gtk.Window):
         settings.set_enable_javascript(True)
         settings.set_allow_file_access_from_file_urls(True)
         settings.set_allow_universal_access_from_file_urls(True)
-        settings.set_hardware_acceleration_policy(WebKit2.HardwareAccelerationPolicy.ALWAYS)
+        settings.set_hardware_acceleration_policy(WebKit2.HardwareAccelerationPolicy.NEVER)
 
         self.webview = WebKit2.WebView()
         self.webview.set_settings(settings)
