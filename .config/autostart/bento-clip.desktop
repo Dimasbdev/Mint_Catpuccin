@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Exec=sh -c "python3 $HOME/.local/share/bento-clip/clip_daemon.py"
+Exec=/usr/bin/python3 /home/df/.local/share/bento-clip/clip_daemon.py
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true

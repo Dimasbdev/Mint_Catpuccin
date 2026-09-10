@@ -105,6 +105,15 @@ deploy_configs() {
         success "Terkonfigurasi: ~/.config/$name"
     done
 
+    # Fix absolute HOME path in autostart desktop entries
+    if [ -d "$HOME/.config/autostart" ]; then
+        for f in "$HOME/.config/autostart"/bento-*.desktop; do
+            if [ -f "$f" ]; then
+                sed -i "s|/home/df/|$HOME/|g" "$f"
+            fi
+        done
+    fi
+
     # Backup & deploy .config/starship.toml
     if [ -f "$DOTFILES_DIR/.config/starship.toml" ]; then
         backup_item "$HOME/.config/starship.toml"
