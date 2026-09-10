@@ -1,0 +1,13 @@
+.menu-noctalia-btn {
+    background-color: rgba(24, 24, 37, 0.85) !important;
+    border: 1px solid rgba(245, 194, 231, 0.32) !important;
+    border-radius: 9999px !important;
+    width: 26px !important;
+    height: 26px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.menu-noctalia-btn:hover {
+    background-color: rgba(36, 36, 54, 0.95) !important;
+    border-color: rgba(245, 194, 231, 0.7) !important;
+}

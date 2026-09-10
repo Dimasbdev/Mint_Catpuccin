@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clipboard</title>
+    <style>
+        :root {
+            --flamingo: #f5c2e7;
+            --mauve: #cba6f7;
+            --accent: var(--flamingo);
+            --border-active: rgba(245, 194, 231, 0.45);
+            --border-subtle: rgba(245, 194, 231, 0.22);
+            --glow: rgba(245, 194, 231, 0.20);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'FiraCode Nerd Font', 'Fira Code', 'Inter', -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: transparent;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+        }
+
+        /* --- Bento Container with Frosted Glass --- */
+        .container {
+            width: 100%;
+            height: 100%;
+            background: rgba(24, 24, 37, 0.94);
+            border: 1px solid rgba(245, 194, 231, 0.22);
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 2px var(--glow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        /* --- Header --- */
+        .header {
+            padding: 16px 20px 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            gap: 12px;
+        }
+
+        .title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(245, 194, 231, 0.15);
+            border: 1px solid var(--border-active);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+
+        .title-text {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #cdd6f4;
+        }
+
+        .badge-count {
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(49, 50, 68, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #a6adc8;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .actions-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-clear {
+            background: rgba(243, 139, 168, 0.12);
+            border: 1px solid rgba(243, 139, 168, 0.25);
+            color: #f38ba8;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-clear:hover {
+            background: rgba(243, 139, 168, 0.25);
+            border-color: #f38ba8;
+            transform: scale(1.02);
+        }
+
+        .btn-close {
+            background: rgba(49, 50, 68, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #a6adc8;
+            font-size: 11px;
+            padding: 5px 9px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-close:hover {
+            color: #cdd6f4;
+            background: rgba(49, 50, 68, 1);
+        }
+
+        /* --- Search & Filters --- */
+        .controls-bar {
+            padding: 12px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            background: rgba(17, 17, 27, 0.4);
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            height: 38px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            color: #a6adc8;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 30, 46, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 0 85px 0 38px;
+            color: #cdd6f4;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            background: rgba(30, 30, 46, 0.98);
+            box-shadow: 0 0 12px var(--glow);
+        }
+
+        .search-input::placeholder {
+            color: #6c7086;
+        }
+
+        .key-hint {
+            position: absolute;
+            right: 10px;
+            font-size: 10px;
+            background: rgba(49, 50, 68, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a6adc8;
+            padding: 3px 6px;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        /* --- Filter Tabs --- */
+        .filter-tabs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #a6adc8;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tab-btn:hover {
+            color: #cdd6f4;
+            background: rgba(49, 50, 68, 0.5);
+        }
+
+        .tab-btn.active {
+            background: rgba(245, 194, 231, 0.16);
+            border-color: var(--border-active);
+            color: var(--accent);
+        }
+
+        /* --- Item List Area --- */
+        .list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .list-container::-webkit-scrollbar-thumb {
+            background: var(--glow);
+            border-radius: 4px;
+        }
+        .list-container::-webkit-scrollbar-thumb:hover {
+            background: var(--border-active);
+        }
+
+        /* --- Bento Clipboard Card --- */
+        .clip-card {
+            background: rgba(30, 30, 46, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+            position: relative;
+        }
+
+        .clip-card:hover {
+            background: rgba(30, 30, 46, 0.95);
+            border-color: var(--border-active);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .clip-card.selected {
+            background: rgba(30, 30, 46, 1);
+            border-color: var(--accent);
+            box-shadow: 0 0 16px var(--glow), 0 8px 20px rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .meta-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .type-badge {
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-text { background: rgba(205, 214, 244, 0.12); color: #cdd6f4; border: 1px solid rgba(205, 214, 244, 0.25); }
+        .badge-image { background: rgba(166, 227, 161, 0.15); color: #a6e3a1; border: 1px solid rgba(166, 227, 161, 0.3); }
+        .badge-url { background: rgba(250, 179, 135, 0.15); color: #fab387; border: 1px solid rgba(250, 179, 135, 0.3); }
+        .badge-code { background: rgba(137, 180, 250, 0.15); color: #89b4fa; border: 1px solid rgba(137, 180, 250, 0.3); }
+
+        .time-text {
+            color: #6c7086;
+        }
+
+        .meta-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .clip-card:hover .meta-actions, .clip-card.selected .meta-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: #a6adc8;
+            padding: 3px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.15s ease, background 0.15s ease;
+        }
+
+        .action-btn:hover {
+            color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .action-btn.del-btn:hover {
+            color: #f38ba8;
+            background: rgba(243, 139, 168, 0.15);
+        }
+
+        /* --- Card Content --- */
+        .content-text {
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: #bac2de;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            white-space: pre-wrap;
+        }
+
+        .content-code {
+            font-family: 'FiraCode Nerd Font', monospace;
+            background: rgba(17, 17, 27, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: #89b4fa;
+            font-size: 12px;
+            line-height: 1.45;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            white-space: pre;
+        }
+
+        .content-url {
+            color: #fab387;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        /* --- Image Card Thumbnail Preview --- */
+        .image-preview-wrapper {
+            width: 100%;
+            max-height: 220px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(17, 17, 27, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview-wrapper img {
+            max-width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #6c7086;
+            font-size: 13px;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-icon {
+            width: 48px;
+            height: 48px;
+            color: #45475a;
+        }
+
+        /* --- Footer Info --- */
+        .footer {
+            padding: 10px 20px;
+            background: rgba(17, 17, 27, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10.5px;
+            color: #6c7086;
+        }
+
+        .footer-hints {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hint-pill {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .hint-key {
+            background: rgba(49, 50, 68, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #cdd6f4;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 9.5px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title-group">
+                <div class="logo-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        <path d="M9 12h6"/>
+                        <path d="M9 16h6"/>
+                    </svg>
+                </div>
+                <span class="title-text">Clipboard</span>
+                <span class="badge-count" id="badge-count">0 items</span>
+            </div>
+            <div class="actions-group">
+                <button class="btn-clear" onclick="clearAllItems()" title="Hapus semua riwayat">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    <span>Clear</span>
+                </button>
+                <button class="btn-close" onclick="closePopup()">✕</button>
+            </div>
+        </div>
+
+        <!-- Controls: Search & Filter Tabs -->
+        <div class="controls-bar">
+            <div class="search-box">
+                <span class="search-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </span>
+                <input type="text" id="search-inp" class="search-input" placeholder="Search clipboard history..." autocomplete="off">
+                <span class="key-hint">Esc to exit</span>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="tab-btn active" data-type="all" onclick="setFilter('all')">
+                    <span>All</span>
+                </button>
+                <button class="tab-btn" data-type="text" onclick="setFilter('text')">
+                    <span>Text</span>
+                </button>
+                <button class="tab-btn" data-type="image" onclick="setFilter('image')">
+                    <span>Images</span>
+                </button>
+                <button class="tab-btn" data-type="code" onclick="setFilter('code')">
+                    <span>Code</span>
+                </button>
+                <button class="tab-btn" data-type="url" onclick="setFilter('url')">
+                    <span>Links</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Scrollable List Area -->
+        <div class="list-container" id="list-container">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-hints">
+                <div class="hint-pill"><span class="hint-key">↵</span><span>Paste</span></div>
+                <div class="hint-pill"><span class="hint-key">↑ / ↓</span><span>Navigate</span></div>
+                <div class="hint-pill"><span class="hint-key">Del</span><span>Remove</span></div>
+                <div class="hint-pill"><span class="hint-key">Esc</span><span>Close</span></div>
+            </div>
+            <span>Catppuccin Bento</span>
+        </div>
+    </div>
+
+    <script>
+        let allItems = [];
+        let filteredItems = [];
+        let activeFilter = 'all';
+        let selectedIndex = 0;
+
+        function renderClipboard(items) {
+            allItems = items || [];
+            applyFilterAndRender();
+        }
+
+        function setFilter(type) {
+            activeFilter = type;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
+            applyFilterAndRender();
+        }
+
+        function applyFilterAndRender() {
+            const query = document.getElementById('search-inp').value.toLowerCase().trim();
+
+            filteredItems = allItems.filter(item => {
+                if (activeFilter !== 'all') {
+                    if (activeFilter === 'text' && item.type !== 'text') return false;
+                    if (activeFilter === 'image' && item.type !== 'image') return false;
+                    if (activeFilter === 'code' && item.type !== 'code') return false;
+                    if (activeFilter === 'url' && item.type !== 'url') return false;
+                }
+                if (query.length > 0) {
+                    if (item.type === 'image') {
+                        return 'image screenshot photo'.includes(query);
+                    }
+                    const text = (item.content || item.preview || '').toLowerCase();
+                    return text.includes(query);
+                }
+                return true;
+            });
+
+            selectedIndex = 0;
+            updateDOM();
+        }
+
+        function formatTime(timestamp) {
+            const now = Math.floor(Date.now() / 1000);
+            const diff = now - timestamp;
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            return `${Math.floor(diff / 86400)}d ago`;
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&#039;');
+        }
+
+        function updateDOM() {
+            const container = document.getElementById('list-container');
+            document.getElementById('badge-count').innerText = `${allItems.length} items`;
+
+            if (filteredItems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                            <path d="m9 14 2 2 4-4"/>
+                        </svg>
+                        <p>No clipboard items found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filteredItems.forEach((item, idx) => {
+                const isSelected = idx === selectedIndex;
+                const timeStr = formatTime(item.timestamp);
+
+                if (item.type === 'image') {
+                    const dim = (item.img_width && item.img_height) ? `${item.img_width}×${item.img_height}` : 'PNG Image';
+                    html += `
+                        <div class="clip-card ${isSelected ? 'selected' : ''}" data-idx="${idx}" onclick="pasteItem(${item.id})">
+                            <div class="card-meta">
+                                <div class="meta-left">
+                                    <span class="type-badge badge-image">IMG</span>
+                                    <span class="time-text">${dim} • ${timeStr}</span>
+                                </div>
+                                <div class="meta-actions">
+                                    <button class="action-btn del-btn" onclick="event.stopPropagation(); deleteItem(${item.id})" title="Delete">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="image-preview-wrapper">
+                                <img src="file://${item.preview}" alt="Screenshot" loading="lazy">
+                            </div>
+                        </div>
+                    `;
+                } else if (item.type === 'code') {
+                    html += `
+                        <div class="clip-card ${isSelected ? 'selected' : ''}" data-idx="${idx}" onclick="pasteItem(${item.id})">
+                            <div class="card-meta">
+                                <div class="meta-left">
+                                    <span class="type-badge badge-code">CODE</span>
+                                    <span class="time-text">${item.char_count} chars • ${timeStr}</span>
+                                </div>
+                                <div class="meta-actions">
+                                    <button class="action-btn del-btn" onclick="event.stopPropagation(); deleteItem(${item.id})" title="Delete">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="content-code">${escapeHTML(item.preview)}</div>
+                        </div>
+                    `;
+                } else if (item.type === 'url') {
+                    html += `
+                        <div class="clip-card ${isSelected ? 'selected' : ''}" data-idx="${idx}" onclick="pasteItem(${item.id})">
+                            <div class="card-meta">
+                                <div class="meta-left">
+                                    <span class="type-badge badge-url">LINK</span>
+                                    <span class="time-text">${timeStr}</span>
+                                </div>
+                                <div class="meta-actions">
+                                    <button class="action-btn del-btn" onclick="event.stopPropagation(); deleteItem(${item.id})" title="Delete">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="content-text content-url">${escapeHTML(item.preview)}</div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="clip-card ${isSelected ? 'selected' : ''}" data-idx="${idx}" onclick="pasteItem(${item.id})">
+                            <div class="card-meta">
+                                <div class="meta-left">
+                                    <span class="type-badge badge-text">TXT</span>
+                                    <span class="time-text">${item.char_count} chars • ${timeStr}</span>
+                                </div>
+                                <div class="meta-actions">
+                                    <button class="action-btn del-btn" onclick="event.stopPropagation(); deleteItem(${item.id})" title="Delete">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="content-text">${escapeHTML(item.preview)}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = html;
+
+            // Scroll selected card into view smoothly
+            const selectedElem = container.children[selectedIndex];
+            if (selectedElem) {
+                selectedElem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }
+
+        function sendPython(action, id = null) {
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.clip) {
+                window.webkit.messageHandlers.clip.postMessage(JSON.stringify({ action, id }));
+            }
+        }
+
+        function pasteItem(id) {
+            sendPython('paste', id);
+        }
+
+        function deleteItem(id) {
+            sendPython('delete', id);
+        }
+
+        function clearAllItems() {
+            sendPython('clear_all');
+        }
+
+        function closePopup() {
+            sendPython('close');
+        }
+
+        // --- Keyboard Navigation ---
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closePopup();
+                return;
+            }
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (filteredItems.length > 0) {
+                    selectedIndex = (selectedIndex + 1) % filteredItems.length;
+                    updateDOMSelection();
+                }
+                return;
+            }
+
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (filteredItems.length > 0) {
+                    selectedIndex = (selectedIndex - 1 + filteredItems.length) % filteredItems.length;
+                    updateDOMSelection();
+                }
+                return;
+            }
+
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (filteredItems[selectedIndex]) {
+                    pasteItem(filteredItems[selectedIndex].id);
+                }
+                return;
+            }
+
+            if (e.key === 'Delete' || (e.shiftKey && e.key === 'Backspace')) {
+                e.preventDefault();
+                if (filteredItems[selectedIndex]) {
+                    deleteItem(filteredItems[selectedIndex].id);
+                }
+                return;
+            }
+        });
+
+        function updateDOMSelection() {
+            const cards = document.querySelectorAll('.clip-card');
+            cards.forEach((c, idx) => {
+                c.classList.toggle('selected', idx === selectedIndex);
+            });
+            const sel = cards[selectedIndex];
+            if (sel) {
+                sel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }
+
+        document.getElementById('search-inp').addEventListener('input', () => {
+            applyFilterAndRender();
+        });
+
+        window.onload = () => {
+            document.getElementById('search-inp').focus();
+        };
+    </script>
+</body>
+</html>

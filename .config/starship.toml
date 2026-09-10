@@ -1,0 +1,44 @@
+# Catppuccin Pastel Bubble Prompt for Starship
+format = """
+[](#f5c2e7)\
+[ $username](bg:#f5c2e7 fg:#11111b bold)\
+[](bg:#f9e2af fg:#f5c2e7)\
+[  $directory](bg:#f9e2af fg:#11111b bold)\
+[](bg:#a6e3a1 fg:#f9e2af)\
+[  $git_branch$git_status](bg:#a6e3a1 fg:#11111b bold)\
+[](bg:#89dceb fg:#a6e3a1)\
+[ 󰔛 $time](bg:#89dceb fg:#11111b bold)\
+[ ](fg:#89dceb)\
+$character"""
+
+[username]
+show_always = true
+style_user = "bg:#f5c2e7 fg:#11111b bold"
+style_root = "bg:#f38ba8 fg:#11111b bold"
+format = "[$user]($style) "
+
+[directory]
+style = "bg:#f9e2af fg:#11111b bold"
+format = "[$path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+home_symbol = "~"
+
+[git_branch]
+symbol = " "
+style = "bg:#a6e3a1 fg:#11111b bold"
+format = "[$symbol$branch ]($style)"
+
+[git_status]
+style = "bg:#a6e3a1 fg:#11111b bold"
+format = "[$all_status$ahead_behind]($style)"
+
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:#89dceb fg:#11111b bold"
+format = "[$time ]($style)"
+
+[character]
+success_symbol = "[❯](bold #f5c2e7)"
+error_symbol = "[❯](bold #f38ba8)"

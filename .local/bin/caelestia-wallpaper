@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+SOCKET_PATH="/tmp/caelestia-wallpaper-$UID.sock"
+
+if [ -S "$SOCKET_PATH" ]; then
+    if echo "toggle" | nc -w 1 -U "$SOCKET_PATH" 2>/dev/null; then
+        exit 0
+    fi
+    rm -f "$SOCKET_PATH"
+fi
+
+python3 -c "import os, subprocess; subprocess.Popen([\"python3\", os.path.expanduser(\"~/.local/share/caelestia-wallpaper/wallpaper.py\"), \"--show\"], start_new_session=True)"

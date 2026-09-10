@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+SOCKET="unix:@kitty-$UID"
+CWD="${PWD:-$HOME}"
+
+# 1. Fast path: if instance already active, launch OS window instantly
+if kitten @ --to "$SOCKET" launch --type=os-window --cwd="$CWD" "$@" >/dev/null 2>&1; then
+    exit 0
+fi
+
+# 2. Prevent race conditions if Super+Enter is pressed multiple times rapidly
+LOCKFILE="${XDG_RUNTIME_DIR:-/tmp}/kitty-start-$UID.lock"
+exec 9>"$LOCKFILE"
+
+if ! flock -n 9; then
+    # Wait for the first instance to finish initializing
+    for _ in {1..30}; do
+        sleep 0.1
+        if kitten @ --to "$SOCKET" launch --type=os-window --cwd="$CWD" "$@" >/dev/null 2>&1; then
+            exit 0
+        fi
+    done
+    exit 1
+fi
+
+# Double check once lock is acquired
+if kitten @ --to "$SOCKET" launch --type=os-window --cwd="$CWD" "$@" >/dev/null 2>&1; then
+    flock -u 9
+    exit 0
+fi
+
+# 3. Start first instance detached
+kitty --detach -o allow_remote_control=yes --listen-on "$SOCKET" "$@"
+
+# 4. Wait briefly until socket is ready so rapid subsequent presses connect immediately
+for _ in {1..30}; do
+    if kitten @ --to "$SOCKET" ls >/dev/null 2>&1; then
+        break
+    fi
+    sleep 0.05
+done
+
+flock -u 9
+exit 0

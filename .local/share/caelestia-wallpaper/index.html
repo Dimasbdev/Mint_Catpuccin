@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallpaper Switcher</title>
+  <style>
+    :root {
+      /* Dynamic Accent Color — updated per active wallpaper */
+      --accent: #89b4fa;
+      --accent-rgb: 137, 180, 250;
+      --accent-glow: rgba(137, 180, 250, 0.28);
+      --accent-subtle: rgba(137, 180, 250, 0.12);
+      --accent-border: rgba(137, 180, 250, 0.35);
+
+      /* Ricing Dark Overlay Palette (Catppuccin Mocha base) */
+      --bg-overlay: rgba(17, 17, 27, 0.88);
+      --bg-panel: rgba(24, 24, 37, 0.62);
+      --bg-surface: rgba(30, 30, 46, 0.55);
+      --bg-hover: rgba(49, 50, 68, 0.55);
+      --border-line: rgba(255, 255, 255, 0.07);
+      --border-line-hover: rgba(255, 255, 255, 0.15);
+
+      --text-primary: #cdd6f4;
+      --text-secondary: #a6adc8;
+      --text-muted: #6c7086;
+      --crust: #11111b;
+      --green: #a6e3a1;
+      --red: #f38ba8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: "FiraCode Nerd Font", "JetBrains Mono", "Iosevka", monospace;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      color: var(--text-primary);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+
+    /* === Floating Overlay Window === */
+    .rice-window {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-overlay);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid var(--accent-border);
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.65), 0 0 35px var(--accent-subtle);
+      overflow: hidden;
+      animation: fadeInScale 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* === Header === */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-line);
+      background: rgba(17, 17, 27, 0.4);
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-preview-wrap {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      overflow: hidden;
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+      background: var(--crust);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .live-preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .brand-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+
+    /* Search Bar */
+    .search-container {
+      flex: 1;
+      max-width: 300px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 32px;
+      background: rgba(30, 30, 46, 0.45);
+      border: 1px solid var(--border-line);
+      border-radius: 8px;
+      padding: 0 32px 0 30px;
+      color: var(--text-primary);
+      font-size: 11.5px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      background: rgba(30, 30, 46, 0.7);
+      box-shadow: 0 0 0 2px var(--accent-subtle);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 9px;
+      width: 13px;
+      height: 13px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-kbd {
+      position: absolute;
+      right: 8px;
+      font-size: 9.5px;
+      background: rgba(69, 71, 90, 0.4);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      pointer-events: none;
+      border: 1px solid var(--border-line);
+    }
+
+    /* Header Actions */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-quiet {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: 1px solid var(--border-line);
+      color: var(--text-secondary);
+      padding: 5px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-quiet:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--border-line-hover);
+    }
+
+    .btn-quiet svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .btn-close {
+      color: var(--text-muted);
+      padding: 5px 8px;
+      border-color: transparent;
+    }
+
+    .btn-close:hover {
+      background: rgba(243, 139, 168, 0.15);
+      color: var(--red);
+      border-color: transparent;
+    }
+
+    /* === Main Content Layout === */
+    .content-area {
+      flex: 1;
+      padding: 14px 20px 8px 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    /* === Hero Showcase: Visually Dominant Centerpiece === */
+    .hero-showcase {
+      display: flex;
+      gap: 20px;
+      align-items: stretch;
+      background: rgba(24, 24, 37, 0.45);
+      border: 1px solid var(--accent-border);
+      border-radius: 14px;
+      padding: 14px;
+      position: relative;
+      flex-shrink: 0;
+      transition: border-color 0.3s ease;
+    }
+
+    .hero-preview-frame {
+      width: 360px;
+      height: 200px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--crust);
+      position: relative;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hero-preview-frame:hover .hero-img {
+      transform: scale(1.025);
+    }
+
+    .hero-preview-tag {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(17, 17, 27, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      font-size: 9.5px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      pointer-events: none;
+    }
+
+    /* Hero Details Column */
+    .hero-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      padding: 4px 0;
+    }
+
+    .hero-header-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .hero-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-subtle);
+      border: 1px solid var(--accent-border);
+      color: var(--accent);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .hero-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .hero-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 8px;
+      letter-spacing: -0.2px;
+    }
+
+    /* Metadata Chips (Separated, No middot strings) */
+    .hero-chips-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .hero-chip {
+      background: rgba(49, 50, 68, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      font-size: 10.5px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hero-chip svg {
+      width: 12px;
+      height: 12px;
+      color: var(--text-muted);
+    }
+
+    .hero-chip.accent-chip {
+      border-color: var(--accent-border);
+      color: var(--accent);
+      background: var(--accent-subtle);
+    }
+
+    /* Interactive Workspace Assignment Bar */
+    .hero-actions-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(30, 30, 46, 0.4);
+      border-radius: 9px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .hero-action-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 500;
+    }
+
+    .ws-assign-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-ws-assign {
+      background: rgba(49, 50, 68, 0.35);
+      border: 1px solid var(--border-line);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-ws-assign:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--border-line-hover);
+    }
+
+    .btn-ws-assign.is-assigned {
+      background: var(--accent-subtle);
+      border-color: var(--accent-border);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Target Selector inside showcase */
+    .target-selector-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-line);
+      padding-top: 8px;
+    }
+
+    .target-pills-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-target-pill {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 10.5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-target-pill:hover {
+      color: var(--text-secondary);
+    }
+
+    .btn-target-pill.is-selected {
+      background: var(--accent-subtle);
+      border-color: var(--accent-border);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* === Browsing Collection Section (Quiet & Smaller) === */
+    .collection-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .collection-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+
+    .collection-title {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .collection-count {
+      color: var(--text-muted);
+      font-size: 10.5px;
+    }
+
+    /* 4-Column Compact Grid (Scrollable) */
+    .wallpaper-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      overflow-y: auto;
+      padding-right: 4px;
+      padding-bottom: 6px;
+    }
+
+    .wallpaper-grid::-webkit-scrollbar { width: 4px; }
+    .wallpaper-grid::-webkit-scrollbar-track { background: transparent; }
+    .wallpaper-grid::-webkit-scrollbar-thumb {
+      background: rgba(108, 112, 134, 0.25);
+      border-radius: 2px;
+    }
+    .wallpaper-grid::-webkit-scrollbar-thumb:hover {
+      background: rgba(108, 112, 134, 0.45);
+    }
+
+    /* Clean Card: NO stacked borders or heavy SaaS shadows */
+    .wp-card {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-radius: 9px;
+      padding: 4px;
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease;
+    }
+
+    .wp-card:hover {
+      background: rgba(30, 30, 46, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .wp-card.focused {
+      background: rgba(30, 30, 46, 0.6);
+      box-shadow: 0 0 0 1.5px var(--accent), 0 8px 24px var(--accent-subtle);
+      border-radius: 9px;
+      transform: translateY(-2px);
+    }
+
+    .wp-card.active-wp .wp-thumb-box {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1.5px var(--accent), 0 6px 18px var(--accent-subtle);
+    }
+
+    /* Thumbnail Box */
+    .wp-thumb-box {
+      position: relative;
+      width: 100%;
+      height: 116px;
+      background: var(--crust);
+      border-radius: 7px;
+      overflow: hidden;
+      border: 1px solid var(--border-line);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .wp-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .wp-card:hover .wp-thumb {
+      transform: scale(1.04);
+    }
+
+    /* Active Indicator Dot */
+    .wp-active-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      display: none;
+    }
+
+    .wp-card.active-wp .wp-active-badge {
+      display: block;
+    }
+
+    /* Quick Apply Overlay on Hover */
+    .wp-card-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(17, 17, 27, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      border-radius: 7px;
+    }
+
+    .wp-card:hover .wp-card-overlay {
+      opacity: 1;
+    }
+
+    .wp-overlay-btn {
+      background: var(--accent);
+      color: var(--crust);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transform: translateY(3px);
+      transition: transform 0.15s ease;
+    }
+
+    .wp-card:hover .wp-overlay-btn {
+      transform: translateY(0);
+    }
+
+    /* Card Details: Clean & Uncluttered */
+    .wp-details {
+      padding: 2px 3px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .wp-name {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wp-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Quick WS Mini Buttons on Hover */
+    .wp-mini-actions {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.15s ease, max-height 0.15s ease;
+      margin-top: 2px;
+    }
+
+    .wp-card:hover .wp-mini-actions,
+    .wp-card.focused .wp-mini-actions {
+      opacity: 1;
+      max-height: 24px;
+    }
+
+    .btn-ws-tiny {
+      background: rgba(49, 50, 68, 0.5);
+      border: 1px solid var(--border-line);
+      color: var(--text-secondary);
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .btn-ws-tiny:hover {
+      background: var(--accent);
+      color: var(--crust);
+      border-color: var(--accent);
+    }
+
+    .btn-ws-tiny.is-assigned {
+      background: var(--accent-subtle);
+      border-color: var(--accent-border);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* === Footer: Functional Ricing Native Guide === */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px;
+      background: rgba(17, 17, 27, 0.4);
+      border-top: 1px solid var(--border-line);
+      font-size: 10px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .shortcut-guide {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .shortcut-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kbd-pill {
+      background: rgba(49, 50, 68, 0.45);
+      border: 1px solid var(--border-line);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .footer-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+    }
+
+    .status-accent-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      transition: background-color 0.3s ease;
+    }
+
+    /* === Minimal Toast === */
+    .toast {
+      position: absolute;
+      bottom: 44px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: rgba(24, 24, 37, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--accent-border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast-icon {
+      color: var(--accent);
+      width: 13px;
+      height: 13px;
+    }
+
+    /* Empty state */
+    .empty-search {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="rice-window">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand-section">
+        <div class="live-preview-wrap" title="Current active wallpaper">
+          <img id="header-live-thumb" class="live-preview-img" src="" alt="Active">
+        </div>
+        <span class="brand-title">wallpaper switcher</span>
+      </div>
+
+      <div class="search-container">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" class="search-input" placeholder="search wallpapers..." autocomplete="off" spellcheck="false">
+        <span class="search-kbd">/</span>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-quiet" id="btn-random" title="Random (R)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
+          <span>shuffle</span>
+        </button>
+        <button class="btn-quiet" id="btn-folder" title="Open Folder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>folder</span>
+        </button>
+        <button class="btn-quiet btn-close" id="btn-close" title="Close (Esc)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="content-area" id="content-area">
+      <!-- Hero Showcase: Visually Dominant Active Wallpaper -->
+      <section class="hero-showcase" id="hero-showcase">
+        <div class="hero-preview-frame">
+          <img id="hero-img" class="hero-img" src="" alt="Active Wallpaper">
+          <div class="hero-preview-tag" id="hero-ratio-tag">16:9 • PNG</div>
+        </div>
+
+        <div class="hero-details">
+          <div>
+            <div class="hero-header-line">
+              <div class="hero-status-badge">
+                <span class="hero-status-dot"></span>
+                <span id="hero-status-text">active on ws 1</span>
+              </div>
+            </div>
+
+            <div id="hero-title" class="hero-title">loading...</div>
+
+            <!-- Chips without middot strings -->
+            <div class="hero-chips-row">
+              <div class="hero-chip" id="hero-dims-chip" title="Resolution">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                <span id="hero-dims">3840 × 2160</span>
+              </div>
+              <div class="hero-chip" id="hero-size-chip" title="File Size">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span id="hero-size">4.2 MB</span>
+              </div>
+              <div class="hero-chip accent-chip" title="Lockscreen Status">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>lockscreen synced</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assignment & Target Panel -->
+          <div class="hero-actions-panel">
+            <div class="hero-action-row">
+              <span class="hero-action-label">assign to:</span>
+              <div class="ws-assign-group" id="hero-ws-buttons">
+                <!-- Dynamically generated WS buttons -->
+              </div>
+            </div>
+
+            <div class="target-selector-row">
+              <span class="hero-action-label">target workspace:</span>
+              <div class="target-pills-wrap" id="ws-pills-group">
+                <!-- Target pills -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Browsing Collection Grid (Quieter & Smaller) -->
+      <section class="collection-section">
+        <div class="collection-header">
+          <div class="collection-title">
+            <span>collection</span>
+            <span class="collection-count" id="count-text">(0)</span>
+          </div>
+        </div>
+
+        <div class="wallpaper-grid" id="wallpaper-grid"></div>
+
+        <div class="empty-search" id="empty-search">
+          <p>no wallpapers match your search</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="shortcut-guide">
+        <div class="shortcut-item"><span class="kbd-pill">1-4</span><span>ws</span></div>
+        <div class="shortcut-item"><span class="kbd-pill">a</span><span>all</span></div>
+        <div class="shortcut-item"><span class="kbd-pill">↑↓←→</span><span>nav</span></div>
+        <div class="shortcut-item"><span class="kbd-pill">enter</span><span>apply</span></div>
+        <div class="shortcut-item"><span class="kbd-pill">r</span><span>random</span></div>
+        <div class="shortcut-item"><span class="kbd-pill">/</span><span>search</span></div>
+        <div class="shortcut-item"><span class="kbd-pill">esc</span><span>close</span></div>
+      </div>
+      <div class="footer-status">
+        <span class="status-accent-dot"></span>
+        <span id="footer-target-status">target: ws 1</span>
+      </div>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+      <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span id="toast-text">wallpaper applied</span>
+    </div>
+  </div>
+
+  <script>
+    let wallpapersData = [];
+    let activeWallpaperPath = "";
+    let focusedIndex = 0;
+    let filteredIndices = [];
+    let toastTimeout = null;
+
+    // Workspace state
+    let targetWorkspace = "current";
+    let workspacesInfo = {
+      count: 4,
+      active_index: 0,
+      names: ["Workspace 1", "Workspace 2", "Workspace 3", "Workspace 4"],
+      workspaces_map: {}
+    };
+
+    const searchInput = document.getElementById("search-input");
+    const wallpaperGrid = document.getElementById("wallpaper-grid");
+    const emptySearch = document.getElementById("empty-search");
+    const headerLiveThumb = document.getElementById("header-live-thumb");
+    const heroImg = document.getElementById("hero-img");
+    const heroTitle = document.getElementById("hero-title");
+    const heroDims = document.getElementById("hero-dims");
+    const heroSize = document.getElementById("hero-size");
+    const heroRatioTag = document.getElementById("hero-ratio-tag");
+    const heroStatusText = document.getElementById("hero-status-text");
+    const heroWsButtons = document.getElementById("hero-ws-buttons");
+    const countText = document.getElementById("count-text");
+    const toast = document.getElementById("toast");
+    const toastText = document.getElementById("toast-text");
+    const wsPillsGroup = document.getElementById("ws-pills-group");
+    const footerTargetStatus = document.getElementById("footer-target-status");
+
+    // --- Dynamic Theme Accent Update ---
+    function updateThemeAccent(wp) {
+      if (!wp) return;
+      const hex = wp.accent_color || "#89b4fa";
+      const rgb = wp.accent_rgb || "137, 180, 250";
+
+      document.documentElement.style.setProperty("--accent", hex);
+      document.documentElement.style.setProperty("--accent-rgb", rgb);
+      document.documentElement.style.setProperty("--accent-glow", `rgba(${rgb}, 0.28)`);
+      document.documentElement.style.setProperty("--accent-subtle", `rgba(${rgb}, 0.12)`);
+      document.documentElement.style.setProperty("--accent-border", `rgba(${rgb}, 0.35)`);
+    }
+
+    // --- IPC ---
+    function sendIPC(action, payload = "") {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.wallpaper) {
+        window.webkit.messageHandlers.wallpaper.postMessage(JSON.stringify({ action, payload }));
+      }
+    }
+
+    // --- Toast ---
+    function showToast(msg) {
+      toastText.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2000);
+    }
+
+    // --- Workspace Helpers ---
+    function getAssignedWorkspacesForPath(path) {
+      const assigned = [];
+      const map = workspacesInfo.workspaces_map || {};
+      for (let i = 0; i < workspacesInfo.count; i++) {
+        if (map[String(i)] === path) {
+          assigned.push(i);
+        }
+      }
+      return assigned;
+    }
+
+    // --- Render Target Workspace Bar ---
+    function renderWorkspaceBar() {
+      wsPillsGroup.innerHTML = "";
+      const total = workspacesInfo.count || 4;
+      const activeDesktopIdx = workspacesInfo.active_index || 0;
+
+      // Current option
+      const curBtn = document.createElement("button");
+      curBtn.className = `btn-target-pill ${targetWorkspace === "current" ? "is-selected" : ""}`;
+      curBtn.textContent = `current (${activeDesktopIdx + 1})`;
+      curBtn.addEventListener("click", () => selectTargetWorkspace("current"));
+      wsPillsGroup.appendChild(curBtn);
+
+      // Individual workspaces
+      for (let i = 0; i < total; i++) {
+        const btn = document.createElement("button");
+        btn.className = `btn-target-pill ${targetWorkspace === String(i) ? "is-selected" : ""}`;
+        btn.textContent = `${i + 1}`;
+        btn.addEventListener("click", () => selectTargetWorkspace(String(i)));
+        wsPillsGroup.appendChild(btn);
+      }
+
+      // All option
+      const allBtn = document.createElement("button");
+      allBtn.className = `btn-target-pill ${targetWorkspace === "all" ? "is-selected" : ""}`;
+      allBtn.textContent = "all";
+      allBtn.addEventListener("click", () => selectTargetWorkspace("all"));
+      wsPillsGroup.appendChild(allBtn);
+
+      updateFooterStatusText();
+    }
+
+    function selectTargetWorkspace(target) {
+      targetWorkspace = target;
+      renderWorkspaceBar();
+      renderGrid();
+    }
+
+    function updateFooterStatusText() {
+      const activeDesktopIdx = workspacesInfo.active_index || 0;
+      if (targetWorkspace === "current") {
+        footerTargetStatus.textContent = `target: ws ${activeDesktopIdx + 1}`;
+      } else if (targetWorkspace === "all") {
+        footerTargetStatus.textContent = `target: all workspaces (1-${workspacesInfo.count})`;
+      } else {
+        footerTargetStatus.textContent = `target: ws ${parseInt(targetWorkspace, 10) + 1}`;
+      }
+    }
+
+    // --- Hero Card Update ---
+    function updateHeroCard(wp) {
+      if (!wp) return;
+      headerLiveThumb.src = wp.thumbnail || wp.path;
+      heroImg.src = wp.thumbnail || wp.path;
+      heroTitle.textContent = wp.clean_name || wp.name;
+      heroTitle.title = wp.name;
+      heroDims.textContent = `${wp.width} × ${wp.height}`;
+      heroSize.textContent = wp.size_str;
+
+      const ext = (wp.name.split(".").pop() || "IMG").toUpperCase();
+      const ratio = (wp.width / wp.height > 1.7) ? "16:9" : (wp.width / wp.height > 1.5) ? "16:10" : "4:3";
+      heroRatioTag.textContent = `${ratio} • ${ext}`;
+
+      // Status text
+      const assigned = getAssignedWorkspacesForPath(wp.path);
+      const total = workspacesInfo.count || 4;
+      if (assigned.length === total) {
+        heroStatusText.textContent = "active on all workspaces";
+      } else if (assigned.length > 0) {
+        heroStatusText.textContent = `active on ws ${assigned.map(i => i + 1).join(", ")}`;
+      } else {
+        heroStatusText.textContent = "unassigned";
+      }
+
+      // Update accent color theme to echo this wallpaper!
+      updateThemeAccent(wp);
+
+      // Populate hero assign buttons
+      heroWsButtons.innerHTML = "";
+      for (let i = 0; i < total; i++) {
+        const btn = document.createElement("button");
+        btn.className = `btn-ws-assign ${assigned.includes(i) ? "is-assigned" : ""}`;
+        btn.textContent = `ws ${i + 1}`;
+        btn.title = `assign directly to workspace ${i + 1}`;
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          applyWallpaperToTarget(wp.path, String(i));
+        });
+        heroWsButtons.appendChild(btn);
+      }
+
+      const allBtn = document.createElement("button");
+      allBtn.className = `btn-ws-assign ${assigned.length === total ? "is-assigned" : ""}`;
+      allBtn.textContent = "all";
+      allBtn.title = "assign to all workspaces";
+      allBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        applyWallpaperToTarget(wp.path, "all");
+      });
+      heroWsButtons.appendChild(allBtn);
+    }
+
+    // --- Render Quiet Browsing Grid ---
+    function renderGrid() {
+      const query = searchInput.value.toLowerCase().trim();
+      wallpaperGrid.innerHTML = "";
+      filteredIndices = [];
+      const total = workspacesInfo.count || 4;
+
+      wallpapersData.forEach((wp, idx) => {
+        if (query && !wp.name.toLowerCase().includes(query) && !(wp.clean_name && wp.clean_name.toLowerCase().includes(query))) return;
+        filteredIndices.push(idx);
+
+        const card = document.createElement("div");
+        const isActive = (wp.path === activeWallpaperPath);
+        card.className = `wp-card ${isActive ? "active-wp" : ""} ${filteredIndices.length - 1 === focusedIndex ? "focused" : ""}`;
+        card.setAttribute("data-idx", idx);
+        card.title = `${wp.name} (${wp.width}×${wp.height}, ${wp.size_str})`;
+
+        // Apply label based on target
+        let applyLabel = "apply";
+        if (targetWorkspace === "all") {
+          applyLabel = "set all";
+        } else if (targetWorkspace === "current") {
+          applyLabel = `ws ${(workspacesInfo.active_index || 0) + 1}`;
+        } else {
+          applyLabel = `ws ${parseInt(targetWorkspace, 10) + 1}`;
+        }
+
+        // Mini workspace pills on hover
+        const assigned = getAssignedWorkspacesForPath(wp.path);
+        let miniPillsHtml = "";
+        for (let w = 0; w < total; w++) {
+          miniPillsHtml += `<button class="btn-ws-tiny ${assigned.includes(w) ? "is-assigned" : ""}" data-ws="${w}" title="ws ${w+1}">${w+1}</button>`;
+        }
+        miniPillsHtml += `<button class="btn-ws-tiny ${assigned.length === total ? "is-assigned" : ""}" data-ws="all" title="all">all</button>`;
+
+        card.innerHTML = `
+          <div class="wp-thumb-box">
+            <img class="wp-thumb" src="${wp.thumbnail || wp.path}" alt="${wp.name}" loading="lazy">
+            <span class="wp-active-badge"></span>
+            <div class="wp-card-overlay">
+              <div class="wp-overlay-btn">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                ${applyLabel}
+              </div>
+            </div>
+          </div>
+          <div class="wp-details">
+            <div class="wp-name">${wp.clean_name || wp.name}</div>
+            <div class="wp-meta">
+              <span>${wp.width} × ${wp.height}</span>
+              <div class="wp-mini-actions">
+                ${miniPillsHtml}
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Card click -> apply to target workspace
+        card.addEventListener("click", (e) => {
+          if (e.target.closest(".btn-ws-tiny")) return;
+          applyWallpaperToTarget(wp.path, targetWorkspace);
+        });
+
+        // Mini button direct assignment
+        card.querySelectorAll(".btn-ws-tiny").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            applyWallpaperToTarget(wp.path, btn.getAttribute("data-ws"));
+          });
+        });
+
+        // Hover updates hero preview quietly
+        card.addEventListener("mouseenter", () => {
+          const hoveredCard = wallpapersData[idx];
+          if (hoveredCard) {
+            updateHeroCard(hoveredCard);
+          }
+        });
+
+        wallpaperGrid.appendChild(card);
+      });
+
+      wallpaperGrid.addEventListener("mouseleave", () => {
+        const activeObj = wallpapersData.find(w => w.path === activeWallpaperPath);
+        if (activeObj) updateHeroCard(activeObj);
+      });
+
+      emptySearch.style.display = filteredIndices.length === 0 ? "flex" : "none";
+      countText.textContent = `(${filteredIndices.length})`;
+      updateFocusVisual(false);
+    }
+
+    // --- Apply Wallpaper ---
+    function applyWallpaperToTarget(path, target) {
+      const chosen = wallpapersData.find(w => w.path === path);
+      const activeDesktopIdx = workspacesInfo.active_index || 0;
+      const wpName = chosen ? (chosen.clean_name || chosen.name) : path.split("/").pop();
+
+      if (target === "all") {
+        activeWallpaperPath = path;
+        for (let i = 0; i < workspacesInfo.count; i++) {
+          workspacesInfo.workspaces_map[String(i)] = path;
+        }
+        showToast(`all workspaces → ${wpName}`);
+      } else {
+        const targetIdx = (target === "current") ? activeDesktopIdx : parseInt(target, 10);
+        workspacesInfo.workspaces_map[String(targetIdx)] = path;
+        if (targetIdx === activeDesktopIdx) {
+          activeWallpaperPath = path;
+        }
+        showToast(`ws ${targetIdx + 1} → ${wpName}`);
+      }
+
+      if (chosen && (target === "all" || target === "current" || parseInt(target, 10) === activeDesktopIdx)) {
+        updateHeroCard(chosen);
+      }
+
+      sendIPC("apply", { path, workspace: target });
+      renderGrid();
+      renderWorkspaceBar();
+    }
+
+    // --- Keyboard Navigation Focus Visual ---
+    function updateFocusVisual(shouldScroll = false) {
+      const cards = wallpaperGrid.querySelectorAll(".wp-card");
+      cards.forEach((card, i) => {
+        if (i === focusedIndex) {
+          card.classList.add("focused");
+          if (shouldScroll) card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          const actualIdx = filteredIndices[i];
+          if (actualIdx !== undefined && wallpapersData[actualIdx]) {
+            updateHeroCard(wallpapersData[actualIdx]);
+          }
+        } else {
+          card.classList.remove("focused");
+        }
+      });
+    }
+
+    // --- Search Input Handling ---
+    searchInput.addEventListener("input", () => {
+      focusedIndex = 0;
+      renderGrid();
+    });
+
+    // --- Header Actions ---
+    document.getElementById("btn-close").addEventListener("click", () => sendIPC("close"));
+    document.getElementById("btn-random").addEventListener("click", () => sendIPC("random", { workspace: targetWorkspace }));
+    document.getElementById("btn-folder").addEventListener("click", () => sendIPC("open_folder"));
+
+    // --- Keyboard Navigation ---
+    window.addEventListener("keydown", (e) => {
+      if (document.activeElement === searchInput) {
+        if (e.key === "Escape") { searchInput.blur(); return; }
+        if (e.key === "ArrowDown" || e.key === "Enter") { searchInput.blur(); e.preventDefault(); }
+        else return;
+      }
+
+      if (e.key === "Escape") { sendIPC("close"); return; }
+
+      if (["1", "2", "3", "4"].includes(e.key)) {
+        const wsIdx = parseInt(e.key, 10) - 1;
+        if (wsIdx < (workspacesInfo.count || 4)) {
+          selectTargetWorkspace(String(wsIdx));
+          showToast(`target: ws ${wsIdx + 1}`);
+          return;
+        }
+      }
+
+      if (e.key === "a" || e.key === "A" || e.key === "0") {
+        selectTargetWorkspace("all");
+        showToast("target: all workspaces");
+        return;
+      }
+
+      if (e.key === "c" || e.key === "C") {
+        selectTargetWorkspace("current");
+        showToast(`target: current (ws ${(workspacesInfo.active_index || 0) + 1})`);
+        return;
+      }
+
+      if (e.key === "/" || (e.ctrlKey && e.key === "f")) {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+        return;
+      }
+
+      if (e.key === "r" || e.key === "R") {
+        sendIPC("random", { workspace: targetWorkspace });
+        return;
+      }
+
+      if (filteredIndices.length === 0) return;
+
+      const cols = 4;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        focusedIndex = (focusedIndex + 1) % filteredIndices.length;
+        updateFocusVisual(true);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        focusedIndex = (focusedIndex - 1 + filteredIndices.length) % filteredIndices.length;
+        updateFocusVisual(true);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        focusedIndex = Math.min(focusedIndex + cols, filteredIndices.length - 1);
+        updateFocusVisual(true);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        focusedIndex = Math.max(focusedIndex - cols, 0);
+        updateFocusVisual(true);
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const actualIdx = filteredIndices[focusedIndex];
+        if (actualIdx !== undefined && wallpapersData[actualIdx]) {
+          applyWallpaperToTarget(wallpapersData[actualIdx].path, targetWorkspace);
+        }
+      }
+    });
+
+    // --- Backend State Hook ---
+    window.setWallpapersState = function(state) {
+      wallpapersData = state.wallpapers || [];
+      activeWallpaperPath = state.active || "";
+      if (state.workspaces_info) workspacesInfo = state.workspaces_info;
+
+      const activeObj = wallpapersData.find(w => w.path === activeWallpaperPath) || wallpapersData[0];
+      if (activeObj) updateHeroCard(activeObj);
+
+      const activeIdx = wallpapersData.findIndex(w => w.path === activeWallpaperPath);
+      focusedIndex = (activeIdx >= 0) ? activeIdx : 0;
+
+      renderWorkspaceBar();
+      renderGrid();
+    };
+
+    window.onWallpaperApplied = function(payload) {
+      if (typeof payload === "object") {
+        const path = payload.path;
+        if (payload.workspaces_info) workspacesInfo = payload.workspaces_info;
+        const activeDesktopIdx = workspacesInfo.active_index || 0;
+        if (payload.target === "all" || payload.target === "current" || parseInt(payload.target, 10) === activeDesktopIdx) {
+          activeWallpaperPath = path;
+          const chosen = wallpapersData.find(w => w.path === path);
+          if (chosen) updateHeroCard(chosen);
+        }
+      }
+      renderWorkspaceBar();
+      renderGrid();
+    };
+
+    window.onWorkspaceChanged = function(wsInfo) {
+      if (wsInfo) {
+        workspacesInfo = wsInfo;
+        const activeIdx = wsInfo.active_index || 0;
+        const currentPath = (wsInfo.workspaces_map || {})[String(activeIdx)];
+        if (currentPath) {
+          activeWallpaperPath = currentPath;
+          const chosen = wallpapersData.find(w => w.path === currentPath);
+          if (chosen) updateHeroCard(chosen);
+        }
+        renderWorkspaceBar();
+        renderGrid();
+      }
+    };
+
+    // Initial state refresh request
+    sendIPC("refresh");
+  </script>
+</body>
+</html>

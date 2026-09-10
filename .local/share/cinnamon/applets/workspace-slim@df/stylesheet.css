@@ -1,0 +1,7 @@
+.workspace-slim-capsule {
+    background-color: rgba(24, 24, 37, 0.85) !important;
+    border: 1px solid rgba(245, 194, 231, 0.32) !important;
+    border-radius: 9999px !important;
+    padding: 2px 4px !important;
+    margin: 0 !important;
+}

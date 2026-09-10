@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+SOCKET_PATH="/tmp/caelestia-lock-$UID.sock"
+
+if [ -S "$SOCKET_PATH" ]; then
+    if echo "lock" | nc -w 1 -U "$SOCKET_PATH" 2>/dev/null; then
+        exit 0
+    fi
+    rm -f "$SOCKET_PATH"
+fi
+
+nohup python3 ~.local/share/caelestia-lock/lock.py" >/dev/null 2>&1 &

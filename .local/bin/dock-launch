@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+
+APPS = {
+    "1": {
+        "name": "Kitty",
+        "match": ["kitty.kitty"],
+        "exclude": ["btop", "cava", "sptlrx"],
+        "exec": ["/home/df/.local/bin/kitty-fast"],
+    },
+    "2": {
+        "name": "Btop",
+        "match": ["btop"],
+        "exclude": [],
+        "exec": ["kitty", "-e", "btop"],
+    },
+    "3": {
+        "name": "Nemo",
+        "match": ["nemo.nemo"],
+        "exclude": ["nemo-desktop"],
+        "exec": ["nemo"],
+    },
+    "4": {
+        "name": "Firefox",
+        "match": ["firefox", "navigator"],
+        "exclude": [],
+        "exec": ["firefox"],
+    },
+    "5": {
+        "name": "Antigravity",
+        "match": ["antigravity"],
+        "exclude": [],
+        "exec": ["/home/df/Antigravity/Antigravity IDE/antigravity-ide", "--no-sandbox"],
+    },
+    "6": {
+        "name": "Brave",
+        "match": ["brave"],
+        "exclude": [],
+        "exec": ["brave-browser"],
+    },
+    "7": {
+        "name": "Sober",
+        "match": ["sober"],
+        "exclude": [],
+        "exec": ["flatpak", "run", "org.vinegarhq.Sober"],
+    },
+    "8": {
+        "name": "OBS Studio",
+        "match": ["obs"],
+        "exclude": [],
+        "exec": ["flatpak", "run", "com.obsproject.Studio"],
+    },
+    "9": {
+        "name": "Zoom",
+        "match": ["zoom"],
+        "exclude": [],
+        "exec": ["zoom"],
+    },
+}
+
+def get_windows():
+    try:
+        out = subprocess.check_output(["wmctrl", "-lx"], text=True)
+        windows = []
+        for line in out.strip().splitlines():
+            parts = line.split()
+            if not parts:
+                continue
+            win_id = parts[0]
+            rest = line[len(win_id):].lower()
+            windows.append({
+                "id": win_id,
+                "text": rest,
+            })
+        return windows
+    except Exception:
+        return []
+
+def get_active_window_id():
+    try:
+        out = subprocess.check_output(["xprop", "-root", "_NET_ACTIVE_WINDOW"], text=True)
+        return out.strip().split()[-1]
+    except Exception:
+        return None
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit(1)
+    
+    key = sys.argv[1]
+    if key not in APPS:
+        sys.exit(1)
+        
+    app = APPS[key]
+    windows = get_windows()
+    
+    matching_wins = []
+    for w in windows:
+        if any(exc in w["text"] for exc in app.get("exclude", [])):
+            continue
+        if any(m in w["text"] for m in app.get("match", [])):
+            matching_wins.append(w)
+
+    if matching_wins:
+        active_id = get_active_window_id()
+        target_win = matching_wins[0]
+        if active_id:
+            try:
+                active_int = int(active_id, 16)
+                for i, w in enumerate(matching_wins):
+                    if int(w["id"], 16) == active_int:
+                        target_win = matching_wins[(i + 1) % len(matching_wins)]
+                        break
+            except Exception:
+                pass
+        subprocess.run(["wmctrl", "-ia", target_win["id"]])
+    else:
+        subprocess.Popen(app["exec"], start_new_session=True)
+
+if __name__ == "__main__":
+    main()

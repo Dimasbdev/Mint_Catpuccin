@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Databases & runtime data
+*.db
+*.sqlite
+*.sqlite3
+clipboard.db
+
+# Backup files
+*.bak
+*.bak*
+*~
+*.swp
+*.swo
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+*.log
+.local/share/caelestia-clip/images/*
+!.local/share/caelestia-clip/images/.gitkeep
+*.orig

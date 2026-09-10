@@ -1,0 +1,25 @@
+# sptlrx config
+player: "mpris"
+
+# MPRIS ignore players
+ignore:
+  - "kdeconnect"
+
+# Styling & Catppuccin Theme
+style:
+  before:
+    bold: false
+    italic: true
+    color: "#6c7086"
+  current:
+    bold: true
+    italic: false
+    color: "#f5c2e7"
+  after:
+    bold: false
+    italic: false
+    color: "#a6adc8"
+  hscroll: true
+
+# Alignment: "left", "center", "right"
+align: "center"

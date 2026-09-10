@@ -1,0 +1,12 @@
+[docks/dock1]
+alignment='center'
+current-workspace-only=true
+dock-items=['1_kitty.dockitem', '2_btop.dockitem', '3_nemo.dockitem', '4_firefox.dockitem', 'antigravity-1.dockitem', 'brave-browser.dockitem', 'org.vinegarhq.Sober.dockitem', 'com.obsproject.Studio.dockitem', 'Zoom.dockitem', 'com.getpostman.Postman.dockitem', 'burpsuite.dockitem', 'docker-desktop.dockitem', 'org.gnome.baobab.dockitem', 'com.spotify.Client-1.dockitem']
+hide-mode='intelligent'
+icon-size=48
+items-alignment='center'
+position='bottom'
+theme='Catppuccin-mocha'
+tooltips-enabled=true
+zoom-enabled=true
+zoom-percent=140

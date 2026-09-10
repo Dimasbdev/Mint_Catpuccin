@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+PID_FILE="/tmp/glass-music-widget.pid"
+
+if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+    kill "$(cat "$PID_FILE")"
+    rm -f "$PID_FILE"
+    echo "Glass Music Widget stopped."
+else
+    python3 /home/df/.local/share/glass-music-widget/widget.py >/dev/null 2>&1 &
+    PID=$!
+    echo "$PID" > "$PID_FILE"
+    echo "Glass Music Widget started (PID: $PID)."
+fi

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+
+ARG="$1"
+if [ -z "$ARG" ]; then
+    exit 1
+fi
+
+CURR_WS=$(/usr/bin/wmctrl -d | grep '\*' | awk '{print $1}')
+TOTAL_WS=$(/usr/bin/wmctrl -d | wc -l)
+
+if [ "$ARG" = "next" ] || [ "$ARG" = "right" ]; then
+    TARGET_WS=$(( (CURR_WS + 1) % TOTAL_WS ))
+elif [ "$ARG" = "prev" ] || [ "$ARG" = "left" ]; then
+    TARGET_WS=$(( (CURR_WS - 1 + TOTAL_WS) % TOTAL_WS ))
+else
+    TARGET_WS=$(( ARG - 1 ))
+fi
+
+echo "$(date): move-all-windows $ARG (curr: $CURR_WS, target: $TARGET_WS)" >> /tmp/move-all-windows.log
+
+if [ -z "$CURR_WS" ] || [ "$CURR_WS" -eq "$TARGET_WS" ]; then
+    exit 0
+fi
+
+# Move all windows on current workspace to target workspace
+/usr/bin/wmctrl -l | while read -r id ws host title; do
+    if [ "$ws" -eq "$CURR_WS" ]; then
+        /usr/bin/wmctrl -i -r "$id" -t "$TARGET_WS"
+    fi
+done
+
+# Switch workspace
+/usr/bin/wmctrl -s "$TARGET_WS"
