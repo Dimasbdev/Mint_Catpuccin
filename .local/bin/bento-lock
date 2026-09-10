@@ -8,4 +8,4 @@ if [ -S "$SOCKET_PATH" ]; then
     rm -f "$SOCKET_PATH"
 fi
 
-nohup python3 ~.local/share/bento-lock/lock.py" >/dev/null 2>&1 &
+nohup python3 "$HOME/.local/share/bento-lock/lock.py" >/dev/null 2>&1 &

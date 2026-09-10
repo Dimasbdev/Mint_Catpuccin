@@ -162,6 +162,27 @@
       stroke-width: 2;
     }
 
+    .stat-pill svg.charging-bolt {
+      width: 13px;
+      height: 13px;
+      fill: var(--accent) !important;
+      stroke: var(--accent) !important;
+      stroke-width: 1px;
+      filter: drop-shadow(0 0 5px var(--accent));
+      display: inline-block;
+      margin-left: 2px;
+      animation: pulse-charge 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-charge {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.18); filter: drop-shadow(0 0 8px var(--accent)); }
+    }
+
+    .stat-pill svg.charging-bolt.hidden {
+      display: none !important;
+    }
+
     .btn-icon {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -611,7 +632,8 @@
       <div class="system-stats">
         <div class="stat-pill" id="batPill" title="Battery">
           <svg viewBox="0 0 24 24"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"></rect><line x1="23" y1="11" x2="23" y2="13"></line></svg>
-          <span id="batPct">85%</span>
+          <span id="batPct">53%</span>
+          <svg id="batChargingIcon" class="charging-bolt hidden" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
         </div>
         <div class="stat-pill" id="tempPill" title="CPU Temperature">
           <svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path></svg>
@@ -837,8 +859,13 @@
       // Battery & Temp
       if (state.battery) {
         batPct.textContent = (state.battery.pct || 0) + '%';
-        if (state.battery.charging) {
-          batPct.textContent += ' ⚡';
+        const chargingIcon = document.getElementById('batChargingIcon');
+        if (chargingIcon) {
+          if (state.battery.charging) {
+            chargingIcon.classList.remove('hidden');
+          } else {
+            chargingIcon.classList.add('hidden');
+          }
         }
         if (state.battery.temp) {
           cpuTemp.textContent = state.battery.temp + '°C';

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os, sys, time, json, subprocess, re, threading
+import cairo
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
@@ -59,7 +60,7 @@ class BentoOSDWindow(Gtk.Window):
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
         self.set_accept_focus(False)
-        self.set_type_hint(Gdk.WindowTypeHint.NOTIFICATION)
+        self.set_type_hint(Gdk.WindowTypeHint.UTILITY)
         self.stick()
 
         self.set_app_paintable(True)
@@ -67,6 +68,18 @@ class BentoOSDWindow(Gtk.Window):
         visual = screen.get_rgba_visual()
         if visual:
             self.set_visual(visual)
+
+        # Force transparent window background to remove rectangular compositor frame
+        css = Gtk.CssProvider()
+        css.load_from_data(b"window, decoration, .background { background-color: transparent; background: transparent; box-shadow: none; border: none; }")
+        Gtk.StyleContext.add_provider_for_screen(screen, css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+        def on_draw(widget, cr):
+            cr.set_source_rgba(0, 0, 0, 0)
+            cr.set_operator(cairo.OPERATOR_SOURCE)
+            cr.paint()
+            return False
+        self.connect("draw", on_draw)
 
         self.win_width = 280
         self.win_height = 54
@@ -127,10 +140,12 @@ class BentoOSDWindow(Gtk.Window):
             js = f"""
             (function() {{
                 const root = document.documentElement;
-                root.style.setProperty('--flamingo', '{theme['primary']}');
-                root.style.setProperty('--accent', '{theme['primary']}');
-                root.style.setProperty('--mauve', '{theme['secondary']}');
-                root.style.setProperty('--border', '{theme['border_active']}');
+                root.style.setProperty('--dynamic-accent', '{theme.get('primary', '#f5c2e7')}');
+                root.style.setProperty('--dynamic-secondary', '{theme.get('secondary', '#cba6f7')}');
+                root.style.setProperty('--flamingo', '{theme.get('primary', '#f5c2e7')}');
+                root.style.setProperty('--accent', '{theme.get('primary', '#f5c2e7')}');
+                root.style.setProperty('--mauve', '{theme.get('secondary', '#cba6f7')}');
+                root.style.setProperty('--border', '{theme.get('border_active', 'rgba(245, 194, 231, 0.45)')}');
             }})();
             """
             self.webview.run_javascript(js)

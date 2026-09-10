@@ -277,6 +277,11 @@ class WallpaperDaemon:
     transition-duration: 150ms;
 }}
 
+#panel .applet-box .applet-icon,
+#panel .applet-box StIcon {{
+    color: {primary};
+}}
+
 /* Workspace Switcher: outer shell must stay transparent and borderless */
 #panel .workspace-nano-df-applet,
 .workspace-nano-df-applet {{
@@ -346,8 +351,14 @@ class WallpaperDaemon:
             with open(cinnamon_css, "w") as f:
                 f.write(new_content)
 
-            # Omit ReloadTheme on workspace switch to ensure zero lag (~3ms instant switch).
-            # Live capsule theming is handled directly in-memory by workspace-nano@df.
+            # Reload Cinnamon theme dynamically so top panel adapts immediately
+            if dbus:
+                try:
+                    bus = dbus.SessionBus()
+                    cin = bus.get_object('org.Cinnamon', '/org/Cinnamon')
+                    cin.ReloadTheme(dbus_interface='org.Cinnamon')
+                except Exception:
+                    pass
         except Exception as e:
             print(f"Error updating cinnamon theme: {e}", file=sys.stderr)
 

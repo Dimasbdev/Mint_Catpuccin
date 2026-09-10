@@ -1,0 +1,15 @@
+[Unit]
+Description=Bento Screensaver DBus Bridge for Cinnamon
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=dbus
+BusName=org.cinnamon.ScreenSaver
+ExecStart=/usr/bin/python3 /home/df/.local/bin/bento-screensaver-proxy.py
+Restart=always
+RestartSec=2
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=graphical-session.target

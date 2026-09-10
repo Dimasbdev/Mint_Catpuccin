@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os, sys, time, json, socket, subprocess, re, getpass, threading
+import cairo
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
@@ -32,6 +33,18 @@ class BentoControlWindow(Gtk.Window):
         visual = screen.get_rgba_visual()
         if visual:
             self.set_visual(visual)
+
+        # Force transparent window background
+        css = Gtk.CssProvider()
+        css.load_from_data(b"window, decoration, .background { background-color: transparent; background: transparent; box-shadow: none; border: none; }")
+        Gtk.StyleContext.add_provider_for_screen(screen, css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+        def on_draw(widget, cr):
+            cr.set_source_rgba(0, 0, 0, 0)
+            cr.set_operator(cairo.OPERATOR_SOURCE)
+            cr.paint()
+            return False
+        self.connect("draw", on_draw)
 
         self.win_width = 420
         self.win_height = 620
@@ -257,32 +270,63 @@ class BentoControlWindow(Gtk.Window):
             pass
 
         # 7. Battery & Temp
-        bat_pct = 80
+        bat_pct = 50
         is_charging = False
-        try:
-            bats = [b for b in os.listdir('/sys/class/power_supply') if b.startswith('BAT')]
-            tot_now, tot_full = 0, 0
-            for b in bats:
-                p = f'/sys/class/power_supply/{b}'
-                try:
-                    with open(f'{p}/energy_now') as f: tot_now += int(f.read().strip())
-                    with open(f'{p}/energy_full') as f: tot_full += int(f.read().strip())
-                except Exception:
+        upower_ok = False
+
+        if dbus:
+            try:
+                sbus = dbus.SystemBus()
+                up_dev = sbus.get_object('org.freedesktop.UPower', '/org/freedesktop/UPower/devices/DisplayDevice')
+                up_props = dbus.Interface(up_dev, 'org.freedesktop.DBus.Properties')
+                state = int(up_props.Get('org.freedesktop.UPower.Device', 'State'))
+                pct = float(up_props.Get('org.freedesktop.UPower.Device', 'Percentage'))
+                bat_pct = round(pct)
+                # State: 1 = Charging, 4 = Fully charged (if AC connected)
+                is_charging = (state == 1)
+                upower_ok = True
+            except Exception:
+                pass
+
+        # Fallback to sysfs if UPower D-Bus unavailable
+        if not upower_ok:
+            try:
+                ac_online = False
+                for pwr in os.listdir('/sys/class/power_supply'):
+                    if pwr.startswith('AC') or 'line_power' in pwr or 'ucsi' in pwr:
+                        try:
+                            with open(f'/sys/class/power_supply/{pwr}/online') as f:
+                                if f.read().strip() == '1':
+                                    ac_online = True
+                                    break
+                        except Exception:
+                            pass
+
+                bats = [b for b in os.listdir('/sys/class/power_supply') if b.startswith('BAT')]
+                tot_now, tot_full = 0, 0
+                any_charging = False
+                for b in bats:
+                    p = f'/sys/class/power_supply/{b}'
                     try:
-                        with open(f'{p}/charge_now') as f: tot_now += int(f.read().strip())
-                        with open(f'{p}/charge_full') as f: tot_full += int(f.read().strip())
+                        with open(f'{p}/energy_now') as f: tot_now += int(f.read().strip())
+                        with open(f'{p}/energy_full') as f: tot_full += int(f.read().strip())
+                    except Exception:
+                        try:
+                            with open(f'{p}/charge_now') as f: tot_now += int(f.read().strip())
+                            with open(f'{p}/charge_full') as f: tot_full += int(f.read().strip())
+                        except Exception:
+                            pass
+                    try:
+                        with open(f'{p}/status') as f:
+                            if f.read().strip() == 'Charging':
+                                any_charging = True
                     except Exception:
                         pass
-                try:
-                    with open(f'{p}/status') as f:
-                        if f.read().strip() in ('Charging', 'Full'):
-                            is_charging = True
-                except Exception:
-                    pass
-            if tot_full > 0:
-                bat_pct = round((tot_now / tot_full) * 100)
-        except Exception:
-            pass
+                if tot_full > 0:
+                    bat_pct = round((tot_now / tot_full) * 100)
+                is_charging = ac_online and any_charging
+            except Exception:
+                pass
 
         cpu_temp = 50
         try:

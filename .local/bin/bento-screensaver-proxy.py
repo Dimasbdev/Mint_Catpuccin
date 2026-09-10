@@ -10,7 +10,7 @@ gi.require_version('Gio', '2.0')
 gi.require_version('GLib', '2.0')
 from gi.repository import Gio, GLib
 
-LOCK_CMD = "~.local/bin/bento-lock"
+LOCK_CMD = os.path.expanduser("~/.local/bin/bento-lock")
 SOCKET_PATH = f"/tmp/bento-lock-{os.getuid()}.sock"
 
 NODE_INFO = Gio.DBusNodeInfo.new_for_xml('''

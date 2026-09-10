@@ -24,7 +24,7 @@ class ToastWindow(Gtk.Window):
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
         self.set_keep_above(True)
-        self.set_type_hint(Gdk.WindowTypeHint.NOTIFICATION)
+        self.set_type_hint(Gdk.WindowTypeHint.UTILITY)
         self.set_app_paintable(True)
         self.set_accept_focus(False)
         self.set_focus_on_map(False)
@@ -34,6 +34,18 @@ class ToastWindow(Gtk.Window):
         visual = screen.get_rgba_visual()
         if visual:
             self.set_visual(visual)
+
+        # Force transparent window background to remove rectangular compositor frame
+        css = Gtk.CssProvider()
+        css.load_from_data(b"window, decoration, .background { background-color: transparent; background: transparent; box-shadow: none; border: none; }")
+        Gtk.StyleContext.add_provider_for_screen(screen, css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+        def on_draw(widget, cr):
+            cr.set_source_rgba(0, 0, 0, 0)
+            cr.set_operator(cairo.OPERATOR_SOURCE)
+            cr.paint()
+            return False
+        self.connect("draw", on_draw)
 
         self.stick()
 

@@ -170,15 +170,15 @@
           else if (val > 20) iconBox.innerHTML = ICONS.vol_mid;
           else iconBox.innerHTML = ICONS.vol_low;
 
-          document.documentElement.style.setProperty('--accent', 'var(--flamingo)');
-          document.documentElement.style.setProperty('--accent-gradient', 'var(--mauve)');
+          document.documentElement.style.setProperty('--accent', 'var(--dynamic-accent, var(--flamingo))');
+          document.documentElement.style.setProperty('--accent-gradient', 'var(--dynamic-secondary, var(--mauve))');
           fillBar.style.width = val + '%';
           valBadge.textContent = val + '%';
         }
       } else if (type === 'brightness') {
         iconBox.innerHTML = ICONS.brightness;
-        document.documentElement.style.setProperty('--accent', 'var(--peach)');
-        document.documentElement.style.setProperty('--accent-gradient', '#f9e2af');
+        document.documentElement.style.setProperty('--accent', 'var(--dynamic-accent, var(--peach))');
+        document.documentElement.style.setProperty('--accent-gradient', 'var(--dynamic-secondary, var(--flamingo))');
         fillBar.style.width = val + '%';
         valBadge.textContent = val + '%';
       } else if (type === 'mic') {
@@ -190,8 +190,8 @@
           valBadge.textContent = 'Muted';
         } else {
           iconBox.innerHTML = ICONS.mic_active;
-          document.documentElement.style.setProperty('--accent', 'var(--flamingo)');
-          document.documentElement.style.setProperty('--accent-gradient', 'var(--mauve)');
+          document.documentElement.style.setProperty('--accent', 'var(--dynamic-accent, var(--flamingo))');
+          document.documentElement.style.setProperty('--accent-gradient', 'var(--dynamic-secondary, var(--mauve))');
           fillBar.style.width = '100%';
           valBadge.textContent = 'Active';
         }
