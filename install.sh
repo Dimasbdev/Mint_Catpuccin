@@ -2,7 +2,7 @@
 
 # ==============================================================================
 #  Mint-Catppuccin Dotfiles Installer
-#  Linux Mint Cinnamon Ricing Setup (Catppuccin Flamingo + Caelestia Suite)
+#  Linux Mint Cinnamon Ricing Setup (Catppuccin Flamingo + Bento UI Modules)
 # ==============================================================================
 
 set -e
@@ -30,7 +30,7 @@ print_banner() {
  |_|  |_|_|_| |_|\__|      \____\__,_|\__| .__/ \__,_|\___\___|_| |_|_|_| |_| 
                                          |_|                                   
 BANNER
-    echo -e "${CYAN}    Linux Mint Cinnamon Rice • Catppuccin Flamingo • Caelestia Suite${NC}"
+    echo -e "${CYAN}    Linux Mint Cinnamon Rice • Catppuccin Flamingo • Bento UI Modules${NC}"
     echo -e "${BLUE}======================================================================${NC}\n"
 }
 
@@ -120,7 +120,7 @@ deploy_configs() {
             cp -a "$script" "$HOME/.local/bin/$sname"
             chmod +x "$HOME/.local/bin/$sname"
         done
-        success "Skrip terpasang di ~/.local/bin/ (Caelestia launchers, utilities)"
+        success "Skrip terpasang di ~/.local/bin/ (Module launchers, utilities)"
     fi
 
     # Backup & deploy .local/share/caelestia-*
@@ -130,7 +130,7 @@ deploy_configs() {
             backup_item "$HOME/.local/share/$aname"
             mkdir -p "$HOME/.local/share/$aname"
             rsync -a --exclude="*.db" --exclude="*.sqlite*" --exclude="__pycache__" "$app/" "$HOME/.local/share/$aname/"
-            success "Caelestia suite terpasang: ~/.local/share/$aname"
+            success "Desktop modules terpasang: ~/.local/share/$aname"
         fi
     done
 
