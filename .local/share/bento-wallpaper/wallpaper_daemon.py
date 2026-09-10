@@ -232,44 +232,8 @@ class WallpaperDaemon:
         except Exception:
             return orig_path, self.get_fallback_palette(orig_path)
 
-    def update_workspaces_palette_cache(self):
+    def update_workspaces_cinnamon_css(self, all_palettes):
         try:
-            mapping = self.load_workspaces_config()
-            all_palettes = {}
-            for ws_idx, wp_path in mapping.items():
-                if os.path.exists(wp_path):
-                    _, pal = self.get_optimized_and_palette(wp_path)
-                    all_palettes[ws_idx] = {
-                        "wallpaper": wp_path,
-                        "primary": pal["primary"],
-                        "border": pal["border_active"]
-                    }
-            cache_file = os.path.join(SHARED_THEME_DIR, "workspaces_palette.json")
-            with open(cache_file, "w") as f:
-                json.dump(all_palettes, f, indent=2)
-        except Exception as e:
-            print(f"Error updating workspaces palette cache: {e}", file=sys.stderr)
-
-    def on_config_changed(self, monitor, file, other_file, event_type):
-        if event_type in (Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.CREATED):
-            self.update_workspaces_palette_cache()
-            if self.wnck_screen:
-                self.wnck_screen.force_update()
-                curr = self.wnck_screen.get_active_workspace()
-                if curr:
-                    idx = str(curr.get_number())
-                    mapping = self.load_workspaces_config()
-                    target_wp = mapping.get(idx)
-                    if target_wp and os.path.exists(target_wp):
-                        self.set_desktop_background(target_wp)
-
-    def update_cinnamon_theme(self, palette):
-        try:
-            primary = palette.get("primary", "#a1edb8")
-            if primary == self.last_palette_primary:
-                return
-            self.last_palette_primary = primary
-
             cinnamon_css = os.path.expanduser("~/.themes/Catppuccin-Flamingo-Dark/cinnamon/cinnamon.css")
             if not os.path.exists(cinnamon_css):
                 return
@@ -280,15 +244,49 @@ class WallpaperDaemon:
             marker_start = "/* === NOCTALIA DYNAMIC ACCENT START === */"
             marker_end = "/* === NOCTALIA DYNAMIC ACCENT END === */"
 
-            pr, pg, pb = [x.strip() for x in palette.get("primary_rgb", "161, 237, 184").split(",")]
-            border_active = palette.get("border_active", f"rgba({pr}, {pg}, {pb}, 0.45)")
-            border_hover = f"rgba({pr}, {pg}, {pb}, 0.7)"
+            ws_rules = []
+            for ws_idx, pinfo in all_palettes.items():
+                pri = pinfo["primary"]
+                border_act = pinfo["border"]
+                border_hov = border_act.replace("0.45", "0.75")
+
+                ws_rules.append(f"""/* --- Workspace {ws_idx}: {pri} --- */
+#panel.ws-{ws_idx} .applet-box {{
+    border: 1px solid {border_act} !important;
+}}
+#panel.ws-{ws_idx} .applet-box:hover {{
+    background-color: rgba(36, 36, 54, 0.95) !important;
+    border-color: {border_hov} !important;
+    color: {pri} !important;
+}}
+#panel.ws-{ws_idx} .applet-box:hover .applet-icon,
+#panel.ws-{ws_idx} .applet-box:hover StIcon {{
+    color: {pri} !important;
+}}
+#panel.ws-{ws_idx} .applet-box:hover .applet-label,
+#panel.ws-{ws_idx} #panelCenter .applet-box:hover .applet-label {{
+    color: {pri} !important;
+    font-weight: 700 !important;
+}}
+#panel.ws-{ws_idx} .calendar-today,
+#panel.ws-{ws_idx} .calendar-today:active,
+#panel.ws-{ws_idx} .calendar-today:focus,
+#panel.ws-{ws_idx} .calendar-today:hover {{
+    background-color: {pri} !important;
+    color: #11111b !important;
+    border-radius: 9999px;
+}}
+#panel.ws-{ws_idx} #menu-search-entry:focus {{
+    border: 2px solid {pri} !important;
+}}""")
+
+            all_ws_css = "\n\n".join(ws_rules)
 
             dynamic_section = f"""{marker_start}
 /* Universal Capsule Base (applies to ALL applet-box in panel: hwmonitor, calendar, tray, power, etc.) */
 #panel .applet-box {{
     background-color: rgba(24, 24, 37, 0.85) !important;
-    border: 1px solid {border_active} !important;
+    border: 1px solid rgba(161, 194, 237, 0.45) !important;
     border-radius: 9999px !important;
     padding: 0 8px !important;
     margin: 6px 2px !important;
@@ -297,7 +295,7 @@ class WallpaperDaemon:
     transition-duration: 150ms;
 }}
 
-/* Non-hover state: icons MUST NOT stay green/colored! Clean Catppuccin text #cdd6f4 */
+/* Non-hover state: clean Catppuccin subtext #cdd6f4 */
 #panel .applet-box .applet-icon,
 #panel .applet-box StIcon {{
     color: #cdd6f4 !important;
@@ -314,59 +312,21 @@ class WallpaperDaemon:
     margin: 6px 2px !important;
 }}
 
-/* Hover state: ONLY when hovered do border, icon, and label change to workspace accent! */
-#panel .applet-box:hover {{
-    background-color: rgba(36, 36, 54, 0.95) !important;
-    border-color: {border_hover} !important;
-    color: {primary} !important;
-}}
-
-#panel .applet-box:hover .applet-icon,
-#panel .applet-box:hover StIcon {{
-    color: {primary} !important;
-}}
-
-#panel .applet-box:hover .applet-label {{
-    color: {primary} !important;
-    font-weight: 700 !important;
-}}
-
 #panelCenter .applet-box .applet-label,
 #panelCenter .applet-label {{
     color: #ffffff !important;
     font-weight: 600 !important;
 }}
 
-#panelCenter .applet-box:hover .applet-label {{
-    color: {primary} !important;
-    font-weight: 700 !important;
-}}
-
-#panelLeft .applet-box:first-child {{
-    border: 1px solid {border_active} !important;
-}}
-
-#panelLeft .applet-box:first-child:hover {{
-    border-color: {border_hover} !important;
-}}
-
-.calendar-today,
-.calendar-today:active,
-.calendar-today:focus,
-.calendar-today:hover {{
-    background-color: {primary} !important;
-    color: #11111b !important;
-    border-radius: 9999px;
-}}
-
-#menu-search-entry:focus {{
-    border: 2px solid {primary} !important;
-}}
+/* Per-workspace instant accent classes (switched in JS with 0ms delay, no theme reload) */
+{all_ws_css}
 {marker_end}"""
 
             if marker_start in content and marker_end in content:
                 before = content.split(marker_start)[0]
                 after = content.split(marker_end)[1]
+                after = after.replace(".panel-top.ws-test .applet-box { border: 2px solid #ff00ff !important; }\n", "")
+                after = after.replace("#panel.ws-test .applet-box { border: 2px solid #ff00ff !important; }\n", "")
                 new_content = before + dynamic_section + after
             else:
                 new_content = content + "\n\n" + dynamic_section
@@ -374,7 +334,7 @@ class WallpaperDaemon:
             with open(cinnamon_css, "w") as f:
                 f.write(new_content)
 
-            # Reload Cinnamon theme dynamically so top panel adapts immediately
+            # Reload Cinnamon theme ONCE when cache is generated/updated
             if dbus:
                 try:
                     bus = dbus.SessionBus()
@@ -383,7 +343,41 @@ class WallpaperDaemon:
                 except Exception:
                     pass
         except Exception as e:
-            print(f"Error updating cinnamon theme: {e}", file=sys.stderr)
+            print(f"Error updating workspaces cinnamon css: {e}", file=sys.stderr)
+
+    def update_workspaces_palette_cache(self):
+        try:
+            mapping = self.load_workspaces_config()
+            all_palettes = {}
+            for ws_idx, wp_path in mapping.items():
+                if os.path.exists(wp_path):
+                    _, pal = self.get_optimized_and_palette(wp_path)
+                    all_palettes[ws_idx] = {
+                        "wallpaper": wp_path,
+                        "primary": pal["primary"],
+                        "border": pal["border_active"]
+                    }
+            cache_file = os.path.join(SHARED_THEME_DIR, "workspaces_palette.json")
+            with open(cache_file, "w") as f:
+                json.dump(all_palettes, f, indent=2)
+
+            # Generate all per-workspace CSS rules once
+            self.update_workspaces_cinnamon_css(all_palettes)
+        except Exception as e:
+            print(f"Error updating workspaces palette cache: {e}", file=sys.stderr)
+
+    def on_config_changed(self, monitor, file, other_file, event_type):
+        if event_type in (Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.CREATED):
+            self.update_workspaces_palette_cache()
+            if self.wnck_screen:
+                self.wnck_screen.force_update()
+                curr = self.wnck_screen.get_active_workspace()
+                if curr:
+                    idx = str(curr.get_number())
+                    mapping = self.load_workspaces_config()
+                    target_wp = mapping.get(idx)
+                    if target_wp and os.path.exists(target_wp):
+                        self.set_desktop_background(target_wp)
 
     def update_shared_theme(self, palette):
         try:
@@ -400,8 +394,7 @@ class WallpaperDaemon:
             with open(SHARED_CSS_FILE, "w") as f:
                 f.write(css_content)
 
-            self.update_cinnamon_theme(palette)
-
+            # Note: No ReloadTheme() called here! Workspace class is switched via JS (0ms lag).
             if self.theme_service:
                 self.theme_service.ThemeChanged(SHARED_COLORS_FILE)
         except Exception as e:

@@ -126,10 +126,33 @@ WorkspaceNanoApplet.prototype = {
         this._update();
     },
 
+    _updatePanelClass: function(active_idx) {
+        try {
+            let panel = this.panel;
+            if (!panel && Main.panelManager && Main.panelManager.panels) {
+                for (let p of Main.panelManager.panels) {
+                    if (p) { panel = p; break; }
+                }
+            }
+            if (panel && panel.actor) {
+                for (let i = 0; i < 8; i++) {
+                    if (i !== active_idx) {
+                        panel.actor.remove_style_class_name('ws-' + i);
+                    }
+                }
+                panel.actor.add_style_class_name('ws-' + active_idx);
+            }
+        } catch (e) {
+            global.logError('Error updating panel ws class: ' + e);
+        }
+    },
+
     _update: function() {
         let active_idx = global.workspace_manager.get_active_workspace_index();
         let theme = getThemeColors(active_idx);
         this._currentTheme = theme;
+
+        this._updatePanelClass(active_idx);
 
         // Strip any outer capsule from this.actor completely
         this.actor.style = 'background-color: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 6px 2px !important; height: 28px !important;';
