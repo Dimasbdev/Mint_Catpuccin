@@ -1,63 +1,112 @@
 #!/usr/bin/env python3
+import json
+import os
+import shlex
 import subprocess
 import sys
 
-APPS = {
+CONFIG_PATH = os.path.expanduser("~/.config/dock-shortcuts.json")
+
+DEFAULT_APPS = {
     "1": {
         "name": "Kitty",
         "match": ["kitty.kitty"],
         "exclude": ["btop", "cava", "sptlrx"],
-        "exec": ["/home/df/.local/bin/kitty-fast"],
+        "exec": "kitty-fast",
     },
     "2": {
         "name": "Btop",
         "match": ["btop"],
         "exclude": [],
-        "exec": ["kitty", "-e", "btop"],
+        "exec": "kitty -e btop",
     },
     "3": {
         "name": "Nemo",
         "match": ["nemo.nemo"],
         "exclude": ["nemo-desktop"],
-        "exec": ["nemo"],
+        "exec": "nemo",
     },
     "4": {
         "name": "Firefox",
         "match": ["firefox", "navigator"],
         "exclude": [],
-        "exec": ["firefox"],
+        "exec": "firefox",
     },
     "5": {
         "name": "Antigravity",
         "match": ["antigravity"],
         "exclude": [],
-        "exec": ["/home/df/Antigravity/Antigravity IDE/antigravity-ide", "--no-sandbox"],
+        "exec": "~/Antigravity/Antigravity IDE/antigravity-ide --no-sandbox",
     },
     "6": {
         "name": "Brave",
         "match": ["brave"],
         "exclude": [],
-        "exec": ["brave-browser"],
+        "exec": "brave-browser",
     },
     "7": {
         "name": "Sober",
         "match": ["sober"],
         "exclude": [],
-        "exec": ["flatpak", "run", "org.vinegarhq.Sober"],
+        "exec": "flatpak run org.vinegarhq.Sober",
     },
     "8": {
         "name": "OBS Studio",
         "match": ["obs"],
         "exclude": [],
-        "exec": ["flatpak", "run", "com.obsproject.Studio"],
+        "exec": "flatpak run com.obsproject.Studio",
     },
     "9": {
         "name": "Zoom",
         "match": ["zoom"],
         "exclude": [],
-        "exec": ["zoom"],
+        "exec": "zoom",
     },
 }
+
+def load_apps():
+    if os.path.exists(CONFIG_PATH):
+        try:
+            with open(CONFIG_PATH, "r") as f:
+                data = json.load(f)
+            apps = {}
+            for k, v in data.items():
+                if isinstance(v, str):
+                    base_name = os.path.basename(v.split()[0]).lower()
+                    apps[str(k)] = {
+                        "name": base_name.capitalize(),
+                        "exec": v,
+                        "match": [base_name],
+                        "exclude": []
+                    }
+                elif isinstance(v, dict):
+                    exec_cmd = v.get("exec", "")
+                    name = v.get("name") or (os.path.basename(exec_cmd.split()[0]).capitalize() if exec_cmd else f"App {k}")
+                    match = v.get("match") or [name.lower()]
+                    if isinstance(match, str):
+                        match = [match]
+                    exclude = v.get("exclude") or []
+                    if isinstance(exclude, str):
+                        exclude = [exclude]
+                    apps[str(k)] = {
+                        "name": name,
+                        "exec": exec_cmd,
+                        "match": match,
+                        "exclude": exclude
+                    }
+            return apps
+        except Exception as e:
+            print(f"Error loading {CONFIG_PATH}: {e}", file=sys.stderr)
+    return DEFAULT_APPS
+
+def save_apps(apps):
+    try:
+        os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+        with open(CONFIG_PATH, "w") as f:
+            json.dump(apps, f, indent=2)
+        print(f"Konfigurasi tersimpan di: {CONFIG_PATH}")
+    except Exception as e:
+        print(f"Gagal menyimpan {CONFIG_PATH}: {e}", file=sys.stderr)
 
 def get_windows():
     try:
@@ -84,17 +133,159 @@ def get_active_window_id():
     except Exception:
         return None
 
+def print_list(apps):
+    windows = get_windows()
+    print("\n╔═════════════════════════════════════════════════════════════════════════════╗")
+    print("║                   PINTASAN APLIKASI DOCK (Super + 1 .. 9)                   ║")
+    print("╠══════════╦══════════════════╦════════════════════════════════╦══════════════╣")
+    print("║ Shortcut ║ Aplikasi         ║ Perintah Eksekusi              ║ Status Jendela║")
+    print("╠══════════╬══════════════════╬════════════════════════════════╬══════════════╣")
+
+    for i in range(1, 10):
+        key = str(i)
+        if key in apps:
+            app = apps[key]
+            name = app.get("name", f"App {key}")[:16]
+            cmd = app.get("exec", "")
+            if isinstance(cmd, list):
+                cmd_str = " ".join(cmd)
+            else:
+                cmd_str = str(cmd)
+            cmd_disp = (cmd_str[:28] + "...") if len(cmd_str) > 30 else cmd_str
+
+            matching = [
+                w for w in windows
+                if any(m in w["text"] for m in app.get("match", []))
+                and not any(exc in w["text"] for exc in app.get("exclude", []))
+            ]
+            if matching:
+                status = f"{len(matching)} aktif"
+            else:
+                status = "tidak aktif"
+
+            print(f"║ Super+{key:<2} ║ {name:<16} ║ {cmd_disp:<30} ║ {status:<12} ║")
+        else:
+            print(f"║ Super+{key:<2} ║ (belum diatur)   ║ -                              ║ -            ║")
+
+    print("╚══════════╩══════════════════╩════════════════════════════════╩══════════════╝")
+    print(f"\nFile konfigurasi: {CONFIG_PATH}")
+    print("Perintah pengaturan:")
+    print("  dock-launch --set <1-9> <perintah>   (contoh: dock-launch --set 1 brave-browser)")
+    print("  dock-launch --edit                  (buka konfigurasi di teks editor)")
+    print("  dock-launch --sync-plank            (sinkronkan 1-9 dengan urutan icon di Plank dock)\n")
+
+def sync_from_plank():
+    try:
+        out = subprocess.check_output(
+            ["dconf", "read", "/net/launchpad/plank/docks/dock1/dock-items"],
+            text=True
+        ).strip()
+        if not out or out == "@as []":
+            print("Tidak ada dock-items ditemukan di Plank dock1.")
+            return
+
+        dock_items = json.loads(out.replace("'", '"'))
+        launchers_dir = os.path.expanduser("~/.config/plank/dock1/launchers")
+        
+        apps = {}
+        for idx, item in enumerate(dock_items[:9], start=1):
+            dockitem_path = os.path.join(launchers_dir, item)
+            if not os.path.exists(dockitem_path):
+                continue
+            
+            desktop_uri = ""
+            with open(dockitem_path, "r") as f:
+                for line in f:
+                    if line.startswith("Launcher="):
+                        desktop_uri = line.strip().split("=", 1)[1]
+                        break
+            
+            desktop_path = desktop_uri.replace("file://", "")
+            if os.path.exists(desktop_path):
+                app_name = item.replace(".dockitem", "")
+                exec_cmd = ""
+                wm_class = ""
+                with open(desktop_path, "r", errors="ignore") as df:
+                    for dline in df:
+                        if dline.startswith("Name=") and not app_name:
+                            app_name = dline.strip().split("=", 1)[1]
+                        elif dline.startswith("Exec=") and not exec_cmd:
+                            raw_exec = dline.strip().split("=", 1)[1]
+                            exec_cmd = raw_exec.replace("%u", "").replace("%U", "").replace("%f", "").replace("%F", "").strip()
+                        elif dline.startswith("StartupWMClass=") and not wm_class:
+                            wm_class = dline.strip().split("=", 1)[1].lower()
+
+                if not wm_class:
+                    wm_class = os.path.basename(exec_cmd.split()[0]).lower() if exec_cmd else app_name.lower()
+                
+                clean_name = app_name.split("_", 1)[-1].capitalize() if "_" in app_name else app_name.capitalize()
+                apps[str(idx)] = {
+                    "name": clean_name,
+                    "exec": exec_cmd,
+                    "match": [wm_class],
+                    "exclude": []
+                }
+
+        if apps:
+            save_apps(apps)
+            print(f"Berhasil mensinkronkan {len(apps)} aplikasi dari Plank ke Super+1..{len(apps)}!")
+            print_list(apps)
+        else:
+            print("Gagal membaca item dari Plank launchers.")
+    except Exception as e:
+        print(f"Error saat sinkronisasi dari Plank: {e}", file=sys.stderr)
+
+def edit_config():
+    editor = os.environ.get("VISUAL") or os.environ.get("EDITOR") or ("xed" if subprocess.run(["which", "xed"], capture_output=True).returncode == 0 else "nano")
+    subprocess.run([editor, CONFIG_PATH])
+
 def main():
     if len(sys.argv) < 2:
+        print("Penggunaan: dock-launch <1-9> | --list | --set <1-9> <cmd> | --sync-plank | --edit")
         sys.exit(1)
-    
-    key = sys.argv[1]
-    if key not in APPS:
+
+    arg = sys.argv[1]
+
+    if arg in ["--list", "-l", "list"]:
+        apps = load_apps()
+        print_list(apps)
+        return
+
+    if arg in ["--edit", "-e", "edit"]:
+        edit_config()
+        return
+
+    if arg in ["--sync-plank", "--sync", "sync"]:
+        sync_from_plank()
+        return
+
+    if arg in ["--set", "-s", "set"]:
+        if len(sys.argv) < 4:
+            print("Penggunaan: dock-launch --set <1-9> <perintah/aplikasi>")
+            sys.exit(1)
+        slot = str(sys.argv[2])
+        cmd = " ".join(sys.argv[3:])
+        apps = load_apps()
+        base = os.path.basename(cmd.split()[0]).lower()
+        apps[slot] = {
+            "name": base.capitalize(),
+            "exec": cmd,
+            "match": [base],
+            "exclude": []
+        }
+        save_apps(apps)
+        print(f"Super+{slot} sekarang diatur ke: {cmd}")
+        return
+
+    apps = load_apps()
+    key = arg
+    if key not in apps:
+        print(f"Slot shortcut {key} belum diatur. Gunakan: dock-launch --set {key} <perintah>")
         sys.exit(1)
-        
-    app = APPS[key]
+
+    app = apps[key]
     windows = get_windows()
-    
+
     matching_wins = []
     for w in windows:
         if any(exc in w["text"] for exc in app.get("exclude", [])):
@@ -116,7 +307,13 @@ def main():
                 pass
         subprocess.run(["wmctrl", "-ia", target_win["id"]])
     else:
-        subprocess.Popen(app["exec"], start_new_session=True)
+        exec_val = app.get("exec", "")
+        if isinstance(exec_val, list):
+            cmd = [os.path.expanduser(x) for x in exec_val]
+        else:
+            expanded = os.path.expanduser(exec_val)
+            cmd = shlex.split(expanded)
+        subprocess.Popen(cmd, start_new_session=True)
 
 if __name__ == "__main__":
     main()

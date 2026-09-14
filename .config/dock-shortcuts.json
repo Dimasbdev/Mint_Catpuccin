@@ -1,0 +1,56 @@
+{
+  "1": {
+    "name": "Kitty",
+    "exec": "kitty-fast",
+    "match": ["kitty.kitty"],
+    "exclude": ["btop", "cava", "sptlrx"]
+  },
+  "2": {
+    "name": "Btop",
+    "exec": "kitty -e btop",
+    "match": ["btop"],
+    "exclude": []
+  },
+  "3": {
+    "name": "Nemo",
+    "exec": "nemo",
+    "match": ["nemo.nemo"],
+    "exclude": ["nemo-desktop"]
+  },
+  "4": {
+    "name": "Firefox",
+    "exec": "firefox",
+    "match": ["firefox", "navigator"],
+    "exclude": []
+  },
+  "5": {
+    "name": "Antigravity",
+    "exec": "~/Antigravity/Antigravity IDE/antigravity-ide --no-sandbox",
+    "match": ["antigravity"],
+    "exclude": []
+  },
+  "6": {
+    "name": "Brave",
+    "exec": "brave-browser",
+    "match": ["brave"],
+    "exclude": []
+  },
+  "7": {
+    "name": "Sober",
+    "exec": "flatpak run org.vinegarhq.Sober",
+    "match": ["sober"],
+    "exclude": []
+  },
+  "8": {
+    "name": "OBS Studio",
+    "exec": "flatpak run com.obsproject.Studio",
+    "match": ["obs"],
+    "exclude": []
+  },
+  "9": {
+    "name": "Zoom",
+    "exec": "zoom",
+    "match": ["zoom"],
+    "exclude": []
+  }
+}
