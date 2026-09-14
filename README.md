@@ -79,8 +79,8 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/<username>/mint-catppuccin.git
-cd mint-catppuccin
+git clone https://github.com/Dimasbdev/Mint_Catpuccin.git
+cd Mint_Catpuccin
 ```
 
 ### 2. Run the Interactive Installer
@@ -104,7 +104,7 @@ After installation completes, reload Cinnamon:
 ## Repository Structure
 
 ```text
-mint-catppuccin/
+Mint_Catpuccin/
 ├── .config/
 │   ├── autostart/             # Autostart entries for Bento daemons
 │   ├── bento-wallpaper/       # Per-workspace wallpaper mapping
