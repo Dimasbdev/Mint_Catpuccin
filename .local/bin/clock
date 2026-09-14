@@ -1,5 +1,28 @@
 #!/usr/bin/env bash
 # ==============================================================================
 #  Bento Catppuccin Clock Launcher (tty-clock)
+#  Automatically matches active workspace dominant palette
 # ==============================================================================
-exec tty-clock -s -c -C 5 -b -B "$@"
+COLOR_ID=$(python3 -c "
+import os, json, colorsys
+cfg = os.path.expanduser('~/.cache/bento/colors.json')
+c = 5
+if os.path.exists(cfg):
+    try:
+        with open(cfg) as f:
+            data = json.load(f)
+        h = data.get('primary', '').lstrip('#')
+        if len(h) == 6:
+            r, g, b = [int(h[i:i+2], 16)/255.0 for i in (0, 2, 4)]
+            deg = colorsys.rgb_to_hls(r, g, b)[0] * 360
+            if deg < 25 or deg >= 340: c = 1    # Red / Maroon
+            elif deg < 65: c = 3               # Yellow / Peach
+            elif deg < 165: c = 2              # Green / Mint
+            elif deg < 205: c = 6              # Cyan / Teal
+            elif deg < 275: c = 4              # Blue / Sapphire / Lavender
+            else: c = 5                        # Magenta / Flamingo / Mauve
+    except Exception: pass
+print(c)
+" 2>/dev/null || echo 5)
+
+exec tty-clock -s -c -C "$COLOR_ID" -b -B "$@"
