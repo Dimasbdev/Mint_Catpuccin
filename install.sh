@@ -59,14 +59,24 @@ install_packages() {
         cava
         python3-gi
         python3-gi-cairo
+        python3-pil
+        python3-xlib
+        python3-dbus
         gir1.2-gtk-3.0
         gir1.2-webkit2-4.1
+        gir1.2-wnck-3.0
+        wmctrl
+        x11-utils
+        pulseaudio-utils
         dconf-cli
         xclip
         playerctl
         curl
         git
         rsync
+        gcc
+        fonts-firacode
+        fonts-inter
         papirus-icon-theme
     )
 
@@ -100,19 +110,25 @@ deploy_configs() {
     for item in "$DOTFILES_DIR/.config"/*; do
         local name="$(basename "$item")"
         backup_item "$HOME/.config/$name"
-        mkdir -p "$HOME/.config/$name"
-        rsync -a --delete "$item/" "$HOME/.config/$name/"
+        if [ -d "$item" ]; then
+            mkdir -p "$HOME/.config/$name"
+            rsync -a --delete "$item/" "$HOME/.config/$name/"
+        else
+            cp -a "$item" "$HOME/.config/$name"
+        fi
         success "Terkonfigurasi: ~/.config/$name"
     done
 
-    # Fix absolute HOME path in autostart desktop entries
-    if [ -d "$HOME/.config/autostart" ]; then
-        for f in "$HOME/.config/autostart"/bento-*.desktop; do
-            if [ -f "$f" ]; then
-                sed -i "s|/home/df/|$HOME/|g" "$f"
-            fi
-        done
-    fi
+    # Fix absolute paths to current user's $HOME in autostart, systemd, and plank launchers
+    for dir in "$HOME/.config/autostart" "$HOME/.config/systemd/user" "$HOME/.config/plank/dock1/launchers"; do
+        if [ -d "$dir" ]; then
+            for f in "$dir"/*; do
+                if [ -f "$f" ]; then
+                    sed -i "s|__HOME__|$HOME|g; s|/home/df/|$HOME/|g" "$f"
+                fi
+            done
+        fi
+    done
 
     # Backup & deploy .config/starship.toml
     if [ -f "$DOTFILES_DIR/.config/starship.toml" ]; then
@@ -129,6 +145,11 @@ deploy_configs() {
             cp -a "$script" "$HOME/.local/bin/$sname"
             chmod +x "$HOME/.local/bin/$sname"
         done
+        # Compile bento-sock-send C helper if gcc is available
+        if command -v gcc >/dev/null 2>&1 && [ -f "$DOTFILES_DIR/.local/bin/bento-sock-send.c" ]; then
+            gcc -O3 "$DOTFILES_DIR/.local/bin/bento-sock-send.c" -o "$HOME/.local/bin/bento-sock-send" 2>/dev/null || true
+            chmod +x "$HOME/.local/bin/bento-sock-send" 2>/dev/null || true
+        fi
         success "Skrip terpasang di ~/.local/bin/ (Module launchers, utilities)"
     fi
 
@@ -162,6 +183,13 @@ deploy_configs() {
         success "GTK Theme terpasang: ~/.themes/Catppuccin-Flamingo-Dark"
     fi
 
+    # Deploy icons & cursor theme
+    if [ -d "$DOTFILES_DIR/.icons" ]; then
+        mkdir -p "$HOME/.icons"
+        cp -a "$DOTFILES_DIR/.icons"/* "$HOME/.icons/" 2>/dev/null || true
+        success "Cursor theme terpasang: ~/.icons/"
+    fi
+
     # Deploy Wallpapers
     mkdir -p "$HOME/.cache/bento-wallpaper/optimized" "$HOME/Pictures/Wallpapers"
     if [ -d "$DOTFILES_DIR/assets/wallpapers" ]; then
@@ -169,6 +197,19 @@ deploy_configs() {
         cp -a "$DOTFILES_DIR/assets/wallpapers"/default.jpg "$HOME/.cache/bento-wallpaper/optimized/135449b36a8398ec09a9d3337f84607a.jpg" 2>/dev/null || true
         cp -a "$DOTFILES_DIR/assets/wallpapers"/ws_* "$HOME/.cache/bento-wallpaper/optimized/" 2>/dev/null || true
         success "Wallpaper terpasang di ~/Pictures/Wallpapers/ & cache Bento"
+    fi
+
+    # Enable systemd user services if available
+    if command -v systemctl >/dev/null 2>&1; then
+        systemctl --user daemon-reload 2>/dev/null || true
+        for svc in "$HOME/.config/systemd/user"/*.service; do
+            if [ -f "$svc" ]; then
+                local svc_name="$(basename "$svc")"
+                systemctl --user enable "$svc_name" 2>/dev/null || true
+            fi
+        done
+        systemctl --user start kitty-daemon.service 2>/dev/null || true
+        success "Systemd user services terpasang & aktif (termasuk kitty-daemon)"
     fi
 
     if [ -d "$BACKUP_DIR" ]; then
@@ -180,15 +221,15 @@ apply_dconf() {
     info "Menerapkan pengaturan Cinnamon & Interface via dconf..."
     if command -v dconf >/dev/null 2>&1; then
         if [ -f "$DOTFILES_DIR/dconf/cinnamon.dconf" ]; then
-            dconf load /org/cinnamon/ < "$DOTFILES_DIR/dconf/cinnamon.dconf"
+            sed -e "s|__HOME__|$HOME|g" -e "s|/home/df/|$HOME/|g" "$DOTFILES_DIR/dconf/cinnamon.dconf" | dconf load /org/cinnamon/
             success "Pengaturan Cinnamon diterapkan (panel, applets, themes)."
         fi
         if [ -f "$DOTFILES_DIR/dconf/gnome-interface.dconf" ]; then
-            dconf load /org/gnome/desktop/interface/ < "$DOTFILES_DIR/dconf/gnome-interface.dconf"
+            sed -e "s|__HOME__|$HOME|g" -e "s|/home/df/|$HOME/|g" "$DOTFILES_DIR/dconf/gnome-interface.dconf" | dconf load /org/gnome/desktop/interface/
             success "Pengaturan GNOME/GTK Interface diterapkan."
         fi
         if [ -f "$DOTFILES_DIR/dconf/plank.dconf" ]; then
-            dconf load /net/launchpad/plank/ < "$DOTFILES_DIR/dconf/plank.dconf"
+            sed -e "s|__HOME__|$HOME|g" -e "s|/home/df/|$HOME/|g" "$DOTFILES_DIR/dconf/plank.dconf" | dconf load /net/launchpad/plank/
             success "Pengaturan Plank dock diterapkan."
         fi
     else

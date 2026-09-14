@@ -1,173 +1,188 @@
 <div align="center">
 
-# 🍃 mint-catppuccin
+# mint-catppuccin
 
-**Aesthetic Linux Mint Cinnamon Rice • Catppuccin Flamingo Dark**
+**Aesthetic Linux Mint Cinnamon Rice • Dynamic Catppuccin Palette**
 
-[![Linux Mint](https://img.shields.io/badge/Linux%20Mint-22.x%20(Zena)-87CF3E?style=flat-square&logo=linux-mint&logoColor=white)](https://linuxmint.com/)
-[![Desktop](https://img.shields.io/badge/Desktop-Cinnamon-35D499?style=flat-square)](https://github.com/linuxmint/cinnamon)
-[![Theme](https://img.shields.io/badge/Theme-Catppuccin%20Flamingo-F2CDCD?style=flat-square&logo=catppuccin&logoColor=1E1E2E)](https://github.com/catppuccin/catppuccin)
-[![Terminal](https://img.shields.io/badge/Terminal-Kitty-202646?style=flat-square&logo=kitty&logoColor=white)](https://sw.kovidgoyal.net/kitty/)
-[![Shell Prompt](https://img.shields.io/badge/Prompt-Starship-DD0B78?style=flat-square&logo=starship&logoColor=white)](https://starship.rs/)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
+[![Linux Mint](https://img.shields.io/badge/Linux%20Mint-22.x%20(Zena)-87CF3E?style=flat-square&logo=linux-mint&logoColor=white)](https://linuxmint.com/) [![Desktop](https://img.shields.io/badge/Desktop-Cinnamon-35D499?style=flat-square)](https://github.com/linuxmint/cinnamon) [![Terminal](https://img.shields.io/badge/Terminal-Kitty-202646?style=flat-square&logo=kitty&logoColor=white)](https://sw.kovidgoyal.net/kitty/) [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-*Dotfiles dan konfigurasi ricing personal untuk Linux Mint Cinnamon dengan tampilan modern, bersih, dan kohesif.*
+*Personal dotfiles and ricing configuration for Linux Mint Cinnamon featuring a dark Catppuccin Mocha base paired with a dynamic pastel theme engine that harmonizes with per-workspace wallpapers.*
 
-[Showcase](#-showcase) • [Fitur](#-fitur-utama) • [Spesifikasi](#-spesifikasi-ricing) • [Instalasi](#-instalasi) • [Struktur](#-struktur-repositori) • [Pintasan](#-shortcut--perintah)
+[Showcase](#showcase) • [Features](#key-features) • [Specifications](#ricing-specifications) • [Installation](#installation) • [Repository Structure](#repository-structure) • [Keybindings](#shortcuts--commands)
 
 </div>
 
 ---
 
-## 📸 Showcase
+## Showcase
 
 <div align="center">
 
-| 🖥️ Desktop Overview | 💻 Fastfetch & Terminal |
-|:---:|:---:|
-| ![Desktop](assets/screenshots/1_desktop.png) | ![Terminal](assets/screenshots/2_fastfetch.png) |
-
-| 🎛️ Control Center & Music | 📊 Btop System Monitor |
-|:---:|:---:|
-| ![Control](assets/screenshots/3_control.png) | ![Btop](assets/screenshots/4_btop.png) |
-
-| 📋 Bento Clipboard Manager | ⏻ Power & Session Menu |
-|:---:|:---:|
-| ![Clipboard](assets/screenshots/5_clipboard.png) | ![Power](assets/screenshots/6_power.png) |
+![Desktop Showcase](assets/screenshots/showcase.png)
 
 </div>
 
 ---
 
-## ✨ Fitur Utama
+## Key Features
 
-- **🎨 Tema Catppuccin Flamingo:** Tema GTK dan panel Cinnamon `Catppuccin-Flamingo-Dark`, icon pack `Papirus-Dark`, dan kursor `catppuccin-mocha-flamingo`.
-- **🧩 Custom Cinnamon Applets (`@df`):**
-  - `menu-search@df`: Menu pencarian aplikasi cepat di panel kiri.
-  - `workspace-nano@df`: Switcher workspace minimalis berbentuk pill.
-  - `hwmonitor@df`: Monitoring suhu CPU dan penggunaan RAM di panel secara real-time.
-  - `storage-monitor@df`: Indikator pemakaian penyimpanan disk.
-  - `power-button@df`: Tombol menu power cepat di panel kanan.
-- **🖥️ Bento Desktop Modules:**
-  - **`bento-control`**: Control Center terpadu untuk toggle Wi-Fi, Bluetooth, Night Light, DND, volume, kecerahan, dan mini player musik.
-  - **`bento-clip`**: Clipboard manager berbasis Bento grid dengan pencarian riwayat teks dan gambar.
-  - **`bento-osd`**: Floating pill OSD pop-up untuk indikator volume dan brightness.
-  - **`bento-lock`**: Layar pengunci estetik dengan avatar, jam digital, dan statistik.
-  - **`bento-power`**: Menu session & power (Lock, Logout, Suspend, Hibernate, Reboot, Shutdown).
-  - **`bento-wallpaper`**: Daemon pengganti wallpaper dinamis dengan dukungan workspace.
-- **⚡ Terminal & CLI Experience:**
-  - **Kitty Terminal**: Terminal GPU-accelerated dengan font dan skema warna gelap yang selaras.
-  - **Fastfetch**: Info sistem lengkap dengan rendering grafis Kitty direct protocol.
-  - **Starship Prompt**: Prompt shell elegan menampilkan direktori, status git, dan waktu.
-  - **Btop**: Monitor sistem interaktif bertema pastel Catppuccin.
-  - **Cava & Sptlrx**: Audio visualizer bar dan sinkronisasi lirik musik via MPRIS.
-- **⚓ Floating Dock:** Dock Plank transparan di bagian bawah layar.
+- **Dynamic Catppuccin Theme:** Built on a dark Catppuccin Mocha base (`Catppuccin-Flamingo-Dark` GTK, `Papirus-Dark` icons, and `catppuccin-mocha-flamingo` cursor), enhanced by a dynamic color extraction engine that automatically samples wallpaper tones into soft Catppuccin pastel accents.
+- **Custom Cinnamon Applets:**
+  - **Menu Search**: Fast application search and launcher on the left panel.
+  - **Workspace Nano**: Minimalist pill-shaped workspace switcher.
+  - **Hardware Monitor**: Real-time CPU temperature and RAM usage indicator.
+  - **Power Button**: Quick session control button on the right panel.
+  - **Storage Monitor** *(optional)*: Real-time disk storage indicator.
+- **Bento Desktop Modules:**
+  - **`bento-control`**: Unified control center for toggling Wi-Fi, Bluetooth, Night Light, DND, volume, display brightness, and MPRIS music player.
+  - **`bento-clip`**: Modern grid clipboard manager with search history and image preview support.
+  - **`bento-osd`**: Floating pill on-screen display for volume and brightness feedback.
+  - **`bento-lock`**: Aesthetic lock screen integrated with screensaver proxy and password-protected power actions.
+  - **`bento-power`**: Clean session and power menu (Lock, Suspend, Reboot, Shutdown).
+  - **`bento-wallpaper`**: Per-workspace wallpaper daemon with an instant Dynamic Theme Engine that extracts palette colors and broadcasts accent updates.
+- **Terminal & CLI Experience:**
+  - **Kitty Terminal**: GPU-accelerated terminal with FiraCode Nerd Font Mono and Catppuccin Mocha color scheme.
+  - **Fastfetch**: System information fetch with Kitty direct graphics protocol rendering.
+  - **Starship Prompt**: Minimalist, responsive shell prompt displaying current directory, Git status, and timestamp.
+  - **pipes.sh**: Retro animated terminal screensaver tuned to pastel Catppuccin colors.
+  - **Btop**: Interactive system resource monitor styled in Catppuccin theme.
+  - **Cava & Sptlrx**: Audio visualizer bar and synchronized live music lyrics via MPRIS.
+- **Floating Dock:** Clean, transparent Plank dock with intelligent auto-hide to avoid obstructing active windows or tiling layouts.
 
 ---
 
-## 🛠 Spesifikasi Ricing
+## Ricing Specifications
 
-| Komponen | Pilihan / Konfigurasi |
+| Component | Choice / Configuration |
 | :--- | :--- |
-| **Distro** | Linux Mint 22.x (Zena) |
+| **Distribution** | Linux Mint 22.x (Zena) |
 | **Desktop Environment** | Cinnamon |
 | **Window Manager** | Muffin (X11) |
-| **GTK Theme** | Catppuccin-Flamingo-Dark |
+| **GTK Theme** | Catppuccin-Flamingo-Dark (Mocha Base) |
+| **Color Scheme** | Dynamic Catppuccin (Wallpaper-Adaptive) |
 | **Icon Theme** | Papirus-Dark |
 | **Cursor Theme** | catppuccin-mocha-flamingo-cursors |
 | **Terminal** | Kitty |
+| **Terminal Font** | FiraCode Nerd Font Mono |
+| **System Font** | Ubuntu 10 |
 | **Shell & Prompt** | Bash + Starship |
-| **Fetch Tool** | Fastfetch (Kitty Direct Graphics) |
+| **System Fetch** | Fastfetch (Kitty Direct Graphics) |
+| **Terminal Screensaver** | pipes.sh |
 | **Resource Monitor** | btop |
 | **Audio Visualizer** | Cava |
 | **Lyrics Display** | Sptlrx |
-| **Dock** | Plank |
+| **Dock** | Plank (Intelligent Hide) |
 
 ---
 
-## 📦 Instalasi
+## Installation
 
-### 1. Clone Repositori
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/<username>/mint-catppuccin.git
 cd mint-catppuccin
 ```
 
-### 2. Jalankan Installer
+### 2. Run the Interactive Installer
 ```bash
 ./install.sh
 ```
 
-Menu installer menyediakan:
-1. **Full Install (Rekomendasi):** Memeriksa dependensi sistem, membuat backup konfigurasi lama ke `~/.dotfiles_backup/`, memasang semua file ke `.config`, `.local`, tema GTK, dan memulihkan layout Cinnamon via `dconf`.
-2. **Konfigurasi Saja:** Hanya menyalin file konfigurasi tanpa mengubah paket sistem.
-3. **Dconf Saja:** Hanya memulihkan pengaturan panel Cinnamon, shortcut, dan tema.
+The installer provides the following options:
+1. **Full Install (Recommended):** Verifies and installs required dependencies via `apt`, creates a timestamped backup of existing configs in `~/.dotfiles_backup/`, deploys all files to `.config`, `.local`, GTK themes, wallpapers, and restores Cinnamon settings via `dconf`.
+2. **Config Only:** Deploys configuration files without modifying system packages.
+3. **Dconf Only:** Restores Cinnamon panel layouts, applets, shortcuts, and themes only.
+4. **Install Packages Only:** Installs required system dependencies via `apt` without touching user configs.
 
-### 3. Terapkan Perubahan
-Setelah selesai, muat ulang Cinnamon:
-- Tekan `Alt + F2`, ketik `r`, lalu tekan `Enter`.
-- Atau logout dan login kembali ke sesi Anda.
+### 3. Apply Changes
+After installation completes, reload Cinnamon:
+- Press `Alt + F2`, type `r`, and press `Enter`.
+- Or log out and log back into your desktop session.
 
 ---
 
-## 📂 Struktur Repositori
+## Repository Structure
 
 ```text
 mint-catppuccin/
 ├── .config/
-│   ├── autostart/             # Autostart daemon Bento & Plank
-│   ├── bento-wallpaper/       # Pemetaan wallpaper per-workspace
-│   ├── btop/                  # Konfigurasi btop & tema Catppuccin
-│   ├── cava/                  # Konfigurasi visualizer audio
-│   ├── fastfetch/             # Konfigurasi fastfetch
-│   ├── kitty/                 # Konfigurasi Kitty terminal
-│   ├── plank/                 # Pengaturan dock Plank & launchers
-│   ├── sptlrx/                # Konfigurasi lirik musik sptlrx
-│   └── starship.toml          # Prompt Starship Catppuccin
+│   ├── autostart/             # Autostart entries for Bento daemons
+│   ├── bento-wallpaper/       # Per-workspace wallpaper mapping
+│   ├── btop/                  # btop system monitor Catppuccin config
+│   ├── cava/                  # Cava audio visualizer configuration
+│   ├── dock-shortcuts.json    # Configurable Super + 1..9 shortcut mapping
+│   ├── fastfetch/             # Fastfetch configuration and logos
+│   ├── kitty/                 # Kitty terminal config and Mocha theme
+│   ├── plank/                 # Plank dock preferences and launchers
+│   ├── sptlrx/                # sptlrx live lyrics configuration
+│   ├── starship.toml          # Catppuccin Starship prompt config
+│   └── systemd/user/          # User background services (clip, lock, kitty, plank)
 ├── .local/
-│   ├── bin/                   # Skrip utilitas & launcher modul Bento
+│   ├── bin/                   # Bento module scripts and utility launchers
 │   └── share/
-│       ├── bento-*            # Modul antarmuka Bento UI
-│       └── cinnamon/applets/  # Custom Cinnamon applets (@df)
+│       ├── bento-*            # Bento UI HTML/JS frontend interfaces
+│       └── cinnamon/applets/  # Custom Cinnamon panel applets
 ├── dconf/
-│   ├── cinnamon.dconf         # Pengaturan panel, applet, dan tema Cinnamon
-│   ├── gnome-interface.dconf  # Pengaturan tema GTK, font, dan kursor
-│   └── plank.dconf            # Pengaturan dock Plank
+│   ├── cinnamon.dconf         # Cinnamon panels, applets, and theme dconf dump
+│   ├── gnome-interface.dconf  # GTK theme, font, and cursor settings
+│   └── plank.dconf            # Plank dock preferences and dock items
 ├── themes/
-│   └── Catppuccin-Flamingo-Dark/  # Tema GTK lengkap
+│   └── Catppuccin-Flamingo-Dark/  # Full GTK2/3/4 & Cinnamon desktop theme
 ├── assets/
-│   ├── screenshots/           # Screenshot showcase ricing
-│   ├── wallpapers/            # Wallpaper default & workspace
-│   └── icons/                 # Aset grafis (eva.png)
-├── install.sh                 # Skrip instalasi interaktif
-├── .gitignore                 # Filter cache, riwayat db, dan file temporary
-├── LICENSE                    # Lisensi MIT
-└── README.md                  # Dokumentasi repositori
+│   ├── screenshots/           # Desktop showcase screenshots
+│   ├── wallpapers/            # Default & workspace wallpapers
+│   └── icons/                 # Graphic assets
+├── install.sh                 # Interactive installation script
+├── .gitignore                 # Cache, database history, and temp filters
+├── LICENSE                    # MIT License
+└── README.md                  # Project documentation
 ```
 
 ---
 
-## ⌨️ Shortcut & Perintah
+## Shortcuts & Commands
 
-| Modul / Aksi | Perintah Eksekusi |
-| :--- | :--- |
-| **Control Center** | `bento-control` |
-| **Clipboard History** | `bento-clip` |
-| **Lock Screen** | `bento-lock` |
-| **Power Menu** | `bento-power` |
-| **Wallpaper Switcher**| `bento-wallpaper` |
-| **Auto Tiling Toggle**| `cinnamon-autotile.py` |
-| **Terminal Kitty** | `kitty-fast` |
+All keybindings below are **ergonomic default presets**. You can freely customize any shortcut to match your preferred workflow via **System Settings > Keyboard > Shortcuts > Custom Shortcuts**.
 
-*Catatan:* Anda dapat mengatur tombol pintasan keyboard melalui **System Settings > Keyboard > Shortcuts > Custom Shortcuts**.
+| Shortcut | Action / Module | Command |
+| :--- | :--- | :--- |
+| `Super + C` | **Control Center** | `bento-control` |
+| `Super + V` | **Clipboard History** | `bento-clip` |
+| `Super + L` | **Lock Screen** | `bento-lock` |
+| `Super + Escape` | **Power Menu** | `bento-power` |
+| `Super + W` | **Wallpaper Switcher** | `bento-wallpaper` |
+| `Super + T` | **Auto-Tiling Toggle** | `cinnamon-autotile.py` |
+| `Super + Return` | **Terminal (Kitty)** | `kitty-fast` |
+| `Super + 1 .. 9` | **Dock App Quick Launch & Switch** | `dock-launch 1..9` |
+
+### Customizing Dock Shortcuts (`Super + 1 .. 9`)
+You can easily change which applications are launched or focused by `Super + 1` through `Super + 9`:
+- **View current mappings:**
+  ```bash
+  dock-launch --list
+  ```
+- **Set an application for a specific number:**
+  ```bash
+  dock-launch --set 1 brave-browser
+  dock-launch --set 4 code
+  ```
+- **Automatically sync with your current Plank dock items:**
+  ```bash
+  dock-launch --sync-plank
+  ```
+- **Edit configuration directly:**
+  ```bash
+  dock-launch --edit
+  # Or open ~/.config/dock-shortcuts.json in your favorite text editor
+  ```
 
 ---
 
-## 🔒 Privasi & Keamanan
-- Riwayat salinan clipboard pribadi (`clipboard.db`) otomatis diabaikan via `.gitignore`.
-- Cache Python (`__pycache__`) dan file temporary tidak disertakan dalam repositori.
+## Privacy & Security
+- Private clipboard history database (`clipboard.db`) is automatically ignored by `.gitignore`.
+- Python cache files (`__pycache__`) and temporary runtime files are excluded from this repository.
 
 ---
 
-## 📄 Lisensi
-Proyek ini dilisensikan di bawah [MIT License](LICENSE).
+## License
+This project is open-source and licensed under the [MIT License](LICENSE).
