@@ -2779,22 +2779,22 @@ StScrollBar StButton#hhandle:active {
 }
 
 /* Per-workspace instant accent classes (switched in JS with 0ms delay, no theme reload) */
-/* --- Workspace 0: #eda1ab --- */
+/* --- Workspace 0: #a1edb8 --- */
 #panel.ws-0 .applet-box {
-    border: 1px solid rgba(237, 161, 171, 0.45) !important;
+    border: 1px solid rgba(161, 237, 184, 0.45) !important;
 }
 #panel.ws-0 .applet-box:hover {
     background-color: rgba(36, 36, 54, 0.95) !important;
-    border-color: rgba(237, 161, 171, 0.75) !important;
-    color: #eda1ab !important;
+    border-color: rgba(161, 237, 184, 0.75) !important;
+    color: #a1edb8 !important;
 }
 #panel.ws-0 .applet-box:hover .applet-icon,
 #panel.ws-0 .applet-box:hover StIcon {
-    color: #eda1ab !important;
+    color: #a1edb8 !important;
 }
 #panel.ws-0 .applet-box:hover .applet-label,
 #panel.ws-0 #panelCenter .applet-box:hover .applet-label {
-    color: #eda1ab !important;
+    color: #a1edb8 !important;
     font-weight: 700 !important;
 }
 .ws-0 .calendar-today,
@@ -2805,32 +2805,32 @@ StScrollBar StButton#hhandle:active {
 #panel.ws-0 .calendar-today:active,
 #panel.ws-0 .calendar-today:focus,
 #panel.ws-0 .calendar-today:hover {
-    background-color: #eda1ab !important;
+    background-color: #a1edb8 !important;
     color: #11111b !important;
     border-radius: 9999px;
 }
 .ws-0 .calendar-today-day-label {
-    color: #eda1ab !important;
+    color: #a1edb8 !important;
 }
 .ws-0 .calendar-today-home-button-enabled {
-    background-color: #eda1ab !important;
+    background-color: #a1edb8 !important;
     color: #11111b !important;
 }
 #panel.ws-0 #menu-search-entry:focus {
-    border: 2px solid #eda1ab !important;
+    border: 2px solid #a1edb8 !important;
 }
 .ws-0 .workspace-switch-osd,
 .workspace-switch-osd.ws-0 {
-    color: #eda1ab !important;
-    border: 1px solid rgba(237, 161, 171, 0.45) !important;
+    color: #a1edb8 !important;
+    border: 1px solid rgba(161, 237, 184, 0.45) !important;
 }
 .ws-0 .workspace-switch-osd .workspace-switch-osd-indicator:active,
 .workspace-switch-osd.ws-0 .workspace-switch-osd-indicator:active {
-    background-color: #eda1ab !important;
+    background-color: #a1edb8 !important;
 }
 .ws-0 .workspace-switch-osd StLabel,
 .workspace-switch-osd.ws-0 StLabel {
-    color: #eda1ab !important;
+    color: #a1edb8 !important;
 }
 
 /* Dynamic Bento Sound Player for Workspace 0 */
@@ -2838,75 +2838,138 @@ StScrollBar StButton#hhandle:active {
 .menu.ws-0 .sound-player,
 .sound-player.ws-0,
 .popup-menu-content.ws-0 .sound-player {
-    border: 1px solid rgba(237, 161, 171, 0.45) !important;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(237, 161, 171, 0.45) !important;
+    border: 1px solid rgba(161, 237, 184, 0.45) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(161, 237, 184, 0.45) !important;
 }
 .ws-0 .sound-player > StBoxLayout:first-child,
 .menu.ws-0 .sound-player > StBoxLayout:first-child,
 .sound-player.ws-0 > StBoxLayout:first-child {
-    color: #eda1ab !important;
+    color: #a1edb8 !important;
 }
 .ws-0 .sound-player-generic-coverart,
 .menu.ws-0 .sound-player-generic-coverart,
 .sound-player.ws-0 .sound-player-generic-coverart {
-    color: #eda1ab !important;
+    color: #a1edb8 !important;
 }
 .ws-0 .sound-player-overlay StButton:hover,
 .menu.ws-0 .sound-player-overlay StButton:hover,
 .sound-player.ws-0 .sound-player-overlay StButton:hover {
-    background-color: rgba(237, 161, 171, 0.45) !important;
-    color: #eda1ab !important;
-    border-color: #eda1ab !important;
-    box-shadow: 0 0 12px rgba(237, 161, 171, 0.45) !important;
+    background-color: rgba(161, 237, 184, 0.45) !important;
+    color: #a1edb8 !important;
+    border-color: #a1edb8 !important;
+    box-shadow: 0 0 12px rgba(161, 237, 184, 0.45) !important;
 }
 .ws-0 .sound-player-overlay StButton:active,
 .menu.ws-0 .sound-player-overlay StButton:active,
 .sound-player.ws-0 .sound-player-overlay StButton:active {
-    background-color: #eda1ab !important;
+    background-color: #a1edb8 !important;
     color: #11111b !important;
-    border-color: #eda1ab !important;
+    border-color: #a1edb8 !important;
 }
+
+/* ALL Sliders in Workspace 0 (Sound Volume, Track Seeker, Battery/Brightness) */
+.ws-0 .slider,
+.menu.ws-0 .slider,
+.popup-menu.ws-0 .slider,
+.popup-menu-content.ws-0 .slider,
+#uiGroup.ws-0 .slider,
+.ws-0 .popup-slider-menu-item .slider,
 .ws-0 .sound-player .slider,
-.menu.ws-0 .sound-player .slider,
-.sound-player.ws-0 .slider {
-    -slider-active-background-color: #eda1ab !important;
+.ws-0 .sound-volume-menu-item .slider {
+    -slider-active-background-color: #a1edb8 !important;
+    -slider-active-border-color: #a1edb8 !important;
 }
-.ws-0 .sound-volume-menu-item StIcon,
-.menu.ws-0 .sound-volume-menu-item StIcon,
-.popup-menu-content.ws-0 .sound-volume-menu-item StIcon {
-    color: #eda1ab !important;
+
+/* ALL Toggle Switches in Workspace 0 (Wi-Fi Wireless toggle, Bluetooth toggle) */
+.ws-0 .toggle-switch:checked,
+.menu.ws-0 .toggle-switch:checked,
+.popup-menu.ws-0 .toggle-switch:checked,
+.popup-menu-content.ws-0 .toggle-switch:checked,
+#uiGroup.ws-0 .toggle-switch:checked,
+.ws-0 .popup-menu-item:active .toggle-switch:checked,
+.popup-menu.ws-0 .popup-menu-item:active .toggle-switch:checked {
+    background-image: url("assets/toggle-on-ws-0.svg") !important;
 }
-.ws-0 .sound-volume-menu-item .slider,
-.menu.ws-0 .sound-volume-menu-item .slider,
-.popup-menu-content.ws-0 .sound-volume-menu-item .slider {
-    -slider-active-background-color: #eda1ab !important;
+
+/* ALL Radio Buttons & Checkboxes in Workspace 0 */
+.ws-0 .radiobutton:checked StBin,
+.menu.ws-0 .radiobutton:checked StBin,
+.popup-menu.ws-0 .radiobutton:checked StBin,
+.popup-menu-content.ws-0 .radiobutton:checked StBin,
+#uiGroup.ws-0 .radiobutton:checked StBin,
+.ws-0 .radiobutton:focus:checked StBin {
+    background-image: url("assets/radiobutton-ws-0.svg") !important;
 }
+
+.ws-0 .check-box:checked StBin,
+.menu.ws-0 .check-box:checked StBin,
+.popup-menu.ws-0 .check-box:checked StBin,
+.popup-menu-content.ws-0 .check-box:checked StBin,
+#uiGroup.ws-0 .check-box:checked StBin,
+.ws-0 .check-box:focus:checked StBin {
+    background-image: url("assets/checkbox-ws-0.svg") !important;
+}
+
+/* Connected / Active Dot Indicator (Wi-Fi connected network, Battery active power profile) */
+.ws-0 .popup-menu-item-dot,
+.menu.ws-0 .popup-menu-item-dot,
+.popup-menu.ws-0 .popup-menu-item-dot,
+.popup-menu-content.ws-0 .popup-menu-item-dot,
+#uiGroup.ws-0 .popup-menu-item-dot {
+    color: #a1edb8 !important;
+}
+
+/* Menu items hover / active / selection in Workspace 0 */
 .ws-0 .popup-menu .popup-menu-item:hover,
 .ws-0 .popup-menu .popup-menu-item:active,
 .ws-0 .menu .popup-menu-item:hover,
 .ws-0 .menu .popup-menu-item:active,
 .menu.ws-0 .popup-menu-item:hover,
-.menu.ws-0 .popup-menu-item:active {
-    color: #eda1ab !important;
-    background-color: rgba(237, 161, 171, 0.15) !important;
+.menu.ws-0 .popup-menu-item:active,
+.popup-menu-content.ws-0 .popup-menu-item:hover,
+.popup-menu-content.ws-0 .popup-menu-item:active,
+.ws-0 .popup-sub-menu .popup-menu-item:hover,
+.ws-0 .popup-sub-menu .popup-menu-item:active,
+.menu.ws-0 .popup-sub-menu .popup-menu-item:hover,
+.menu.ws-0 .popup-sub-menu .popup-menu-item:active,
+.popup-menu.ws-0 .popup-sub-menu .popup-menu-item:hover,
+.popup-menu.ws-0 .popup-sub-menu .popup-menu-item:active {
+    color: #a1edb8 !important;
+    background-color: rgba(161, 237, 184, 0.15) !important;
 }
 
-/* --- Workspace 1: #a1edb8 --- */
+.ws-0 .popup-menu-item:hover StIcon,
+.ws-0 .popup-menu-item:active StIcon,
+.popup-menu-content.ws-0 .popup-menu-item:hover StIcon,
+.popup-menu-content.ws-0 .popup-menu-item:active StIcon,
+.ws-0 .popup-sub-menu .popup-menu-item:hover StIcon,
+.ws-0 .popup-sub-menu .popup-menu-item:active StIcon,
+.ws-0 .popup-slider-menu-item:hover StIcon,
+.ws-0 .popup-slider-menu-item:active StIcon {
+    color: #a1edb8 !important;
+}
+
+.ws-0 .popup-menu-item.selected,
+.ws-0 .popup-inactive-menu-item {
+    color: #a1edb8 !important;
+}
+
+/* --- Workspace 1: #a1afed --- */
 #panel.ws-1 .applet-box {
-    border: 1px solid rgba(161, 237, 184, 0.45) !important;
+    border: 1px solid rgba(161, 175, 237, 0.45) !important;
 }
 #panel.ws-1 .applet-box:hover {
     background-color: rgba(36, 36, 54, 0.95) !important;
-    border-color: rgba(161, 237, 184, 0.75) !important;
-    color: #a1edb8 !important;
+    border-color: rgba(161, 175, 237, 0.75) !important;
+    color: #a1afed !important;
 }
 #panel.ws-1 .applet-box:hover .applet-icon,
 #panel.ws-1 .applet-box:hover StIcon {
-    color: #a1edb8 !important;
+    color: #a1afed !important;
 }
 #panel.ws-1 .applet-box:hover .applet-label,
 #panel.ws-1 #panelCenter .applet-box:hover .applet-label {
-    color: #a1edb8 !important;
+    color: #a1afed !important;
     font-weight: 700 !important;
 }
 .ws-1 .calendar-today,
@@ -2917,32 +2980,32 @@ StScrollBar StButton#hhandle:active {
 #panel.ws-1 .calendar-today:active,
 #panel.ws-1 .calendar-today:focus,
 #panel.ws-1 .calendar-today:hover {
-    background-color: #a1edb8 !important;
+    background-color: #a1afed !important;
     color: #11111b !important;
     border-radius: 9999px;
 }
 .ws-1 .calendar-today-day-label {
-    color: #a1edb8 !important;
+    color: #a1afed !important;
 }
 .ws-1 .calendar-today-home-button-enabled {
-    background-color: #a1edb8 !important;
+    background-color: #a1afed !important;
     color: #11111b !important;
 }
 #panel.ws-1 #menu-search-entry:focus {
-    border: 2px solid #a1edb8 !important;
+    border: 2px solid #a1afed !important;
 }
 .ws-1 .workspace-switch-osd,
 .workspace-switch-osd.ws-1 {
-    color: #a1edb8 !important;
-    border: 1px solid rgba(161, 237, 184, 0.45) !important;
+    color: #a1afed !important;
+    border: 1px solid rgba(161, 175, 237, 0.45) !important;
 }
 .ws-1 .workspace-switch-osd .workspace-switch-osd-indicator:active,
 .workspace-switch-osd.ws-1 .workspace-switch-osd-indicator:active {
-    background-color: #a1edb8 !important;
+    background-color: #a1afed !important;
 }
 .ws-1 .workspace-switch-osd StLabel,
 .workspace-switch-osd.ws-1 StLabel {
-    color: #a1edb8 !important;
+    color: #a1afed !important;
 }
 
 /* Dynamic Bento Sound Player for Workspace 1 */
@@ -2950,75 +3013,138 @@ StScrollBar StButton#hhandle:active {
 .menu.ws-1 .sound-player,
 .sound-player.ws-1,
 .popup-menu-content.ws-1 .sound-player {
-    border: 1px solid rgba(161, 237, 184, 0.45) !important;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(161, 237, 184, 0.45) !important;
+    border: 1px solid rgba(161, 175, 237, 0.45) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(161, 175, 237, 0.45) !important;
 }
 .ws-1 .sound-player > StBoxLayout:first-child,
 .menu.ws-1 .sound-player > StBoxLayout:first-child,
 .sound-player.ws-1 > StBoxLayout:first-child {
-    color: #a1edb8 !important;
+    color: #a1afed !important;
 }
 .ws-1 .sound-player-generic-coverart,
 .menu.ws-1 .sound-player-generic-coverart,
 .sound-player.ws-1 .sound-player-generic-coverart {
-    color: #a1edb8 !important;
+    color: #a1afed !important;
 }
 .ws-1 .sound-player-overlay StButton:hover,
 .menu.ws-1 .sound-player-overlay StButton:hover,
 .sound-player.ws-1 .sound-player-overlay StButton:hover {
-    background-color: rgba(161, 237, 184, 0.45) !important;
-    color: #a1edb8 !important;
-    border-color: #a1edb8 !important;
-    box-shadow: 0 0 12px rgba(161, 237, 184, 0.45) !important;
+    background-color: rgba(161, 175, 237, 0.45) !important;
+    color: #a1afed !important;
+    border-color: #a1afed !important;
+    box-shadow: 0 0 12px rgba(161, 175, 237, 0.45) !important;
 }
 .ws-1 .sound-player-overlay StButton:active,
 .menu.ws-1 .sound-player-overlay StButton:active,
 .sound-player.ws-1 .sound-player-overlay StButton:active {
-    background-color: #a1edb8 !important;
+    background-color: #a1afed !important;
     color: #11111b !important;
-    border-color: #a1edb8 !important;
+    border-color: #a1afed !important;
 }
+
+/* ALL Sliders in Workspace 1 (Sound Volume, Track Seeker, Battery/Brightness) */
+.ws-1 .slider,
+.menu.ws-1 .slider,
+.popup-menu.ws-1 .slider,
+.popup-menu-content.ws-1 .slider,
+#uiGroup.ws-1 .slider,
+.ws-1 .popup-slider-menu-item .slider,
 .ws-1 .sound-player .slider,
-.menu.ws-1 .sound-player .slider,
-.sound-player.ws-1 .slider {
-    -slider-active-background-color: #a1edb8 !important;
+.ws-1 .sound-volume-menu-item .slider {
+    -slider-active-background-color: #a1afed !important;
+    -slider-active-border-color: #a1afed !important;
 }
-.ws-1 .sound-volume-menu-item StIcon,
-.menu.ws-1 .sound-volume-menu-item StIcon,
-.popup-menu-content.ws-1 .sound-volume-menu-item StIcon {
-    color: #a1edb8 !important;
+
+/* ALL Toggle Switches in Workspace 1 (Wi-Fi Wireless toggle, Bluetooth toggle) */
+.ws-1 .toggle-switch:checked,
+.menu.ws-1 .toggle-switch:checked,
+.popup-menu.ws-1 .toggle-switch:checked,
+.popup-menu-content.ws-1 .toggle-switch:checked,
+#uiGroup.ws-1 .toggle-switch:checked,
+.ws-1 .popup-menu-item:active .toggle-switch:checked,
+.popup-menu.ws-1 .popup-menu-item:active .toggle-switch:checked {
+    background-image: url("assets/toggle-on-ws-1.svg") !important;
 }
-.ws-1 .sound-volume-menu-item .slider,
-.menu.ws-1 .sound-volume-menu-item .slider,
-.popup-menu-content.ws-1 .sound-volume-menu-item .slider {
-    -slider-active-background-color: #a1edb8 !important;
+
+/* ALL Radio Buttons & Checkboxes in Workspace 1 */
+.ws-1 .radiobutton:checked StBin,
+.menu.ws-1 .radiobutton:checked StBin,
+.popup-menu.ws-1 .radiobutton:checked StBin,
+.popup-menu-content.ws-1 .radiobutton:checked StBin,
+#uiGroup.ws-1 .radiobutton:checked StBin,
+.ws-1 .radiobutton:focus:checked StBin {
+    background-image: url("assets/radiobutton-ws-1.svg") !important;
 }
+
+.ws-1 .check-box:checked StBin,
+.menu.ws-1 .check-box:checked StBin,
+.popup-menu.ws-1 .check-box:checked StBin,
+.popup-menu-content.ws-1 .check-box:checked StBin,
+#uiGroup.ws-1 .check-box:checked StBin,
+.ws-1 .check-box:focus:checked StBin {
+    background-image: url("assets/checkbox-ws-1.svg") !important;
+}
+
+/* Connected / Active Dot Indicator (Wi-Fi connected network, Battery active power profile) */
+.ws-1 .popup-menu-item-dot,
+.menu.ws-1 .popup-menu-item-dot,
+.popup-menu.ws-1 .popup-menu-item-dot,
+.popup-menu-content.ws-1 .popup-menu-item-dot,
+#uiGroup.ws-1 .popup-menu-item-dot {
+    color: #a1afed !important;
+}
+
+/* Menu items hover / active / selection in Workspace 1 */
 .ws-1 .popup-menu .popup-menu-item:hover,
 .ws-1 .popup-menu .popup-menu-item:active,
 .ws-1 .menu .popup-menu-item:hover,
 .ws-1 .menu .popup-menu-item:active,
 .menu.ws-1 .popup-menu-item:hover,
-.menu.ws-1 .popup-menu-item:active {
-    color: #a1edb8 !important;
-    background-color: rgba(161, 237, 184, 0.15) !important;
+.menu.ws-1 .popup-menu-item:active,
+.popup-menu-content.ws-1 .popup-menu-item:hover,
+.popup-menu-content.ws-1 .popup-menu-item:active,
+.ws-1 .popup-sub-menu .popup-menu-item:hover,
+.ws-1 .popup-sub-menu .popup-menu-item:active,
+.menu.ws-1 .popup-sub-menu .popup-menu-item:hover,
+.menu.ws-1 .popup-sub-menu .popup-menu-item:active,
+.popup-menu.ws-1 .popup-sub-menu .popup-menu-item:hover,
+.popup-menu.ws-1 .popup-sub-menu .popup-menu-item:active {
+    color: #a1afed !important;
+    background-color: rgba(161, 175, 237, 0.15) !important;
 }
 
-/* --- Workspace 2: #edc9a1 --- */
+.ws-1 .popup-menu-item:hover StIcon,
+.ws-1 .popup-menu-item:active StIcon,
+.popup-menu-content.ws-1 .popup-menu-item:hover StIcon,
+.popup-menu-content.ws-1 .popup-menu-item:active StIcon,
+.ws-1 .popup-sub-menu .popup-menu-item:hover StIcon,
+.ws-1 .popup-sub-menu .popup-menu-item:active StIcon,
+.ws-1 .popup-slider-menu-item:hover StIcon,
+.ws-1 .popup-slider-menu-item:active StIcon {
+    color: #a1afed !important;
+}
+
+.ws-1 .popup-menu-item.selected,
+.ws-1 .popup-inactive-menu-item {
+    color: #a1afed !important;
+}
+
+/* --- Workspace 2: #a1c0ed --- */
 #panel.ws-2 .applet-box {
-    border: 1px solid rgba(237, 201, 161, 0.45) !important;
+    border: 1px solid rgba(161, 192, 237, 0.45) !important;
 }
 #panel.ws-2 .applet-box:hover {
     background-color: rgba(36, 36, 54, 0.95) !important;
-    border-color: rgba(237, 201, 161, 0.75) !important;
-    color: #edc9a1 !important;
+    border-color: rgba(161, 192, 237, 0.75) !important;
+    color: #a1c0ed !important;
 }
 #panel.ws-2 .applet-box:hover .applet-icon,
 #panel.ws-2 .applet-box:hover StIcon {
-    color: #edc9a1 !important;
+    color: #a1c0ed !important;
 }
 #panel.ws-2 .applet-box:hover .applet-label,
 #panel.ws-2 #panelCenter .applet-box:hover .applet-label {
-    color: #edc9a1 !important;
+    color: #a1c0ed !important;
     font-weight: 700 !important;
 }
 .ws-2 .calendar-today,
@@ -3029,32 +3155,32 @@ StScrollBar StButton#hhandle:active {
 #panel.ws-2 .calendar-today:active,
 #panel.ws-2 .calendar-today:focus,
 #panel.ws-2 .calendar-today:hover {
-    background-color: #edc9a1 !important;
+    background-color: #a1c0ed !important;
     color: #11111b !important;
     border-radius: 9999px;
 }
 .ws-2 .calendar-today-day-label {
-    color: #edc9a1 !important;
+    color: #a1c0ed !important;
 }
 .ws-2 .calendar-today-home-button-enabled {
-    background-color: #edc9a1 !important;
+    background-color: #a1c0ed !important;
     color: #11111b !important;
 }
 #panel.ws-2 #menu-search-entry:focus {
-    border: 2px solid #edc9a1 !important;
+    border: 2px solid #a1c0ed !important;
 }
 .ws-2 .workspace-switch-osd,
 .workspace-switch-osd.ws-2 {
-    color: #edc9a1 !important;
-    border: 1px solid rgba(237, 201, 161, 0.45) !important;
+    color: #a1c0ed !important;
+    border: 1px solid rgba(161, 192, 237, 0.45) !important;
 }
 .ws-2 .workspace-switch-osd .workspace-switch-osd-indicator:active,
 .workspace-switch-osd.ws-2 .workspace-switch-osd-indicator:active {
-    background-color: #edc9a1 !important;
+    background-color: #a1c0ed !important;
 }
 .ws-2 .workspace-switch-osd StLabel,
 .workspace-switch-osd.ws-2 StLabel {
-    color: #edc9a1 !important;
+    color: #a1c0ed !important;
 }
 
 /* Dynamic Bento Sound Player for Workspace 2 */
@@ -3062,75 +3188,138 @@ StScrollBar StButton#hhandle:active {
 .menu.ws-2 .sound-player,
 .sound-player.ws-2,
 .popup-menu-content.ws-2 .sound-player {
-    border: 1px solid rgba(237, 201, 161, 0.45) !important;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(237, 201, 161, 0.45) !important;
+    border: 1px solid rgba(161, 192, 237, 0.45) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(161, 192, 237, 0.45) !important;
 }
 .ws-2 .sound-player > StBoxLayout:first-child,
 .menu.ws-2 .sound-player > StBoxLayout:first-child,
 .sound-player.ws-2 > StBoxLayout:first-child {
-    color: #edc9a1 !important;
+    color: #a1c0ed !important;
 }
 .ws-2 .sound-player-generic-coverart,
 .menu.ws-2 .sound-player-generic-coverart,
 .sound-player.ws-2 .sound-player-generic-coverart {
-    color: #edc9a1 !important;
+    color: #a1c0ed !important;
 }
 .ws-2 .sound-player-overlay StButton:hover,
 .menu.ws-2 .sound-player-overlay StButton:hover,
 .sound-player.ws-2 .sound-player-overlay StButton:hover {
-    background-color: rgba(237, 201, 161, 0.45) !important;
-    color: #edc9a1 !important;
-    border-color: #edc9a1 !important;
-    box-shadow: 0 0 12px rgba(237, 201, 161, 0.45) !important;
+    background-color: rgba(161, 192, 237, 0.45) !important;
+    color: #a1c0ed !important;
+    border-color: #a1c0ed !important;
+    box-shadow: 0 0 12px rgba(161, 192, 237, 0.45) !important;
 }
 .ws-2 .sound-player-overlay StButton:active,
 .menu.ws-2 .sound-player-overlay StButton:active,
 .sound-player.ws-2 .sound-player-overlay StButton:active {
-    background-color: #edc9a1 !important;
+    background-color: #a1c0ed !important;
     color: #11111b !important;
-    border-color: #edc9a1 !important;
+    border-color: #a1c0ed !important;
 }
+
+/* ALL Sliders in Workspace 2 (Sound Volume, Track Seeker, Battery/Brightness) */
+.ws-2 .slider,
+.menu.ws-2 .slider,
+.popup-menu.ws-2 .slider,
+.popup-menu-content.ws-2 .slider,
+#uiGroup.ws-2 .slider,
+.ws-2 .popup-slider-menu-item .slider,
 .ws-2 .sound-player .slider,
-.menu.ws-2 .sound-player .slider,
-.sound-player.ws-2 .slider {
-    -slider-active-background-color: #edc9a1 !important;
+.ws-2 .sound-volume-menu-item .slider {
+    -slider-active-background-color: #a1c0ed !important;
+    -slider-active-border-color: #a1c0ed !important;
 }
-.ws-2 .sound-volume-menu-item StIcon,
-.menu.ws-2 .sound-volume-menu-item StIcon,
-.popup-menu-content.ws-2 .sound-volume-menu-item StIcon {
-    color: #edc9a1 !important;
+
+/* ALL Toggle Switches in Workspace 2 (Wi-Fi Wireless toggle, Bluetooth toggle) */
+.ws-2 .toggle-switch:checked,
+.menu.ws-2 .toggle-switch:checked,
+.popup-menu.ws-2 .toggle-switch:checked,
+.popup-menu-content.ws-2 .toggle-switch:checked,
+#uiGroup.ws-2 .toggle-switch:checked,
+.ws-2 .popup-menu-item:active .toggle-switch:checked,
+.popup-menu.ws-2 .popup-menu-item:active .toggle-switch:checked {
+    background-image: url("assets/toggle-on-ws-2.svg") !important;
 }
-.ws-2 .sound-volume-menu-item .slider,
-.menu.ws-2 .sound-volume-menu-item .slider,
-.popup-menu-content.ws-2 .sound-volume-menu-item .slider {
-    -slider-active-background-color: #edc9a1 !important;
+
+/* ALL Radio Buttons & Checkboxes in Workspace 2 */
+.ws-2 .radiobutton:checked StBin,
+.menu.ws-2 .radiobutton:checked StBin,
+.popup-menu.ws-2 .radiobutton:checked StBin,
+.popup-menu-content.ws-2 .radiobutton:checked StBin,
+#uiGroup.ws-2 .radiobutton:checked StBin,
+.ws-2 .radiobutton:focus:checked StBin {
+    background-image: url("assets/radiobutton-ws-2.svg") !important;
 }
+
+.ws-2 .check-box:checked StBin,
+.menu.ws-2 .check-box:checked StBin,
+.popup-menu.ws-2 .check-box:checked StBin,
+.popup-menu-content.ws-2 .check-box:checked StBin,
+#uiGroup.ws-2 .check-box:checked StBin,
+.ws-2 .check-box:focus:checked StBin {
+    background-image: url("assets/checkbox-ws-2.svg") !important;
+}
+
+/* Connected / Active Dot Indicator (Wi-Fi connected network, Battery active power profile) */
+.ws-2 .popup-menu-item-dot,
+.menu.ws-2 .popup-menu-item-dot,
+.popup-menu.ws-2 .popup-menu-item-dot,
+.popup-menu-content.ws-2 .popup-menu-item-dot,
+#uiGroup.ws-2 .popup-menu-item-dot {
+    color: #a1c0ed !important;
+}
+
+/* Menu items hover / active / selection in Workspace 2 */
 .ws-2 .popup-menu .popup-menu-item:hover,
 .ws-2 .popup-menu .popup-menu-item:active,
 .ws-2 .menu .popup-menu-item:hover,
 .ws-2 .menu .popup-menu-item:active,
 .menu.ws-2 .popup-menu-item:hover,
-.menu.ws-2 .popup-menu-item:active {
-    color: #edc9a1 !important;
-    background-color: rgba(237, 201, 161, 0.15) !important;
+.menu.ws-2 .popup-menu-item:active,
+.popup-menu-content.ws-2 .popup-menu-item:hover,
+.popup-menu-content.ws-2 .popup-menu-item:active,
+.ws-2 .popup-sub-menu .popup-menu-item:hover,
+.ws-2 .popup-sub-menu .popup-menu-item:active,
+.menu.ws-2 .popup-sub-menu .popup-menu-item:hover,
+.menu.ws-2 .popup-sub-menu .popup-menu-item:active,
+.popup-menu.ws-2 .popup-sub-menu .popup-menu-item:hover,
+.popup-menu.ws-2 .popup-sub-menu .popup-menu-item:active {
+    color: #a1c0ed !important;
+    background-color: rgba(161, 192, 237, 0.15) !important;
 }
 
-/* --- Workspace 3: #edaca1 --- */
+.ws-2 .popup-menu-item:hover StIcon,
+.ws-2 .popup-menu-item:active StIcon,
+.popup-menu-content.ws-2 .popup-menu-item:hover StIcon,
+.popup-menu-content.ws-2 .popup-menu-item:active StIcon,
+.ws-2 .popup-sub-menu .popup-menu-item:hover StIcon,
+.ws-2 .popup-sub-menu .popup-menu-item:active StIcon,
+.ws-2 .popup-slider-menu-item:hover StIcon,
+.ws-2 .popup-slider-menu-item:active StIcon {
+    color: #a1c0ed !important;
+}
+
+.ws-2 .popup-menu-item.selected,
+.ws-2 .popup-inactive-menu-item {
+    color: #a1c0ed !important;
+}
+
+/* --- Workspace 3: #a1cded --- */
 #panel.ws-3 .applet-box {
-    border: 1px solid rgba(237, 172, 161, 0.45) !important;
+    border: 1px solid rgba(161, 205, 237, 0.45) !important;
 }
 #panel.ws-3 .applet-box:hover {
     background-color: rgba(36, 36, 54, 0.95) !important;
-    border-color: rgba(237, 172, 161, 0.75) !important;
-    color: #edaca1 !important;
+    border-color: rgba(161, 205, 237, 0.75) !important;
+    color: #a1cded !important;
 }
 #panel.ws-3 .applet-box:hover .applet-icon,
 #panel.ws-3 .applet-box:hover StIcon {
-    color: #edaca1 !important;
+    color: #a1cded !important;
 }
 #panel.ws-3 .applet-box:hover .applet-label,
 #panel.ws-3 #panelCenter .applet-box:hover .applet-label {
-    color: #edaca1 !important;
+    color: #a1cded !important;
     font-weight: 700 !important;
 }
 .ws-3 .calendar-today,
@@ -3141,32 +3330,32 @@ StScrollBar StButton#hhandle:active {
 #panel.ws-3 .calendar-today:active,
 #panel.ws-3 .calendar-today:focus,
 #panel.ws-3 .calendar-today:hover {
-    background-color: #edaca1 !important;
+    background-color: #a1cded !important;
     color: #11111b !important;
     border-radius: 9999px;
 }
 .ws-3 .calendar-today-day-label {
-    color: #edaca1 !important;
+    color: #a1cded !important;
 }
 .ws-3 .calendar-today-home-button-enabled {
-    background-color: #edaca1 !important;
+    background-color: #a1cded !important;
     color: #11111b !important;
 }
 #panel.ws-3 #menu-search-entry:focus {
-    border: 2px solid #edaca1 !important;
+    border: 2px solid #a1cded !important;
 }
 .ws-3 .workspace-switch-osd,
 .workspace-switch-osd.ws-3 {
-    color: #edaca1 !important;
-    border: 1px solid rgba(237, 172, 161, 0.45) !important;
+    color: #a1cded !important;
+    border: 1px solid rgba(161, 205, 237, 0.45) !important;
 }
 .ws-3 .workspace-switch-osd .workspace-switch-osd-indicator:active,
 .workspace-switch-osd.ws-3 .workspace-switch-osd-indicator:active {
-    background-color: #edaca1 !important;
+    background-color: #a1cded !important;
 }
 .ws-3 .workspace-switch-osd StLabel,
 .workspace-switch-osd.ws-3 StLabel {
-    color: #edaca1 !important;
+    color: #a1cded !important;
 }
 
 /* Dynamic Bento Sound Player for Workspace 3 */
@@ -3174,57 +3363,120 @@ StScrollBar StButton#hhandle:active {
 .menu.ws-3 .sound-player,
 .sound-player.ws-3,
 .popup-menu-content.ws-3 .sound-player {
-    border: 1px solid rgba(237, 172, 161, 0.45) !important;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(237, 172, 161, 0.45) !important;
+    border: 1px solid rgba(161, 205, 237, 0.45) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(161, 205, 237, 0.45) !important;
 }
 .ws-3 .sound-player > StBoxLayout:first-child,
 .menu.ws-3 .sound-player > StBoxLayout:first-child,
 .sound-player.ws-3 > StBoxLayout:first-child {
-    color: #edaca1 !important;
+    color: #a1cded !important;
 }
 .ws-3 .sound-player-generic-coverart,
 .menu.ws-3 .sound-player-generic-coverart,
 .sound-player.ws-3 .sound-player-generic-coverart {
-    color: #edaca1 !important;
+    color: #a1cded !important;
 }
 .ws-3 .sound-player-overlay StButton:hover,
 .menu.ws-3 .sound-player-overlay StButton:hover,
 .sound-player.ws-3 .sound-player-overlay StButton:hover {
-    background-color: rgba(237, 172, 161, 0.45) !important;
-    color: #edaca1 !important;
-    border-color: #edaca1 !important;
-    box-shadow: 0 0 12px rgba(237, 172, 161, 0.45) !important;
+    background-color: rgba(161, 205, 237, 0.45) !important;
+    color: #a1cded !important;
+    border-color: #a1cded !important;
+    box-shadow: 0 0 12px rgba(161, 205, 237, 0.45) !important;
 }
 .ws-3 .sound-player-overlay StButton:active,
 .menu.ws-3 .sound-player-overlay StButton:active,
 .sound-player.ws-3 .sound-player-overlay StButton:active {
-    background-color: #edaca1 !important;
+    background-color: #a1cded !important;
     color: #11111b !important;
-    border-color: #edaca1 !important;
+    border-color: #a1cded !important;
 }
+
+/* ALL Sliders in Workspace 3 (Sound Volume, Track Seeker, Battery/Brightness) */
+.ws-3 .slider,
+.menu.ws-3 .slider,
+.popup-menu.ws-3 .slider,
+.popup-menu-content.ws-3 .slider,
+#uiGroup.ws-3 .slider,
+.ws-3 .popup-slider-menu-item .slider,
 .ws-3 .sound-player .slider,
-.menu.ws-3 .sound-player .slider,
-.sound-player.ws-3 .slider {
-    -slider-active-background-color: #edaca1 !important;
+.ws-3 .sound-volume-menu-item .slider {
+    -slider-active-background-color: #a1cded !important;
+    -slider-active-border-color: #a1cded !important;
 }
-.ws-3 .sound-volume-menu-item StIcon,
-.menu.ws-3 .sound-volume-menu-item StIcon,
-.popup-menu-content.ws-3 .sound-volume-menu-item StIcon {
-    color: #edaca1 !important;
+
+/* ALL Toggle Switches in Workspace 3 (Wi-Fi Wireless toggle, Bluetooth toggle) */
+.ws-3 .toggle-switch:checked,
+.menu.ws-3 .toggle-switch:checked,
+.popup-menu.ws-3 .toggle-switch:checked,
+.popup-menu-content.ws-3 .toggle-switch:checked,
+#uiGroup.ws-3 .toggle-switch:checked,
+.ws-3 .popup-menu-item:active .toggle-switch:checked,
+.popup-menu.ws-3 .popup-menu-item:active .toggle-switch:checked {
+    background-image: url("assets/toggle-on-ws-3.svg") !important;
 }
-.ws-3 .sound-volume-menu-item .slider,
-.menu.ws-3 .sound-volume-menu-item .slider,
-.popup-menu-content.ws-3 .sound-volume-menu-item .slider {
-    -slider-active-background-color: #edaca1 !important;
+
+/* ALL Radio Buttons & Checkboxes in Workspace 3 */
+.ws-3 .radiobutton:checked StBin,
+.menu.ws-3 .radiobutton:checked StBin,
+.popup-menu.ws-3 .radiobutton:checked StBin,
+.popup-menu-content.ws-3 .radiobutton:checked StBin,
+#uiGroup.ws-3 .radiobutton:checked StBin,
+.ws-3 .radiobutton:focus:checked StBin {
+    background-image: url("assets/radiobutton-ws-3.svg") !important;
 }
+
+.ws-3 .check-box:checked StBin,
+.menu.ws-3 .check-box:checked StBin,
+.popup-menu.ws-3 .check-box:checked StBin,
+.popup-menu-content.ws-3 .check-box:checked StBin,
+#uiGroup.ws-3 .check-box:checked StBin,
+.ws-3 .check-box:focus:checked StBin {
+    background-image: url("assets/checkbox-ws-3.svg") !important;
+}
+
+/* Connected / Active Dot Indicator (Wi-Fi connected network, Battery active power profile) */
+.ws-3 .popup-menu-item-dot,
+.menu.ws-3 .popup-menu-item-dot,
+.popup-menu.ws-3 .popup-menu-item-dot,
+.popup-menu-content.ws-3 .popup-menu-item-dot,
+#uiGroup.ws-3 .popup-menu-item-dot {
+    color: #a1cded !important;
+}
+
+/* Menu items hover / active / selection in Workspace 3 */
 .ws-3 .popup-menu .popup-menu-item:hover,
 .ws-3 .popup-menu .popup-menu-item:active,
 .ws-3 .menu .popup-menu-item:hover,
 .ws-3 .menu .popup-menu-item:active,
 .menu.ws-3 .popup-menu-item:hover,
-.menu.ws-3 .popup-menu-item:active {
-    color: #edaca1 !important;
-    background-color: rgba(237, 172, 161, 0.15) !important;
+.menu.ws-3 .popup-menu-item:active,
+.popup-menu-content.ws-3 .popup-menu-item:hover,
+.popup-menu-content.ws-3 .popup-menu-item:active,
+.ws-3 .popup-sub-menu .popup-menu-item:hover,
+.ws-3 .popup-sub-menu .popup-menu-item:active,
+.menu.ws-3 .popup-sub-menu .popup-menu-item:hover,
+.menu.ws-3 .popup-sub-menu .popup-menu-item:active,
+.popup-menu.ws-3 .popup-sub-menu .popup-menu-item:hover,
+.popup-menu.ws-3 .popup-sub-menu .popup-menu-item:active {
+    color: #a1cded !important;
+    background-color: rgba(161, 205, 237, 0.15) !important;
+}
+
+.ws-3 .popup-menu-item:hover StIcon,
+.ws-3 .popup-menu-item:active StIcon,
+.popup-menu-content.ws-3 .popup-menu-item:hover StIcon,
+.popup-menu-content.ws-3 .popup-menu-item:active StIcon,
+.ws-3 .popup-sub-menu .popup-menu-item:hover StIcon,
+.ws-3 .popup-sub-menu .popup-menu-item:active StIcon,
+.ws-3 .popup-slider-menu-item:hover StIcon,
+.ws-3 .popup-slider-menu-item:active StIcon {
+    color: #a1cded !important;
+}
+
+.ws-3 .popup-menu-item.selected,
+.ws-3 .popup-inactive-menu-item {
+    color: #a1cded !important;
 }
 /* === NOCTALIA DYNAMIC ACCENT END === */
 

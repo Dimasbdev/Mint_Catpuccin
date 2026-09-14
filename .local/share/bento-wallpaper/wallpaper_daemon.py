@@ -245,6 +245,39 @@ class WallpaperDaemon:
             marker_start = "/* === NOCTALIA DYNAMIC ACCENT START === */"
             marker_end = "/* === NOCTALIA DYNAMIC ACCENT END === */"
 
+            # Generate workspace-colored SVG assets for toggle switches, radio buttons, and check boxes
+            theme_base_dirs = [
+                os.path.expanduser("~/.themes/Catppuccin-Flamingo-Dark/cinnamon/assets"),
+                os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../themes/Catppuccin-Flamingo-Dark/cinnamon/assets"))
+            ]
+            for assets_dir in theme_base_dirs:
+                if not os.path.exists(assets_dir):
+                    continue
+                t_tmpl_path = os.path.join(assets_dir, "toggle-on-dark.svg")
+                r_tmpl_path = os.path.join(assets_dir, "radiobutton-dark.svg")
+                c_tmpl_path = os.path.join(assets_dir, "checkbox-dark.svg")
+                if os.path.exists(t_tmpl_path) and os.path.exists(r_tmpl_path):
+                    try:
+                        with open(t_tmpl_path, "r") as f:
+                            t_tmpl = f.read()
+                        with open(r_tmpl_path, "r") as f:
+                            r_tmpl = f.read()
+                        c_tmpl = None
+                        if os.path.exists(c_tmpl_path):
+                            with open(c_tmpl_path, "r") as f:
+                                c_tmpl = f.read()
+                        for ws_idx, pinfo in all_palettes.items():
+                            pri = pinfo["primary"]
+                            with open(os.path.join(assets_dir, f"toggle-on-ws-{ws_idx}.svg"), "w") as f:
+                                f.write(t_tmpl.replace("#f2cdcd", pri).replace("#F2CDCD", pri))
+                            with open(os.path.join(assets_dir, f"radiobutton-ws-{ws_idx}.svg"), "w") as f:
+                                f.write(r_tmpl.replace("#f2cdcd", pri).replace("#F2CDCD", pri))
+                            if c_tmpl:
+                                with open(os.path.join(assets_dir, f"checkbox-ws-{ws_idx}.svg"), "w") as f:
+                                    f.write(c_tmpl.replace("#f2cdcd", pri).replace("#F2CDCD", pri))
+                    except Exception as e:
+                        print(f"Error generating workspace SVG assets in {assets_dir}: {e}", file=sys.stderr)
+
             ws_rules = []
             for ws_idx, pinfo in all_palettes.items():
                 pri = pinfo["primary"]
@@ -338,29 +371,92 @@ class WallpaperDaemon:
     color: #11111b !important;
     border-color: {pri} !important;
 }}
+
+/* ALL Sliders in Workspace {ws_idx} (Sound Volume, Track Seeker, Battery/Brightness) */
+.ws-{ws_idx} .slider,
+.menu.ws-{ws_idx} .slider,
+.popup-menu.ws-{ws_idx} .slider,
+.popup-menu-content.ws-{ws_idx} .slider,
+#uiGroup.ws-{ws_idx} .slider,
+.ws-{ws_idx} .popup-slider-menu-item .slider,
 .ws-{ws_idx} .sound-player .slider,
-.menu.ws-{ws_idx} .sound-player .slider,
-.sound-player.ws-{ws_idx} .slider {{
+.ws-{ws_idx} .sound-volume-menu-item .slider {{
     -slider-active-background-color: {pri} !important;
+    -slider-active-border-color: {pri} !important;
 }}
-.ws-{ws_idx} .sound-volume-menu-item StIcon,
-.menu.ws-{ws_idx} .sound-volume-menu-item StIcon,
-.popup-menu-content.ws-{ws_idx} .sound-volume-menu-item StIcon {{
+
+/* ALL Toggle Switches in Workspace {ws_idx} (Wi-Fi Wireless toggle, Bluetooth toggle) */
+.ws-{ws_idx} .toggle-switch:checked,
+.menu.ws-{ws_idx} .toggle-switch:checked,
+.popup-menu.ws-{ws_idx} .toggle-switch:checked,
+.popup-menu-content.ws-{ws_idx} .toggle-switch:checked,
+#uiGroup.ws-{ws_idx} .toggle-switch:checked,
+.ws-{ws_idx} .popup-menu-item:active .toggle-switch:checked,
+.popup-menu.ws-{ws_idx} .popup-menu-item:active .toggle-switch:checked {{
+    background-image: url("assets/toggle-on-ws-{ws_idx}.svg") !important;
+}}
+
+/* ALL Radio Buttons & Checkboxes in Workspace {ws_idx} */
+.ws-{ws_idx} .radiobutton:checked StBin,
+.menu.ws-{ws_idx} .radiobutton:checked StBin,
+.popup-menu.ws-{ws_idx} .radiobutton:checked StBin,
+.popup-menu-content.ws-{ws_idx} .radiobutton:checked StBin,
+#uiGroup.ws-{ws_idx} .radiobutton:checked StBin,
+.ws-{ws_idx} .radiobutton:focus:checked StBin {{
+    background-image: url("assets/radiobutton-ws-{ws_idx}.svg") !important;
+}}
+
+.ws-{ws_idx} .check-box:checked StBin,
+.menu.ws-{ws_idx} .check-box:checked StBin,
+.popup-menu.ws-{ws_idx} .check-box:checked StBin,
+.popup-menu-content.ws-{ws_idx} .check-box:checked StBin,
+#uiGroup.ws-{ws_idx} .check-box:checked StBin,
+.ws-{ws_idx} .check-box:focus:checked StBin {{
+    background-image: url("assets/checkbox-ws-{ws_idx}.svg") !important;
+}}
+
+/* Connected / Active Dot Indicator (Wi-Fi connected network, Battery active power profile) */
+.ws-{ws_idx} .popup-menu-item-dot,
+.menu.ws-{ws_idx} .popup-menu-item-dot,
+.popup-menu.ws-{ws_idx} .popup-menu-item-dot,
+.popup-menu-content.ws-{ws_idx} .popup-menu-item-dot,
+#uiGroup.ws-{ws_idx} .popup-menu-item-dot {{
     color: {pri} !important;
 }}
-.ws-{ws_idx} .sound-volume-menu-item .slider,
-.menu.ws-{ws_idx} .sound-volume-menu-item .slider,
-.popup-menu-content.ws-{ws_idx} .sound-volume-menu-item .slider {{
-    -slider-active-background-color: {pri} !important;
-}}
+
+/* Menu items hover / active / selection in Workspace {ws_idx} */
 .ws-{ws_idx} .popup-menu .popup-menu-item:hover,
 .ws-{ws_idx} .popup-menu .popup-menu-item:active,
 .ws-{ws_idx} .menu .popup-menu-item:hover,
 .ws-{ws_idx} .menu .popup-menu-item:active,
 .menu.ws-{ws_idx} .popup-menu-item:hover,
-.menu.ws-{ws_idx} .popup-menu-item:active {{
+.menu.ws-{ws_idx} .popup-menu-item:active,
+.popup-menu-content.ws-{ws_idx} .popup-menu-item:hover,
+.popup-menu-content.ws-{ws_idx} .popup-menu-item:active,
+.ws-{ws_idx} .popup-sub-menu .popup-menu-item:hover,
+.ws-{ws_idx} .popup-sub-menu .popup-menu-item:active,
+.menu.ws-{ws_idx} .popup-sub-menu .popup-menu-item:hover,
+.menu.ws-{ws_idx} .popup-sub-menu .popup-menu-item:active,
+.popup-menu.ws-{ws_idx} .popup-sub-menu .popup-menu-item:hover,
+.popup-menu.ws-{ws_idx} .popup-sub-menu .popup-menu-item:active {{
     color: {pri} !important;
     background-color: {border_act.replace("0.45", "0.15")} !important;
+}}
+
+.ws-{ws_idx} .popup-menu-item:hover StIcon,
+.ws-{ws_idx} .popup-menu-item:active StIcon,
+.popup-menu-content.ws-{ws_idx} .popup-menu-item:hover StIcon,
+.popup-menu-content.ws-{ws_idx} .popup-menu-item:active StIcon,
+.ws-{ws_idx} .popup-sub-menu .popup-menu-item:hover StIcon,
+.ws-{ws_idx} .popup-sub-menu .popup-menu-item:active StIcon,
+.ws-{ws_idx} .popup-slider-menu-item:hover StIcon,
+.ws-{ws_idx} .popup-slider-menu-item:active StIcon {{
+    color: {pri} !important;
+}}
+
+.ws-{ws_idx} .popup-menu-item.selected,
+.ws-{ws_idx} .popup-inactive-menu-item {{
+    color: {pri} !important;
 }}""")
 
             all_ws_css = "\n\n".join(ws_rules)
@@ -406,17 +502,30 @@ class WallpaperDaemon:
 {all_ws_css}
 {marker_end}"""
 
-            if marker_start in content and marker_end in content:
-                before = content.split(marker_start)[0]
-                after = content.split(marker_end)[1]
-                after = after.replace(".panel-top.ws-test .applet-box { border: 2px solid #ff00ff !important; }\n", "")
-                after = after.replace("#panel.ws-test .applet-box { border: 2px solid #ff00ff !important; }\n", "")
-                new_content = before + dynamic_section + after
-            else:
-                new_content = content + "\n\n" + dynamic_section
+            cinnamon_css_targets = [
+                os.path.expanduser("~/.themes/Catppuccin-Flamingo-Dark/cinnamon/cinnamon.css"),
+                os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../themes/Catppuccin-Flamingo-Dark/cinnamon/cinnamon.css"))
+            ]
+            for cinnamon_css in cinnamon_css_targets:
+                if not os.path.exists(cinnamon_css):
+                    continue
+                try:
+                    with open(cinnamon_css, "r") as f:
+                        content = f.read()
 
-            with open(cinnamon_css, "w") as f:
-                f.write(new_content)
+                    if marker_start in content and marker_end in content:
+                        before = content.split(marker_start)[0]
+                        after = content.split(marker_end)[1]
+                        after = after.replace(".panel-top.ws-test .applet-box { border: 2px solid #ff00ff !important; }\n", "")
+                        after = after.replace("#panel.ws-test .applet-box { border: 2px solid #ff00ff !important; }\n", "")
+                        new_content = before + dynamic_section + after
+                    else:
+                        new_content = content + "\n\n" + dynamic_section
+
+                    with open(cinnamon_css, "w") as f:
+                        f.write(new_content)
+                except Exception as ex:
+                    print(f"Error writing cinnamon css to {cinnamon_css}: {ex}", file=sys.stderr)
 
             # Reload Cinnamon theme ONCE when cache is generated/updated
             if dbus:
