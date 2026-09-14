@@ -1,5 +1,6 @@
 const Applet = imports.ui.applet;
 const Util = imports.misc.util;
+const GLib = imports.gi.GLib;
 
 function PowerButtonApplet(metadata, orientation, panel_height, instance_id) {
     this._init(metadata, orientation, panel_height, instance_id);
@@ -15,7 +16,7 @@ PowerButtonApplet.prototype = {
     },
 
     on_applet_clicked: function(event) {
-        Util.spawnCommandLine("/home/df/.local/bin/bento-power");
+        Util.spawnCommandLine(GLib.get_home_dir() + "/.local/bin/bento-power");
     }
 };
 

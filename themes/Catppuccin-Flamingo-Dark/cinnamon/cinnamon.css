@@ -352,15 +352,17 @@ StScrollBar StButton#hhandle:active {
   border-radius: 12px;
   background-gradient-direction: none;
   box-shadow: none;
-  background-color: #3d404f;
-  color: rgba(239, 241, 245, 0.7);
+  background-color: rgba(30, 30, 46, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin: 4px 8px;
+  color: #cdd6f4;
 }
 
 .menu .popup-sub-menu .popup-menu-item:active,
 .popup-menu .popup-sub-menu .popup-menu-item:active,
 .popup-combo-menu .popup-sub-menu .popup-menu-item:active {
-  background-color: rgba(239, 241, 245, 0.12);
-  color: #eff1f5;
+  background-color: rgba(245, 194, 231, 0.18);
+  color: #f5c2e7;
 }
 
 .menu .popup-sub-menu StScrollBar,
@@ -382,17 +384,19 @@ StScrollBar StButton#hhandle:active {
 .popup-menu .popup-menu-content,
 .popup-combo-menu .popup-menu-content {
   padding: 6px;
-  border-radius: 12px;
-  background-color: #292c3c;
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  background-color: rgba(24, 24, 37, 0.94);
+  border: 1px solid rgba(245, 194, 231, 0.18);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 20px rgba(245, 194, 231, 0.06);
 }
 
 .menu .popup-menu-item,
 .popup-menu .popup-menu-item,
 .popup-combo-menu .popup-menu-item {
-  padding: 6px 12px;
+  padding: 8px 14px;
   spacing: 12px;
   border-radius: 12px;
+  color: #cdd6f4;
 }
 
 .menu .popup-menu-item:hover, .menu .popup-menu-item:active,
@@ -400,8 +404,8 @@ StScrollBar StButton#hhandle:active {
 .popup-menu .popup-menu-item:active,
 .popup-combo-menu .popup-menu-item:hover,
 .popup-combo-menu .popup-menu-item:active {
-  color: #eff1f5;
-  background-color: rgba(239, 241, 245, 0.12);
+  color: #f5c2e7;
+  background-color: rgba(245, 194, 231, 0.14);
 }
 
 .menu .popup-menu-item:insensitive,
@@ -2231,61 +2235,97 @@ StScrollBar StButton#hhandle:active {
   padding: 5px 10px 10px 10px;
 }
 
+/* ==============================================================================
+   Catppuccin Flamingo Bento Sound Player & Media Controls
+   ============================================================================== */
+
 .sound-player {
-  padding: 0 0;
-  margin-top: 6px;
-  border-radius: 12px;
-  background-color: #3d404f;
-  color: #eff1f5;
+  padding: 0;
+  margin: 6px 4px 8px 4px;
+  border-radius: 18px;
+  background-color: rgba(24, 24, 37, 0.95);
+  border: 1px solid rgba(245, 194, 231, 0.22);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 20px rgba(245, 194, 231, 0.08);
+  color: #cdd6f4;
 }
 
 .sound-player > StBoxLayout:first-child {
-  padding: 5px 10px 10px 10px;
-  spacing: 0.5em;
+  padding: 8px 14px;
+  spacing: 8px;
+  background-color: rgba(30, 30, 46, 0.75);
+  border-radius: 17px 17px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-weight: bold;
+  color: #f5c2e7;
 }
 
 .sound-player > StBoxLayout:first-child StButton:small {
   width: 24px;
   height: 24px;
   border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #a6adc8;
+  border: none;
 }
 
 .sound-player > StBoxLayout:first-child StButton:small:hover {
-  background-color: rgba(239, 241, 245, 0.12);
+  background-color: rgba(245, 194, 231, 0.25);
+  color: #f5c2e7;
 }
 
 .sound-player > StBoxLayout:first-child StButton:small:active {
-  background-color: rgba(239, 241, 245, 0.3);
+  background-color: #f5c2e7;
+  color: #11111b;
 }
 
 .sound-player > StBoxLayout:first-child StButton:small StIcon {
-  icon-size: 16px;
+  icon-size: 14px;
 }
 
+/* Cover Art Card & Fallback */
 .sound-player-generic-coverart {
-  background: rgba(0, 0, 0, 0.2);
+  background-gradient-direction: vertical;
+  background-gradient-start: #313244;
+  background-gradient-end: #181825;
+  border-radius: 14px;
+  color: #f5c2e7;
 }
 
+/* Track Info & Controls Overlay */
 .sound-player-overlay {
   width: 290px;
-  height: 80px;
-  padding: 12px 18px;
-  spacing: 6px;
-  background-color: rgba(0, 0, 0, 0.45);
-  border: none;
-  border-radius: 0 0 12px 12px;
-  color: #eff1f5;
+  min-height: 86px;
+  padding: 12px 16px 12px 16px;
+  spacing: 8px;
+  background-color: rgba(17, 17, 27, 0.88);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 0 17px 17px;
+  color: #cdd6f4;
   text-shadow: none;
 }
 
+.sound-player-overlay StBoxLayout {
+  padding-top: 2px;
+  spacing: 6px;
+}
+
+.sound-player-overlay StLabel {
+  padding: 0 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "FiraCode Nerd Font", "Inter", sans-serif;
+  color: #cdd6f4;
+}
+
+/* Circular Pill Controls */
 .sound-player-overlay StButton {
-  width: 16px;
-  height: 16px;
-  padding: 8px;
-  margin: 0 6px 6px;
-  color: #eff1f5;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 6px 10px;
+  margin: 4px 6px;
+  color: #cdd6f4;
+  background-color: rgba(49, 50, 68, 0.7);
   border-radius: 9999px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   text-shadow: none;
 }
 
@@ -2294,38 +2334,63 @@ StScrollBar StButton#hhandle:active {
 }
 
 .sound-player-overlay StButton:hover {
-  background-color: rgba(239, 241, 245, 0.12);
+  background-color: rgba(245, 194, 231, 0.3);
+  color: #f5c2e7;
+  border-color: rgba(245, 194, 231, 0.5);
+  box-shadow: 0 0 12px rgba(245, 194, 231, 0.4);
 }
 
 .sound-player-overlay StButton:active {
-  background-color: rgba(239, 241, 245, 0.3);
+  background-color: #f5c2e7;
+  color: #11111b;
+  border-color: #f5c2e7;
+  box-shadow: 0 0 16px rgba(245, 194, 231, 0.6);
 }
 
 .sound-player-overlay StButton:insensitive {
-  opacty: 0.35;
-  color: rgba(239, 241, 245, 0.5);
+  opacity: 0.35;
+  color: rgba(166, 173, 200, 0.4);
+  background-color: rgba(30, 30, 46, 0.4);
 }
 
-.sound-player-overlay StLabel {
-  padding: 0 6px;
-}
-
-.sound-player-overlay StBoxLayout {
-  padding-top: 2px;
-}
-
+/* Timeline Seeker Slider */
 .sound-player .slider {
-  height: 0.5em;
+  height: 6px;
   padding: 0;
-  border: 0px solid rgba(8, 8, 12, 0.9);
-  border-bottom: 1px;
-  -slider-height: 0.5em;
-  -slider-background-color: #14141f;
-  -slider-border-color: rgba(0, 0, 0, 0);
-  -slider-active-background-color: #f2cdcd;
-  -slider-active-border-color: rgba(0, 0, 0, 0);
+  margin: 6px 12px 10px 12px;
+  -slider-height: 6px;
+  -slider-background-color: rgba(49, 50, 68, 0.7);
+  -slider-border-color: transparent;
+  -slider-active-background-color: #f5c2e7;
+  -slider-active-border-color: transparent;
   -slider-border-width: 0px;
-  -slider-handle-radius: 0px;
+  -slider-handle-radius: 4px;
+}
+
+/* Sound Volume Item */
+.sound-volume-menu-item {
+  padding: 8px 16px;
+  margin: 2px 4px;
+  border-radius: 12px;
+  color: #cdd6f4;
+}
+
+.sound-volume-menu-item:hover {
+  background-color: rgba(245, 194, 231, 0.08);
+}
+
+.sound-volume-menu-item StIcon {
+  icon-size: 18px;
+  color: #f5c2e7;
+  padding-left: 4px;
+  padding-right: 12px;
+}
+
+.sound-volume-menu-item .slider {
+  -slider-height: 6px;
+  -slider-background-color: rgba(49, 50, 68, 0.7);
+  -slider-active-background-color: #f5c2e7;
+  -slider-handle-radius: 5px;
 }
 
 #workspaceSwitcher {
@@ -2679,40 +2744,32 @@ StScrollBar StButton#hhandle:active {
 /* === NOCTALIA DYNAMIC ACCENT START === */
 /* Universal Capsule Base (applies to ALL applet-box in panel: hwmonitor, calendar, tray, power, etc.) */
 #panel .applet-box {
-    background-color: rgba(24, 24, 37, 0.85);
-    border: 1px solid rgba(161, 237, 184, 0.45);
-    border-radius: 9999px;
-    padding: 0 8px;
-    margin: 6px 2px;
-    height: 28px;
-    color: #cdd6f4;
+    background-color: rgba(24, 24, 37, 0.85) !important;
+    border: 1px solid rgba(161, 194, 237, 0.45) !important;
+    border-radius: 9999px !important;
+    padding: 0 8px !important;
+    margin: 6px 2px !important;
+    height: 28px !important;
+    color: #cdd6f4 !important;
     transition-duration: 150ms;
+}
+
+/* Non-hover state: clean Catppuccin subtext #cdd6f4 */
+#panel .applet-box .applet-icon,
+#panel .applet-box StIcon {
+    color: #cdd6f4 !important;
 }
 
 /* Workspace Switcher: outer shell must stay transparent and borderless */
 #panel .workspace-nano-df-applet,
-.workspace-nano-df-applet {
+.workspace-nano-df-applet,
+#panelLeft .applet-box:nth-child(2) {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
     margin: 6px 2px !important;
-}
-
-#panel .applet-box:hover {
-    background-color: rgba(36, 36, 54, 0.95);
-    border-color: rgba(161, 237, 184, 0.7);
-    color: #a1edb8;
-}
-
-#panel .applet-box:hover .applet-icon,
-#panel .applet-box:hover StIcon {
-    color: #a1edb8 !important;
-}
-
-#panel .applet-box:hover .applet-label {
-    color: #a1edb8 !important;
-    font-weight: 700 !important;
+    height: 28px !important;
 }
 
 #panelCenter .applet-box .applet-label,
@@ -2721,29 +2778,454 @@ StScrollBar StButton#hhandle:active {
     font-weight: 600 !important;
 }
 
-#panelCenter .applet-box:hover .applet-label {
+/* Per-workspace instant accent classes (switched in JS with 0ms delay, no theme reload) */
+/* --- Workspace 0: #eda1ab --- */
+#panel.ws-0 .applet-box {
+    border: 1px solid rgba(237, 161, 171, 0.45) !important;
+}
+#panel.ws-0 .applet-box:hover {
+    background-color: rgba(36, 36, 54, 0.95) !important;
+    border-color: rgba(237, 161, 171, 0.75) !important;
+    color: #eda1ab !important;
+}
+#panel.ws-0 .applet-box:hover .applet-icon,
+#panel.ws-0 .applet-box:hover StIcon {
+    color: #eda1ab !important;
+}
+#panel.ws-0 .applet-box:hover .applet-label,
+#panel.ws-0 #panelCenter .applet-box:hover .applet-label {
+    color: #eda1ab !important;
+    font-weight: 700 !important;
+}
+.ws-0 .calendar-today,
+.ws-0 .calendar-today:active,
+.ws-0 .calendar-today:focus,
+.ws-0 .calendar-today:hover,
+#panel.ws-0 .calendar-today,
+#panel.ws-0 .calendar-today:active,
+#panel.ws-0 .calendar-today:focus,
+#panel.ws-0 .calendar-today:hover {
+    background-color: #eda1ab !important;
+    color: #11111b !important;
+    border-radius: 9999px;
+}
+.ws-0 .calendar-today-day-label {
+    color: #eda1ab !important;
+}
+.ws-0 .calendar-today-home-button-enabled {
+    background-color: #eda1ab !important;
+    color: #11111b !important;
+}
+#panel.ws-0 #menu-search-entry:focus {
+    border: 2px solid #eda1ab !important;
+}
+.ws-0 .workspace-switch-osd,
+.workspace-switch-osd.ws-0 {
+    color: #eda1ab !important;
+    border: 1px solid rgba(237, 161, 171, 0.45) !important;
+}
+.ws-0 .workspace-switch-osd .workspace-switch-osd-indicator:active,
+.workspace-switch-osd.ws-0 .workspace-switch-osd-indicator:active {
+    background-color: #eda1ab !important;
+}
+.ws-0 .workspace-switch-osd StLabel,
+.workspace-switch-osd.ws-0 StLabel {
+    color: #eda1ab !important;
+}
+
+/* Dynamic Bento Sound Player for Workspace 0 */
+.ws-0 .sound-player,
+.menu.ws-0 .sound-player,
+.sound-player.ws-0,
+.popup-menu-content.ws-0 .sound-player {
+    border: 1px solid rgba(237, 161, 171, 0.45) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(237, 161, 171, 0.45) !important;
+}
+.ws-0 .sound-player > StBoxLayout:first-child,
+.menu.ws-0 .sound-player > StBoxLayout:first-child,
+.sound-player.ws-0 > StBoxLayout:first-child {
+    color: #eda1ab !important;
+}
+.ws-0 .sound-player-generic-coverart,
+.menu.ws-0 .sound-player-generic-coverart,
+.sound-player.ws-0 .sound-player-generic-coverart {
+    color: #eda1ab !important;
+}
+.ws-0 .sound-player-overlay StButton:hover,
+.menu.ws-0 .sound-player-overlay StButton:hover,
+.sound-player.ws-0 .sound-player-overlay StButton:hover {
+    background-color: rgba(237, 161, 171, 0.45) !important;
+    color: #eda1ab !important;
+    border-color: #eda1ab !important;
+    box-shadow: 0 0 12px rgba(237, 161, 171, 0.45) !important;
+}
+.ws-0 .sound-player-overlay StButton:active,
+.menu.ws-0 .sound-player-overlay StButton:active,
+.sound-player.ws-0 .sound-player-overlay StButton:active {
+    background-color: #eda1ab !important;
+    color: #11111b !important;
+    border-color: #eda1ab !important;
+}
+.ws-0 .sound-player .slider,
+.menu.ws-0 .sound-player .slider,
+.sound-player.ws-0 .slider {
+    -slider-active-background-color: #eda1ab !important;
+}
+.ws-0 .sound-volume-menu-item StIcon,
+.menu.ws-0 .sound-volume-menu-item StIcon,
+.popup-menu-content.ws-0 .sound-volume-menu-item StIcon {
+    color: #eda1ab !important;
+}
+.ws-0 .sound-volume-menu-item .slider,
+.menu.ws-0 .sound-volume-menu-item .slider,
+.popup-menu-content.ws-0 .sound-volume-menu-item .slider {
+    -slider-active-background-color: #eda1ab !important;
+}
+.ws-0 .popup-menu .popup-menu-item:hover,
+.ws-0 .popup-menu .popup-menu-item:active,
+.ws-0 .menu .popup-menu-item:hover,
+.ws-0 .menu .popup-menu-item:active,
+.menu.ws-0 .popup-menu-item:hover,
+.menu.ws-0 .popup-menu-item:active {
+    color: #eda1ab !important;
+    background-color: rgba(237, 161, 171, 0.15) !important;
+}
+
+/* --- Workspace 1: #a1edb8 --- */
+#panel.ws-1 .applet-box {
+    border: 1px solid rgba(161, 237, 184, 0.45) !important;
+}
+#panel.ws-1 .applet-box:hover {
+    background-color: rgba(36, 36, 54, 0.95) !important;
+    border-color: rgba(161, 237, 184, 0.75) !important;
+    color: #a1edb8 !important;
+}
+#panel.ws-1 .applet-box:hover .applet-icon,
+#panel.ws-1 .applet-box:hover StIcon {
+    color: #a1edb8 !important;
+}
+#panel.ws-1 .applet-box:hover .applet-label,
+#panel.ws-1 #panelCenter .applet-box:hover .applet-label {
     color: #a1edb8 !important;
     font-weight: 700 !important;
 }
-
-#panelLeft .applet-box:first-child {
-    border: 1px solid rgba(161, 237, 184, 0.45) !important;
-}
-
-#panelLeft .applet-box:first-child:hover {
-    border-color: rgba(161, 237, 184, 0.7) !important;
-}
-
-.calendar-today,
-.calendar-today:active,
-.calendar-today:focus,
-.calendar-today:hover {
+.ws-1 .calendar-today,
+.ws-1 .calendar-today:active,
+.ws-1 .calendar-today:focus,
+.ws-1 .calendar-today:hover,
+#panel.ws-1 .calendar-today,
+#panel.ws-1 .calendar-today:active,
+#panel.ws-1 .calendar-today:focus,
+#panel.ws-1 .calendar-today:hover {
     background-color: #a1edb8 !important;
     color: #11111b !important;
     border-radius: 9999px;
 }
-
-#menu-search-entry:focus {
+.ws-1 .calendar-today-day-label {
+    color: #a1edb8 !important;
+}
+.ws-1 .calendar-today-home-button-enabled {
+    background-color: #a1edb8 !important;
+    color: #11111b !important;
+}
+#panel.ws-1 #menu-search-entry:focus {
     border: 2px solid #a1edb8 !important;
 }
+.ws-1 .workspace-switch-osd,
+.workspace-switch-osd.ws-1 {
+    color: #a1edb8 !important;
+    border: 1px solid rgba(161, 237, 184, 0.45) !important;
+}
+.ws-1 .workspace-switch-osd .workspace-switch-osd-indicator:active,
+.workspace-switch-osd.ws-1 .workspace-switch-osd-indicator:active {
+    background-color: #a1edb8 !important;
+}
+.ws-1 .workspace-switch-osd StLabel,
+.workspace-switch-osd.ws-1 StLabel {
+    color: #a1edb8 !important;
+}
+
+/* Dynamic Bento Sound Player for Workspace 1 */
+.ws-1 .sound-player,
+.menu.ws-1 .sound-player,
+.sound-player.ws-1,
+.popup-menu-content.ws-1 .sound-player {
+    border: 1px solid rgba(161, 237, 184, 0.45) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(161, 237, 184, 0.45) !important;
+}
+.ws-1 .sound-player > StBoxLayout:first-child,
+.menu.ws-1 .sound-player > StBoxLayout:first-child,
+.sound-player.ws-1 > StBoxLayout:first-child {
+    color: #a1edb8 !important;
+}
+.ws-1 .sound-player-generic-coverart,
+.menu.ws-1 .sound-player-generic-coverart,
+.sound-player.ws-1 .sound-player-generic-coverart {
+    color: #a1edb8 !important;
+}
+.ws-1 .sound-player-overlay StButton:hover,
+.menu.ws-1 .sound-player-overlay StButton:hover,
+.sound-player.ws-1 .sound-player-overlay StButton:hover {
+    background-color: rgba(161, 237, 184, 0.45) !important;
+    color: #a1edb8 !important;
+    border-color: #a1edb8 !important;
+    box-shadow: 0 0 12px rgba(161, 237, 184, 0.45) !important;
+}
+.ws-1 .sound-player-overlay StButton:active,
+.menu.ws-1 .sound-player-overlay StButton:active,
+.sound-player.ws-1 .sound-player-overlay StButton:active {
+    background-color: #a1edb8 !important;
+    color: #11111b !important;
+    border-color: #a1edb8 !important;
+}
+.ws-1 .sound-player .slider,
+.menu.ws-1 .sound-player .slider,
+.sound-player.ws-1 .slider {
+    -slider-active-background-color: #a1edb8 !important;
+}
+.ws-1 .sound-volume-menu-item StIcon,
+.menu.ws-1 .sound-volume-menu-item StIcon,
+.popup-menu-content.ws-1 .sound-volume-menu-item StIcon {
+    color: #a1edb8 !important;
+}
+.ws-1 .sound-volume-menu-item .slider,
+.menu.ws-1 .sound-volume-menu-item .slider,
+.popup-menu-content.ws-1 .sound-volume-menu-item .slider {
+    -slider-active-background-color: #a1edb8 !important;
+}
+.ws-1 .popup-menu .popup-menu-item:hover,
+.ws-1 .popup-menu .popup-menu-item:active,
+.ws-1 .menu .popup-menu-item:hover,
+.ws-1 .menu .popup-menu-item:active,
+.menu.ws-1 .popup-menu-item:hover,
+.menu.ws-1 .popup-menu-item:active {
+    color: #a1edb8 !important;
+    background-color: rgba(161, 237, 184, 0.15) !important;
+}
+
+/* --- Workspace 2: #edc9a1 --- */
+#panel.ws-2 .applet-box {
+    border: 1px solid rgba(237, 201, 161, 0.45) !important;
+}
+#panel.ws-2 .applet-box:hover {
+    background-color: rgba(36, 36, 54, 0.95) !important;
+    border-color: rgba(237, 201, 161, 0.75) !important;
+    color: #edc9a1 !important;
+}
+#panel.ws-2 .applet-box:hover .applet-icon,
+#panel.ws-2 .applet-box:hover StIcon {
+    color: #edc9a1 !important;
+}
+#panel.ws-2 .applet-box:hover .applet-label,
+#panel.ws-2 #panelCenter .applet-box:hover .applet-label {
+    color: #edc9a1 !important;
+    font-weight: 700 !important;
+}
+.ws-2 .calendar-today,
+.ws-2 .calendar-today:active,
+.ws-2 .calendar-today:focus,
+.ws-2 .calendar-today:hover,
+#panel.ws-2 .calendar-today,
+#panel.ws-2 .calendar-today:active,
+#panel.ws-2 .calendar-today:focus,
+#panel.ws-2 .calendar-today:hover {
+    background-color: #edc9a1 !important;
+    color: #11111b !important;
+    border-radius: 9999px;
+}
+.ws-2 .calendar-today-day-label {
+    color: #edc9a1 !important;
+}
+.ws-2 .calendar-today-home-button-enabled {
+    background-color: #edc9a1 !important;
+    color: #11111b !important;
+}
+#panel.ws-2 #menu-search-entry:focus {
+    border: 2px solid #edc9a1 !important;
+}
+.ws-2 .workspace-switch-osd,
+.workspace-switch-osd.ws-2 {
+    color: #edc9a1 !important;
+    border: 1px solid rgba(237, 201, 161, 0.45) !important;
+}
+.ws-2 .workspace-switch-osd .workspace-switch-osd-indicator:active,
+.workspace-switch-osd.ws-2 .workspace-switch-osd-indicator:active {
+    background-color: #edc9a1 !important;
+}
+.ws-2 .workspace-switch-osd StLabel,
+.workspace-switch-osd.ws-2 StLabel {
+    color: #edc9a1 !important;
+}
+
+/* Dynamic Bento Sound Player for Workspace 2 */
+.ws-2 .sound-player,
+.menu.ws-2 .sound-player,
+.sound-player.ws-2,
+.popup-menu-content.ws-2 .sound-player {
+    border: 1px solid rgba(237, 201, 161, 0.45) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(237, 201, 161, 0.45) !important;
+}
+.ws-2 .sound-player > StBoxLayout:first-child,
+.menu.ws-2 .sound-player > StBoxLayout:first-child,
+.sound-player.ws-2 > StBoxLayout:first-child {
+    color: #edc9a1 !important;
+}
+.ws-2 .sound-player-generic-coverart,
+.menu.ws-2 .sound-player-generic-coverart,
+.sound-player.ws-2 .sound-player-generic-coverart {
+    color: #edc9a1 !important;
+}
+.ws-2 .sound-player-overlay StButton:hover,
+.menu.ws-2 .sound-player-overlay StButton:hover,
+.sound-player.ws-2 .sound-player-overlay StButton:hover {
+    background-color: rgba(237, 201, 161, 0.45) !important;
+    color: #edc9a1 !important;
+    border-color: #edc9a1 !important;
+    box-shadow: 0 0 12px rgba(237, 201, 161, 0.45) !important;
+}
+.ws-2 .sound-player-overlay StButton:active,
+.menu.ws-2 .sound-player-overlay StButton:active,
+.sound-player.ws-2 .sound-player-overlay StButton:active {
+    background-color: #edc9a1 !important;
+    color: #11111b !important;
+    border-color: #edc9a1 !important;
+}
+.ws-2 .sound-player .slider,
+.menu.ws-2 .sound-player .slider,
+.sound-player.ws-2 .slider {
+    -slider-active-background-color: #edc9a1 !important;
+}
+.ws-2 .sound-volume-menu-item StIcon,
+.menu.ws-2 .sound-volume-menu-item StIcon,
+.popup-menu-content.ws-2 .sound-volume-menu-item StIcon {
+    color: #edc9a1 !important;
+}
+.ws-2 .sound-volume-menu-item .slider,
+.menu.ws-2 .sound-volume-menu-item .slider,
+.popup-menu-content.ws-2 .sound-volume-menu-item .slider {
+    -slider-active-background-color: #edc9a1 !important;
+}
+.ws-2 .popup-menu .popup-menu-item:hover,
+.ws-2 .popup-menu .popup-menu-item:active,
+.ws-2 .menu .popup-menu-item:hover,
+.ws-2 .menu .popup-menu-item:active,
+.menu.ws-2 .popup-menu-item:hover,
+.menu.ws-2 .popup-menu-item:active {
+    color: #edc9a1 !important;
+    background-color: rgba(237, 201, 161, 0.15) !important;
+}
+
+/* --- Workspace 3: #edaca1 --- */
+#panel.ws-3 .applet-box {
+    border: 1px solid rgba(237, 172, 161, 0.45) !important;
+}
+#panel.ws-3 .applet-box:hover {
+    background-color: rgba(36, 36, 54, 0.95) !important;
+    border-color: rgba(237, 172, 161, 0.75) !important;
+    color: #edaca1 !important;
+}
+#panel.ws-3 .applet-box:hover .applet-icon,
+#panel.ws-3 .applet-box:hover StIcon {
+    color: #edaca1 !important;
+}
+#panel.ws-3 .applet-box:hover .applet-label,
+#panel.ws-3 #panelCenter .applet-box:hover .applet-label {
+    color: #edaca1 !important;
+    font-weight: 700 !important;
+}
+.ws-3 .calendar-today,
+.ws-3 .calendar-today:active,
+.ws-3 .calendar-today:focus,
+.ws-3 .calendar-today:hover,
+#panel.ws-3 .calendar-today,
+#panel.ws-3 .calendar-today:active,
+#panel.ws-3 .calendar-today:focus,
+#panel.ws-3 .calendar-today:hover {
+    background-color: #edaca1 !important;
+    color: #11111b !important;
+    border-radius: 9999px;
+}
+.ws-3 .calendar-today-day-label {
+    color: #edaca1 !important;
+}
+.ws-3 .calendar-today-home-button-enabled {
+    background-color: #edaca1 !important;
+    color: #11111b !important;
+}
+#panel.ws-3 #menu-search-entry:focus {
+    border: 2px solid #edaca1 !important;
+}
+.ws-3 .workspace-switch-osd,
+.workspace-switch-osd.ws-3 {
+    color: #edaca1 !important;
+    border: 1px solid rgba(237, 172, 161, 0.45) !important;
+}
+.ws-3 .workspace-switch-osd .workspace-switch-osd-indicator:active,
+.workspace-switch-osd.ws-3 .workspace-switch-osd-indicator:active {
+    background-color: #edaca1 !important;
+}
+.ws-3 .workspace-switch-osd StLabel,
+.workspace-switch-osd.ws-3 StLabel {
+    color: #edaca1 !important;
+}
+
+/* Dynamic Bento Sound Player for Workspace 3 */
+.ws-3 .sound-player,
+.menu.ws-3 .sound-player,
+.sound-player.ws-3,
+.popup-menu-content.ws-3 .sound-player {
+    border: 1px solid rgba(237, 172, 161, 0.45) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(237, 172, 161, 0.45) !important;
+}
+.ws-3 .sound-player > StBoxLayout:first-child,
+.menu.ws-3 .sound-player > StBoxLayout:first-child,
+.sound-player.ws-3 > StBoxLayout:first-child {
+    color: #edaca1 !important;
+}
+.ws-3 .sound-player-generic-coverart,
+.menu.ws-3 .sound-player-generic-coverart,
+.sound-player.ws-3 .sound-player-generic-coverart {
+    color: #edaca1 !important;
+}
+.ws-3 .sound-player-overlay StButton:hover,
+.menu.ws-3 .sound-player-overlay StButton:hover,
+.sound-player.ws-3 .sound-player-overlay StButton:hover {
+    background-color: rgba(237, 172, 161, 0.45) !important;
+    color: #edaca1 !important;
+    border-color: #edaca1 !important;
+    box-shadow: 0 0 12px rgba(237, 172, 161, 0.45) !important;
+}
+.ws-3 .sound-player-overlay StButton:active,
+.menu.ws-3 .sound-player-overlay StButton:active,
+.sound-player.ws-3 .sound-player-overlay StButton:active {
+    background-color: #edaca1 !important;
+    color: #11111b !important;
+    border-color: #edaca1 !important;
+}
+.ws-3 .sound-player .slider,
+.menu.ws-3 .sound-player .slider,
+.sound-player.ws-3 .slider {
+    -slider-active-background-color: #edaca1 !important;
+}
+.ws-3 .sound-volume-menu-item StIcon,
+.menu.ws-3 .sound-volume-menu-item StIcon,
+.popup-menu-content.ws-3 .sound-volume-menu-item StIcon {
+    color: #edaca1 !important;
+}
+.ws-3 .sound-volume-menu-item .slider,
+.menu.ws-3 .sound-volume-menu-item .slider,
+.popup-menu-content.ws-3 .sound-volume-menu-item .slider {
+    -slider-active-background-color: #edaca1 !important;
+}
+.ws-3 .popup-menu .popup-menu-item:hover,
+.ws-3 .popup-menu .popup-menu-item:active,
+.ws-3 .menu .popup-menu-item:hover,
+.ws-3 .menu .popup-menu-item:active,
+.menu.ws-3 .popup-menu-item:hover,
+.menu.ws-3 .popup-menu-item:active {
+    color: #edaca1 !important;
+    background-color: rgba(237, 172, 161, 0.15) !important;
+}
 /* === NOCTALIA DYNAMIC ACCENT END === */
+
+

@@ -111,8 +111,9 @@ class WallpaperDaemon:
                     cfg = json.load(f)
                     data = cfg.get("workspaces", {})
                     for k, v in data.items():
-                        if os.path.exists(v):
-                            ws_data[k] = v
+                        v_exp = os.path.expanduser(v)
+                        if os.path.exists(v_exp):
+                            ws_data[k] = v_exp
             except Exception:
                 pass
         return ws_data
@@ -268,6 +269,10 @@ class WallpaperDaemon:
     color: {pri} !important;
     font-weight: 700 !important;
 }}
+.ws-{ws_idx} .calendar-today,
+.ws-{ws_idx} .calendar-today:active,
+.ws-{ws_idx} .calendar-today:focus,
+.ws-{ws_idx} .calendar-today:hover,
 #panel.ws-{ws_idx} .calendar-today,
 #panel.ws-{ws_idx} .calendar-today:active,
 #panel.ws-{ws_idx} .calendar-today:focus,
@@ -276,8 +281,86 @@ class WallpaperDaemon:
     color: #11111b !important;
     border-radius: 9999px;
 }}
+.ws-{ws_idx} .calendar-today-day-label {{
+    color: {pri} !important;
+}}
+.ws-{ws_idx} .calendar-today-home-button-enabled {{
+    background-color: {pri} !important;
+    color: #11111b !important;
+}}
 #panel.ws-{ws_idx} #menu-search-entry:focus {{
     border: 2px solid {pri} !important;
+}}
+.ws-{ws_idx} .workspace-switch-osd,
+.workspace-switch-osd.ws-{ws_idx} {{
+    color: {pri} !important;
+    border: 1px solid {border_act} !important;
+}}
+.ws-{ws_idx} .workspace-switch-osd .workspace-switch-osd-indicator:active,
+.workspace-switch-osd.ws-{ws_idx} .workspace-switch-osd-indicator:active {{
+    background-color: {pri} !important;
+}}
+.ws-{ws_idx} .workspace-switch-osd StLabel,
+.workspace-switch-osd.ws-{ws_idx} StLabel {{
+    color: {pri} !important;
+}}
+
+/* Dynamic Bento Sound Player for Workspace {ws_idx} */
+.ws-{ws_idx} .sound-player,
+.menu.ws-{ws_idx} .sound-player,
+.sound-player.ws-{ws_idx},
+.popup-menu-content.ws-{ws_idx} .sound-player {{
+    border: 1px solid {border_act} !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 16px {border_act} !important;
+}}
+.ws-{ws_idx} .sound-player > StBoxLayout:first-child,
+.menu.ws-{ws_idx} .sound-player > StBoxLayout:first-child,
+.sound-player.ws-{ws_idx} > StBoxLayout:first-child {{
+    color: {pri} !important;
+}}
+.ws-{ws_idx} .sound-player-generic-coverart,
+.menu.ws-{ws_idx} .sound-player-generic-coverart,
+.sound-player.ws-{ws_idx} .sound-player-generic-coverart {{
+    color: {pri} !important;
+}}
+.ws-{ws_idx} .sound-player-overlay StButton:hover,
+.menu.ws-{ws_idx} .sound-player-overlay StButton:hover,
+.sound-player.ws-{ws_idx} .sound-player-overlay StButton:hover {{
+    background-color: {border_act} !important;
+    color: {pri} !important;
+    border-color: {pri} !important;
+    box-shadow: 0 0 12px {border_act} !important;
+}}
+.ws-{ws_idx} .sound-player-overlay StButton:active,
+.menu.ws-{ws_idx} .sound-player-overlay StButton:active,
+.sound-player.ws-{ws_idx} .sound-player-overlay StButton:active {{
+    background-color: {pri} !important;
+    color: #11111b !important;
+    border-color: {pri} !important;
+}}
+.ws-{ws_idx} .sound-player .slider,
+.menu.ws-{ws_idx} .sound-player .slider,
+.sound-player.ws-{ws_idx} .slider {{
+    -slider-active-background-color: {pri} !important;
+}}
+.ws-{ws_idx} .sound-volume-menu-item StIcon,
+.menu.ws-{ws_idx} .sound-volume-menu-item StIcon,
+.popup-menu-content.ws-{ws_idx} .sound-volume-menu-item StIcon {{
+    color: {pri} !important;
+}}
+.ws-{ws_idx} .sound-volume-menu-item .slider,
+.menu.ws-{ws_idx} .sound-volume-menu-item .slider,
+.popup-menu-content.ws-{ws_idx} .sound-volume-menu-item .slider {{
+    -slider-active-background-color: {pri} !important;
+}}
+.ws-{ws_idx} .popup-menu .popup-menu-item:hover,
+.ws-{ws_idx} .popup-menu .popup-menu-item:active,
+.ws-{ws_idx} .menu .popup-menu-item:hover,
+.ws-{ws_idx} .menu .popup-menu-item:active,
+.menu.ws-{ws_idx} .popup-menu-item:hover,
+.menu.ws-{ws_idx} .popup-menu-item:active {{
+    color: {pri} !important;
+    background-color: {border_act.replace("0.45", "0.15")} !important;
 }}""")
 
             all_ws_css = "\n\n".join(ws_rules)
@@ -310,6 +393,7 @@ class WallpaperDaemon:
     box-shadow: none !important;
     padding: 0 !important;
     margin: 6px 2px !important;
+    height: 28px !important;
 }}
 
 #panelCenter .applet-box .applet-label,
@@ -350,10 +434,11 @@ class WallpaperDaemon:
             mapping = self.load_workspaces_config()
             all_palettes = {}
             for ws_idx, wp_path in mapping.items():
-                if os.path.exists(wp_path):
-                    _, pal = self.get_optimized_and_palette(wp_path)
+                wp_exp = os.path.expanduser(wp_path)
+                if os.path.exists(wp_exp):
+                    _, pal = self.get_optimized_and_palette(wp_exp)
                     all_palettes[ws_idx] = {
-                        "wallpaper": wp_path,
+                        "wallpaper": wp_exp,
                         "primary": pal["primary"],
                         "border": pal["border_active"]
                     }
@@ -376,8 +461,10 @@ class WallpaperDaemon:
                     idx = str(curr.get_number())
                     mapping = self.load_workspaces_config()
                     target_wp = mapping.get(idx)
-                    if target_wp and os.path.exists(target_wp):
-                        self.set_desktop_background(target_wp)
+                    if target_wp:
+                        target_wp = os.path.expanduser(target_wp)
+                        if os.path.exists(target_wp):
+                            self.set_desktop_background(target_wp)
 
     def update_shared_theme(self, palette):
         try:
@@ -401,7 +488,10 @@ class WallpaperDaemon:
             print(f"Error writing shared theme: {e}", file=sys.stderr)
 
     def set_desktop_background(self, new_wp_path):
-        if not new_wp_path or not os.path.exists(new_wp_path) or self.active_wallpaper == new_wp_path:
+        if not new_wp_path:
+            return
+        new_wp_path = os.path.expanduser(new_wp_path)
+        if not os.path.exists(new_wp_path) or self.active_wallpaper == new_wp_path:
             return
         self.active_wallpaper = new_wp_path
         opt_path, palette = self.get_optimized_and_palette(new_wp_path)
@@ -423,8 +513,10 @@ class WallpaperDaemon:
             idx = str(ws.get_number())
             mapping = self.load_workspaces_config()
             target_wp = mapping.get(idx)
-            if target_wp and os.path.exists(target_wp):
-                self.set_desktop_background(target_wp)
+            if target_wp:
+                target_wp = os.path.expanduser(target_wp)
+                if os.path.exists(target_wp):
+                    self.set_desktop_background(target_wp)
         except Exception as e:
             print(f"Workspace switch error: {e}", file=sys.stderr)
 

@@ -28,7 +28,7 @@ HWMonitorApplet.prototype = {
         }
 
         this.set_applet_label(" --°C  󰍛 --%");
-        this.set_applet_tooltip("Monitor Suhu & RAM\nKlik untuk membuka Btop");
+        this.set_applet_tooltip("Temperature & RAM Monitor\nClick to open Btop");
 
         this._update();
     },
@@ -93,7 +93,7 @@ HWMonitorApplet.prototype = {
             }
 
             this.set_applet_label(` ${temp_str}   󰍛 ${ram_pct}%`);
-            this.set_applet_tooltip(`Suhu Laptop: ${temp_str}\nRAM: ${ram_used_gb} GB / ${ram_total_gb} GB (${ram_pct}%)\nBeban CPU: ${cpu_pct}%\n\nKlik untuk membuka Btop`);
+            this.set_applet_tooltip(`CPU Temp: ${temp_str}\nRAM: ${ram_used_gb} GB / ${ram_total_gb} GB (${ram_pct}%)\nCPU Load: ${cpu_pct}%\n\nClick to open Btop`);
         } catch (e) {
             global.logError("HWMonitorApplet error: " + e);
         }
