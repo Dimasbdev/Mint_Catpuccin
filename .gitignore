@@ -22,6 +22,15 @@ Thumbs.db
 .idea/
 .vscode/
 
+# Packages & installer binaries
+*.deb
+*.rpm
+*.iso
+*.tar.gz
+*.tar.xz
+*.zip
+.local/bin/bento-sock-send
+
 # Logs
 *.log
 .local/share/bento-clip/images/*
