@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
 #  Bento Catppuccin Clock Launcher (tty-clock)
-#  Automatically matches active workspace dominant palette
 # ==============================================================================
 COLOR_ID=$(python3 -c "
 import os, json, colorsys
