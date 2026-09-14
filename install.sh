@@ -57,6 +57,7 @@ install_packages() {
         fastfetch
         btop
         cava
+        tty-clock
         python3-gi
         python3-gi-cairo
         python3-pil
@@ -149,6 +150,16 @@ deploy_configs() {
         if command -v gcc >/dev/null 2>&1 && [ -f "$DOTFILES_DIR/.local/bin/bento-sock-send.c" ]; then
             gcc -O3 "$DOTFILES_DIR/.local/bin/bento-sock-send.c" -o "$HOME/.local/bin/bento-sock-send" 2>/dev/null || true
             chmod +x "$HOME/.local/bin/bento-sock-send" 2>/dev/null || true
+        fi
+        # Compile and install lavat (terminal lava lamp) if missing
+        if ! command -v lavat >/dev/null 2>&1 && command -v gcc >/dev/null 2>&1; then
+            (
+                TMP_DIR="$(mktemp -d)"
+                git clone --depth 1 https://github.com/AngelJumbo/lavat "$TMP_DIR" >/dev/null 2>&1 && \
+                make -C "$TMP_DIR" >/dev/null 2>&1 && \
+                cp "$TMP_DIR/lavat" "$HOME/.local/bin/lavat" && chmod +x "$HOME/.local/bin/lavat"
+                rm -rf "$TMP_DIR"
+            ) || true
         fi
         success "Skrip terpasang di ~/.local/bin/ (Module launchers, utilities)"
     fi

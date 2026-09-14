@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# ==============================================================================
+#  Bento Dynamic Catppuccin Lava Lamp (lavat)
+#  Syncs truecolor gradient with current workspace palette
+# ==============================================================================
+COLORS_FILE="$HOME/.cache/bento/colors.json"
+C1="f5c2e7"
+C2="cba6f7"
+
+if [ -f "$COLORS_FILE" ]; then
+    P="$(grep -o '"primary": "[^"]*"' "$COLORS_FILE" | head -1 | cut -d'"' -f4 | tr -d '#')"
+    S="$(grep -o '"secondary": "[^"]*"' "$COLORS_FILE" | head -1 | cut -d'"' -f4 | tr -d '#')"
+    [ -n "$P" ] && C1="$P"
+    [ -n "$S" ] && C2="$S"
+fi
+
+exec lavat -g -c "$C1" -k "$C2" -G -R 1 "$@"

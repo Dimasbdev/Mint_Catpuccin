@@ -44,7 +44,8 @@
   - **Kitty Terminal**: GPU-accelerated terminal with FiraCode Nerd Font Mono and Catppuccin Mocha color scheme.
   - **Fastfetch**: System information fetch with Kitty direct graphics protocol rendering.
   - **Starship Prompt**: Minimalist, responsive shell prompt displaying current directory, Git status, and timestamp.
-  - **pipes.sh**: Retro animated terminal screensaver tuned to pastel Catppuccin colors.
+  - **pipes.sh & lavat**: Retro animated terminal screensavers (classic pipes and truecolor dynamic metaball lava lamp synchronized with active workspace palette).
+  - **tty-clock**: Minimalist terminal digital clock centered with Catppuccin accents (available via `clock` or `tty-clock`).
   - **Btop**: Interactive system resource monitor styled in Catppuccin theme.
   - **Cava & Sptlrx**: Audio visualizer featuring real-time dynamic workspace color synchronization via Bento Theme Engine, alongside synchronized live music lyrics via MPRIS.
 - **Floating Dock:** Clean, transparent Plank dock with intelligent auto-hide to avoid obstructing active windows or tiling layouts.
@@ -58,16 +59,16 @@
 | **Distribution** | Linux Mint 22.x (Zena) |
 | **Desktop Environment** | Cinnamon |
 | **Window Manager** | Muffin (X11) |
-| **GTK Theme** | Catppuccin-Flamingo-Dark (Mocha Base) |
+| **GTK Theme** | Catppuccin-Flamingo-Dark |
 | **Color Scheme** | Dynamic Catppuccin (Wallpaper-Adaptive) |
 | **Icon Theme** | Papirus-Dark |
-| **Cursor Theme** | catppuccin-mocha-flamingo-cursors |
+| **Cursor Theme** | Catppuccin Mocha Flamingo |
 | **Terminal** | Kitty |
 | **Terminal Font** | FiraCode Nerd Font Mono |
 | **System Font** | Ubuntu 10 |
 | **Shell & Prompt** | Bash + Starship |
 | **System Fetch** | Fastfetch (Kitty Direct Graphics) |
-| **Terminal Screensaver** | pipes.sh |
+| **Screensavers & Visuals** | pipes.sh, lavat (`lava`), tty-clock (`clock`) |
 | **Resource Monitor** | btop |
 | **Audio Visualizer** | Cava |
 | **Lyrics Display** | Sptlrx |
