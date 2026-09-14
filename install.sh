@@ -58,6 +58,7 @@ install_packages() {
         btop
         cava
         tty-clock
+        pipes-sh
         python3-gi
         python3-gi-cairo
         python3-pil
