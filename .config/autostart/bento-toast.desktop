@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Exec=/usr/bin/python3 /home/df/.local/share/bento-toast/toast.py
+Exec=sh -c "exec /usr/bin/python3 $HOME/.local/share/bento-toast/toast.py"
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true

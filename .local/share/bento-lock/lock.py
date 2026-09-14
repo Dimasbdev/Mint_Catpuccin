@@ -5,7 +5,19 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 gi.require_version('WebKit2', '4.1')
-from gi.repository import Gtk, Gdk, WebKit2, GLib
+gi.require_version('Gio', '2.0')
+from gi.repository import Gtk, Gdk, WebKit2, GLib, Gio
+
+if '/usr/libexec/cinnamon-screensaver' not in os.environ.get('LD_LIBRARY_PATH', ''):
+    os.environ['LD_LIBRARY_PATH'] = f"/usr/libexec/cinnamon-screensaver:{os.environ.get('LD_LIBRARY_PATH', '')}"
+if '/usr/libexec/cinnamon-screensaver/girepository-1.0' not in os.environ.get('GI_TYPELIB_PATH', ''):
+    os.environ['GI_TYPELIB_PATH'] = f"/usr/libexec/cinnamon-screensaver/girepository-1.0:{os.environ.get('GI_TYPELIB_PATH', '')}"
+
+try:
+    gi.require_version('CScreensaver', '1.0')
+    from gi.repository import CScreensaver
+except Exception:
+    CScreensaver = None
 
 try:
     import dbus
@@ -15,6 +27,7 @@ except ImportError:
     dbus = None
 
 SOCKET_PATH = f"/tmp/bento-lock-{os.getuid()}.sock"
+LOCK_FLAG = f"/tmp/bento-lock-{os.getuid()}.locked"
 
 # --- High-Performance PAM Authentication ---
 libpam = ctypes.CDLL(ctypes.util.find_library('pam') or 'libpam.so.0')
@@ -69,16 +82,17 @@ def authenticate_user(username, password):
 
 def get_current_wallpaper():
     try:
-        out = subprocess.check_output(['gsettings', 'get', 'org.cinnamon.desktop.background', 'picture-uri'], text=True).strip()
-        wp = out.strip("'").replace("file://", "")
+        settings = Gio.Settings.new('org.cinnamon.desktop.background')
+        uri = settings.get_string('picture-uri')
+        wp = uri.replace('file://', '')
         if os.path.exists(wp):
             return wp
     except Exception:
         pass
-    default_wp = "/home/df/Pictures/Wallpapers/workspace-1.jpg"
+    default_wp = os.path.expanduser("~/Pictures/Wallpapers/workspace-1.jpg")
     if os.path.exists(default_wp):
         return default_wp
-    return "/home/df/Pictures/Wallpapers/workspace-4.jpg"
+    return os.path.expanduser("~/Pictures/Wallpapers/workspace-4.jpg")
 
 cached_weather = {
     "temp": "28°C",
@@ -105,8 +119,9 @@ def fetch_weather_thread():
         pass
 
 class BentoLockWindow(Gtk.Window):
-    def __init__(self):
+    def __init__(self, is_daemon=False):
         super().__init__(type=Gtk.WindowType.TOPLEVEL)
+        self.is_daemon = is_daemon
         self.set_title("Lockscreen")
         self.set_decorated(False)
         self.set_keep_above(True)
@@ -119,9 +134,6 @@ class BentoLockWindow(Gtk.Window):
         visual = screen.get_rgba_visual()
         if visual:
             self.set_visual(visual)
-            
-        self.stick()
-        self.fullscreen()
         
         self.has_grab = False
         self.grab_timer_id = None
@@ -135,6 +147,9 @@ class BentoLockWindow(Gtk.Window):
 
         ucm.register_script_message_handler("media")
         ucm.connect("script-message-received::media", self.on_media_message)
+
+        ucm.register_script_message_handler("power")
+        ucm.connect("script-message-received::power", self.on_power_message)
         
         settings = WebKit2.Settings()
         settings.set_enable_developer_extras(False)
@@ -191,17 +206,36 @@ class BentoLockWindow(Gtk.Window):
         t = threading.Thread(target=fetch_weather_thread, daemon=True)
         t.start()
 
+    def notify_dbus_screensaver(self, active):
+        if not dbus:
+            return
+        try:
+            bus = dbus.SessionBus()
+            proxy = bus.get_object('org.cinnamon.ScreenSaver', '/org/cinnamon/ScreenSaver')
+            iface = dbus.Interface(proxy, 'org.cinnamon.ScreenSaver')
+            iface.SetActive(active)
+        except Exception:
+            pass
+
     def acquire_grab(self):
         if not self.is_locked:
             return False
         gdk_win = self.get_window()
         if not gdk_win or not gdk_win.is_viewable():
             return True
-        
+
         seat = Gdk.Display.get_default().get_default_seat()
-        status = seat.grab(gdk_win, Gdk.SeatCapabilities.KEYBOARD, False, None, None, None)
-        if status == Gdk.GrabStatus.SUCCESS:
+        status = seat.grab(gdk_win, Gdk.SeatCapabilities.ALL, True, None, None, None)
+        grabbed = (status == Gdk.GrabStatus.SUCCESS)
+
+        if grabbed:
             self.has_grab = True
+            self.grab_timer_id = None
+            self.grab_retries = 0
+            return False
+
+        self.grab_retries = getattr(self, 'grab_retries', 0) + 1
+        if self.grab_retries > 30:
             self.grab_timer_id = None
             return False
         return True
@@ -277,8 +311,13 @@ class BentoLockWindow(Gtk.Window):
             pass
 
     def show_lockscreen(self):
-        self.apply_theme_from_file()
         self.is_locked = True
+        try:
+            open(LOCK_FLAG, 'w').close()
+        except OSError:
+            pass
+        self.notify_dbus_screensaver(True)
+        self.apply_theme_from_file()
         self.stick()
         self.set_keep_above(True)
         self.fullscreen()
@@ -292,17 +331,31 @@ class BentoLockWindow(Gtk.Window):
         self.webview.grab_focus()
         
         self.release_grab()
+        self.grab_retries = 0
         if self.acquire_grab():
             self.grab_timer_id = GLib.timeout_add(20, self.acquire_grab)
         
-        # Start live stats timer only while locked
-        self.update_live_stats()
-        if not self.stats_timer_id:
-            self.stats_timer_id = GLib.timeout_add(1000, self.update_live_stats)
+        # Start live stats worker after initial visual frame
+        if self.stats_timer_id:
+            GLib.source_remove(self.stats_timer_id)
+        self.stats_timer_id = GLib.timeout_add(2500, self.update_live_stats)
+        GLib.timeout_add(150, self._initial_stats_tick)
+
+    def _initial_stats_tick(self):
+        if self.is_locked:
+            self.update_live_stats()
+        return False
 
     def hide_lockscreen(self):
         self.is_locked = False
+        self.is_collecting_stats = False
+        try:
+            if os.path.exists(LOCK_FLAG):
+                os.unlink(LOCK_FLAG)
+        except OSError:
+            pass
         self.release_grab()
+        self.notify_dbus_screensaver(False)
         self.hide()
         Gdk.flush()
         
@@ -310,12 +363,16 @@ class BentoLockWindow(Gtk.Window):
             GLib.source_remove(self.stats_timer_id)
             self.stats_timer_id = None
             
-        if os.path.exists(SOCKET_PATH):
-            try:
-                os.unlink(SOCKET_PATH)
-            except OSError:
-                pass
-        Gtk.main_quit()
+        self.webview.run_javascript("if (window.resetLockState) window.resetLockState();")
+        gc.collect()
+
+        if not self.is_daemon:
+            if os.path.exists(SOCKET_PATH):
+                try:
+                    os.unlink(SOCKET_PATH)
+                except OSError:
+                    pass
+            Gtk.main_quit()
 
     def on_mpris_signal(self, *args, **kwargs):
         if self.is_locked:
@@ -379,6 +436,21 @@ class BentoLockWindow(Gtk.Window):
 
                     art = str(metadata.get('mpris:artUrl', ''))
 
+                    pos_sec = 0
+                    try:
+                        pos_us = props.Get('org.mpris.MediaPlayer2.Player', 'Position')
+                        pos_sec = round(int(pos_us) / 1000000)
+                    except Exception:
+                        pos_sec = 0
+
+                    len_sec = 0
+                    try:
+                        len_us = metadata.get('mpris:length', 0)
+                        if len_us:
+                            len_sec = round(int(len_us) / 1000000)
+                    except Exception:
+                        len_sec = 0
+
                     if title:
                         resolved_art = self.resolve_art_url(art)
                         m_data = {
@@ -386,7 +458,9 @@ class BentoLockWindow(Gtk.Window):
                             "title": title,
                             "artist": artist if artist else "Unknown Artist",
                             "art": resolved_art,
-                            "status": p_status
+                            "status": p_status,
+                            "position": pos_sec,
+                            "length": len_sec
                         }
                         if p_status == "Playing":
                             return m_data
@@ -423,6 +497,8 @@ class BentoLockWindow(Gtk.Window):
 
     def on_key_press(self, widget, event):
         keyval = event.keyval
+        state = event.state
+
         if keyval in (Gdk.KEY_AudioPlay, Gdk.KEY_AudioPause):
             self.control_media('PlayPause')
             return True
@@ -435,73 +511,238 @@ class BentoLockWindow(Gtk.Window):
         elif keyval == Gdk.KEY_AudioStop:
             self.control_media('Stop')
             return True
+        elif (state & Gdk.ModifierType.CONTROL_MASK) and keyval == Gdk.KEY_space:
+            self.control_media('PlayPause')
+            return True
+        elif (state & Gdk.ModifierType.CONTROL_MASK) and keyval in (Gdk.KEY_s, Gdk.KEY_S):
+            self.control_media('Stop')
+            return True
         elif keyval == Gdk.KEY_Escape:
-            self.webview.run_javascript("const inp = document.getElementById('pwd-input'); if (inp) { inp.value = ''; inp.focus(); }")
+            self.webview.run_javascript("if (typeof closePowerModal === 'function' && document.getElementById('power-modal')?.classList.contains('active')) { closePowerModal(); } else { const inp = document.getElementById('pwd-input'); if (inp) { inp.value = ''; inp.focus(); } }")
             return True
         return False
 
     def on_media_message(self, ucm, js_result):
         val = js_result.get_js_value()
         action = val.to_string()
+        print(f"[bento-lock] Media JS message received: {action}", flush=True)
         self.control_media(action)
+
+    def on_power_message(self, ucm, js_result):
+        val = js_result.get_js_value()
+        raw = val.to_string() if val else ""
+        print(f"[bento-lock] Power action received: {raw}", flush=True)
+        if not raw:
+            return
+
+        action = raw
+        password = None
+        if raw.startswith("{"):
+            try:
+                data = json.loads(raw)
+                action = data.get("action", "")
+                password = data.get("password", None)
+            except Exception:
+                pass
+
+        if action == "suspend":
+            subprocess.Popen(["systemctl", "suspend"])
+            return
+
+        if action in ("reboot", "poweroff"):
+            if not password:
+                self.webview.run_javascript("powerAuthFailed('Password is required');")
+                return
+
+            try:
+                ok = authenticate_user(self.current_user, password)
+            except Exception:
+                ok = False
+
+            if ok:
+                self.webview.run_javascript(f"powerAuthSuccess('{action}');")
+                def do_power():
+                    if action == "reboot":
+                        subprocess.Popen(["systemctl", "reboot"])
+                    elif action == "poweroff":
+                        subprocess.Popen(["systemctl", "poweroff"])
+                    return False
+                GLib.timeout_add(450, do_power)
+            else:
+                self.webview.run_javascript("powerAuthFailed('Incorrect password');")
 
     def read_cpu_stat(self):
         try:
             with open("/proc/stat", "r") as f:
-                fields = [float(x) for x in f.readline().split()[1:]]
-            return (fields[3] + fields[4], sum(fields))
+                parts = f.readline().split()[1:]
+                fields = [float(x) for x in parts]
+            idle = fields[3] + (fields[4] if len(fields) > 4 else 0)
+            total = sum(fields)
+            return (idle, total)
         except Exception:
             return (0.0, 0.0)
 
     def get_cpu_pct(self):
-        idle, total = self.read_cpu_stat()
-        if self.prev_cpu_stat:
-            p_idle, p_total = self.prev_cpu_stat
-            d_idle = idle - p_idle
+        try:
+            now = time.time()
+            idle, total = self.read_cpu_stat()
+            last_time = getattr(self, '_last_cpu_time', 0)
+            p_idle, p_total = getattr(self, 'prev_cpu_stat', None) or (0, 0)
+            
+            dt = now - last_time
             d_total = total - p_total
+            d_idle = idle - p_idle
+
+            # If no recent baseline or delta too tiny/huge, sample fresh over 120ms
+            if dt < 0.3 or dt > 5.0 or d_total < 30:
+                time.sleep(0.12)
+                idle2, total2 = self.read_cpu_stat()
+                d_idle = idle2 - idle
+                d_total = total2 - total
+                idle, total = idle2, total2
+                now = time.time()
+
+            self._last_cpu_time = now
             self.prev_cpu_stat = (idle, total)
+
             if d_total > 0:
-                return max(1, min(100, round((1.0 - (d_idle / d_total)) * 100)))
-        time.sleep(0.04)
-        i2, t2 = self.read_cpu_stat()
-        d_idle = i2 - idle
-        d_total = t2 - total
-        self.prev_cpu_stat = (i2, t2)
-        if d_total > 0:
-            return max(1, min(100, round((1.0 - (d_idle / d_total)) * 100)))
-        return 12
+                raw_pct = max(1, min(100, round((1.0 - (d_idle / d_total)) * 100)))
+                prev = getattr(self, '_last_cpu_pct', None)
+                if prev is not None:
+                    pct = max(1, min(100, round(0.5 * raw_pct + 0.5 * prev)))
+                else:
+                    pct = raw_pct
+                self._last_cpu_pct = pct
+                return pct
+            return getattr(self, '_last_cpu_pct', 2)
+        except Exception:
+            return getattr(self, '_last_cpu_pct', 2)
+
+    def get_network_str(self):
+        try:
+            if dbus:
+                bus = dbus.SystemBus()
+                nm = bus.get_object('org.freedesktop.NetworkManager', '/org/freedesktop/NetworkManager')
+                props = dbus.Interface(nm, 'org.freedesktop.DBus.Properties')
+                active_paths = props.Get('org.freedesktop.NetworkManager', 'ActiveConnections')
+                for p in active_paths:
+                    ac = bus.get_object('org.freedesktop.NetworkManager', p)
+                    ac_props = dbus.Interface(ac, 'org.freedesktop.DBus.Properties')
+                    type_str = str(ac_props.Get('org.freedesktop.NetworkManager.Connection.Active', 'Type'))
+                    id_str = str(ac_props.Get('org.freedesktop.NetworkManager.Connection.Active', 'Id'))
+                    if type_str == '802-11-wireless':
+                        return f"Wi-Fi: {id_str}"
+                    elif type_str == '802-3-ethernet':
+                        return "Ethernet: Connected"
+                    elif type_str in ('vpn', 'wireguard'):
+                        return f"VPN: {id_str}"
+        except Exception:
+            pass
+        return "Connected"
 
     def control_media(self, action):
         if not dbus:
             return
         try:
+            print(f"[bento-lock] control_media executed with action: {action}", flush=True)
             bus = dbus.SessionBus()
             players = [name for name in bus.list_names() if name.startswith('org.mpris.MediaPlayer2')]
+            if not players:
+                return
+
+            active_players = []
+            other_players = []
             for p in players:
-                obj = bus.get_object(p, '/org/mpris/MediaPlayer2')
                 try:
-                    player = dbus.Interface(obj, 'org.mpris.MediaPlayer2.Player')
-                    if action in ('play_pause', 'toggle_play', 'PlayPause'):
-                        player.PlayPause()
-                    elif action in ('next', 'Next'):
-                        player.Next()
-                    elif action in ('prev', 'previous', 'Previous'):
-                        player.Previous()
-                    elif action in ('stop', 'Stop'):
-                        player.Stop()
-                    
-                    # Refresh live dashboard immediately
-                    GLib.timeout_add(100, self.push_media_update)
-                    break
+                    obj = bus.get_object(p, '/org/mpris/MediaPlayer2')
+                    props = dbus.Interface(obj, 'org.freedesktop.DBus.Properties')
+                    p_status = str(props.Get('org.mpris.MediaPlayer2.Player', 'PlaybackStatus'))
+                    if p_status == 'Playing':
+                        active_players.append((p, obj, p_status))
+                    else:
+                        other_players.append((p, obj, p_status))
                 except Exception:
                     continue
-        except Exception:
+
+            target_list = active_players + other_players
+            if not target_list:
+                return
+
+            if action in ('stop', 'Stop', 'pause', 'Pause'):
+                # Pause/Stop all playing players so music DEFINITELY stops
+                for p, obj, _ in active_players:
+                    try:
+                        player = dbus.Interface(obj, 'org.mpris.MediaPlayer2.Player')
+                        try:
+                            player.Pause()
+                        except Exception:
+                            player.Stop()
+                    except Exception:
+                        pass
+                if not active_players and other_players:
+                    for p, obj, _ in other_players:
+                        try:
+                            player = dbus.Interface(obj, 'org.mpris.MediaPlayer2.Player')
+                            player.Stop()
+                        except Exception:
+                            pass
+            elif action in ('play_pause', 'toggle_play', 'PlayPause'):
+                # If any player is playing, pause it!
+                if active_players:
+                    for p, obj, _ in active_players:
+                        try:
+                            player = dbus.Interface(obj, 'org.mpris.MediaPlayer2.Player')
+                            try:
+                                player.Pause()
+                            except Exception:
+                                player.PlayPause()
+                            break
+                        except Exception:
+                            pass
+                elif other_players:
+                    for p, obj, _ in other_players:
+                        try:
+                            player = dbus.Interface(obj, 'org.mpris.MediaPlayer2.Player')
+                            try:
+                                player.Play()
+                            except Exception:
+                                player.PlayPause()
+                            break
+                        except Exception:
+                            pass
+            elif action in ('next', 'Next'):
+                for p, obj, _ in target_list:
+                    try:
+                        player = dbus.Interface(obj, 'org.mpris.MediaPlayer2.Player')
+                        player.Next()
+                        break
+                    except Exception:
+                        pass
+            elif action in ('prev', 'previous', 'Previous'):
+                for p, obj, _ in target_list:
+                    try:
+                        player = dbus.Interface(obj, 'org.mpris.MediaPlayer2.Player')
+                        player.Previous()
+                        break
+                    except Exception:
+                        pass
+
+            # Refresh live dashboard immediately and again after 150ms
+            GLib.idle_add(self.push_media_update)
+            GLib.timeout_add(150, self.push_media_update)
+        except Exception as e:
             pass
 
     def update_live_stats(self):
         if not self.is_locked:
             return False
+        if getattr(self, 'is_collecting_stats', False):
+            return True
+        self.is_collecting_stats = True
+        threading.Thread(target=self._collect_stats_worker, daemon=True).start()
+        return True
 
+    def _collect_stats_worker(self):
         try:
             w_temp = cached_weather["temp"]
             w_stat = cached_weather["status"]
@@ -510,6 +751,7 @@ class BentoLockWindow(Gtk.Window):
             cpu_pct = self.get_cpu_pct()
 
             ram_pct = 30
+            ram_detail = "3.2 / 8.0 GB"
             try:
                 with open("/proc/meminfo", "r") as f:
                     lines = f.readlines()
@@ -520,7 +762,9 @@ class BentoLockWindow(Gtk.Window):
                         mem[p[0].strip()] = int(p[1].strip().split()[0])
                 total = mem.get("MemTotal", 1)
                 avail = mem.get("MemAvailable", 0)
-                ram_pct = round(((total - avail) / total) * 100)
+                used = total - avail
+                ram_pct = round((used / total) * 100)
+                ram_detail = f"{used / (1024 * 1024):.1f} / {total / (1024 * 1024):.1f} GB"
             except Exception:
                 pass
 
@@ -565,20 +809,7 @@ class BentoLockWindow(Gtk.Window):
                 pass
 
             media = self.get_mpris_media()
-
-            net_str = "Connected"
-            try:
-                out = subprocess.check_output(['iwgetid', '-r'], stderr=subprocess.DEVNULL).decode().strip()
-                if out:
-                    net_str = f"Wi-Fi: {out}"
-                else:
-                    out = subprocess.check_output(['nmcli', '-t', '-f', 'active,ssid', 'dev', 'wifi'], stderr=subprocess.DEVNULL).decode().strip()
-                    for line in out.splitlines():
-                        if line.startswith('yes:'):
-                            net_str = f"Wi-Fi: {line.split(':')[1]}"
-                            break
-            except Exception:
-                pass
+            net_str = self.get_network_str()
 
             uptime_str = "1h"
             try:
@@ -591,9 +822,13 @@ class BentoLockWindow(Gtk.Window):
                 pass
 
             disk_str = ""
+            disk_pct = 50
+            disk_detail = ""
             try:
-                _, _, free = shutil.disk_usage('/')
-                disk_str = f"{free // (2**30)} GB Free"
+                tot_d, used_d, free_d = shutil.disk_usage('/')
+                disk_str = f"{free_d // (2**30)} GB Free"
+                disk_pct = round((used_d / tot_d) * 100)
+                disk_detail = f"{free_d // (2**30)} GB Free / {tot_d // (2**30)} GB"
             except Exception:
                 pass
 
@@ -606,6 +841,7 @@ class BentoLockWindow(Gtk.Window):
                 "hardware": {
                     "cpu": cpu_pct,
                     "ram": ram_pct,
+                    "ram_detail": ram_detail,
                     "temp": laptop_temp,
                     "bat": bat_pct,
                     "bat_status": bat_status,
@@ -613,19 +849,29 @@ class BentoLockWindow(Gtk.Window):
                 },
                 "media": media,
                 "system": {
+                    "user": self.current_user,
                     "net": net_str,
                     "uptime": uptime_str,
-                    "disk": disk_str
+                    "disk": disk_str,
+                    "disk_pct": disk_pct,
+                    "disk_detail": disk_detail
                 }
             }
 
-            js_code = f"if (window.updateLiveDashboard) {{ updateLiveDashboard({json.dumps(payload)}); }}"
-            self.webview.run_javascript(js_code)
-        except Exception as e:
+            GLib.idle_add(self._apply_stats_payload, payload)
+        except Exception:
             pass
-        return True
+        finally:
+            self.is_collecting_stats = False
 
-def setup_glib_socket(win):
+    def _apply_stats_payload(self, payload):
+        if not self.is_locked:
+            return False
+        js_code = f"if (window.updateLiveDashboard) {{ updateLiveDashboard({json.dumps(payload)}); }}"
+        self.webview.run_javascript(js_code)
+        return False
+
+def setup_glib_socket(win_holder):
     if os.path.exists(SOCKET_PATH):
         try:
             os.unlink(SOCKET_PATH)
@@ -641,14 +887,19 @@ def setup_glib_socket(win):
         try:
             conn, _ = srv.accept()
             msg = conn.recv(1024).decode().strip()
-            if msg == "lock":
-                win.show_lockscreen()
-            elif msg == "unlock":
-                win.hide_lockscreen()
-            elif msg.startswith("wallpaper:"):
-                new_wp = msg.split(":", 1)[1]
-                if os.path.exists(new_wp):
-                    win.webview.run_javascript(f"if (window.setWallpaper) setWallpaper('{new_wp}');")
+            win = win_holder[0] if win_holder else None
+            if win:
+                if msg == "lock":
+                    win.show_lockscreen()
+                elif msg == "unlock":
+                    win.hide_lockscreen()
+                elif msg.startswith("media:"):
+                    action = msg.split(":", 1)[1]
+                    win.control_media(action)
+                elif msg.startswith("wallpaper:"):
+                    new_wp = msg.split(":", 1)[1]
+                    if os.path.exists(new_wp):
+                        win.webview.run_javascript(f"if (window.setWallpaper) setWallpaper('{new_wp}');")
             conn.close()
         except Exception:
             pass
@@ -658,10 +909,18 @@ def setup_glib_socket(win):
     return srv
 
 def main():
-    win = BentoLockWindow()
-    srv = setup_glib_socket(win)
+    is_daemon = '--daemon' in sys.argv
+    if os.path.exists(LOCK_FLAG):
+        try:
+            os.unlink(LOCK_FLAG)
+        except OSError:
+            pass
+    win_holder = [None]
+    srv = setup_glib_socket(win_holder)
+    win = BentoLockWindow(is_daemon=is_daemon)
+    win_holder[0] = win
     
-    if '--daemon' not in sys.argv:
+    if not is_daemon:
         win.show_lockscreen()
         
     Gtk.main()

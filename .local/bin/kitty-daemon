@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""
+Kitty Background Daemon for Mint-Catppuccin
+Keeps a pre-warmed Kitty master instance running in the background with 0% CPU.
+Unmaps the initial dummy window so it is completely invisible to the user,
+allowing instant (<100ms) terminal window spawning via kitten @ launch.
+"""
+
+import ctypes
+import json
+import os
+import signal
+import subprocess
+import sys
+import time
+
+def main():
+    uid = os.getuid()
+    sock = f"unix:@kitty-{uid}"
+
+    # Terminate any stray kitty processes from previous runs with this socket
+    try:
+        subprocess.run(["kitten", "@", "--to", sock, "quit"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1)
+    except Exception:
+        pass
+
+    # Wait for the X11 display and window compositor (Cinnamon/Muffin)
+    # to be fully initialized so Kitty can obtain a 32-bit ARGB visual with transparency.
+    for _ in range(50):
+        try:
+            res = subprocess.run(["xprop", "-root", "_NET_SUPPORTED"],
+                                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, timeout=1)
+            if "_NET_WM_WINDOW_OPACITY" in res.stdout or "_NET_WM_BYPASS_COMPOSITOR" in res.stdout:
+                break
+        except Exception:
+            pass
+        time.sleep(0.2)
+
+    # Launch Kitty in minimized state running an idle cat process (0% CPU)
+    # Using kitty standard class so all children inherit proper class and decorations
+    cmd = [
+        "kitty",
+        "--start-as=minimized",
+        "-o", "allow_remote_control=yes",
+        "--listen-on", sock,
+        "sh", "-c", "exec cat"
+    ]
+
+    proc = subprocess.Popen(cmd)
+
+    def handle_signal(sig, frame):
+        proc.terminate()
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
+
+    # Wait for the control socket to become available
+    wid = None
+    for _ in range(60):
+        time.sleep(0.05)
+        res = subprocess.run(["kitten", "@", "--to", sock, "ls"],
+                             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+        if res.returncode == 0:
+            try:
+                data = json.loads(res.stdout)
+                if data and len(data) > 0:
+                    wid = data[0].get("platform_window_id")
+                    break
+            except Exception:
+                pass
+
+    # Unmap the dummy window via X11 so it is invisible everywhere (taskbar, Alt+Tab, etc.)
+    if wid:
+        try:
+            x11 = ctypes.cdll.LoadLibrary("libX11.so.6")
+            display = x11.XOpenDisplay(None)
+            if display:
+                x11.XUnmapWindow(display, wid)
+                x11.XFlush(display)
+                x11.XCloseDisplay(display)
+        except Exception:
+            pass
+
+    # Wait for kitty to finish (kept alive by systemd)
+    proc.wait()
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Exec=/usr/bin/python3 /home/df/.local/share/bento-wallpaper/wallpaper_daemon.py
+Exec=sh -c "exec /usr/bin/python3 $HOME/.local/share/bento-wallpaper/wallpaper_daemon.py"
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true

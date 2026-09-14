@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 SOCKET_PATH="/tmp/bento-wallpaper-$UID.sock"
+FAST_SEND="$(dirname "$0")/bento-sock-send"
+
+if [ -x "$FAST_SEND" ] && [ -S "$SOCKET_PATH" ]; then
+    if "$FAST_SEND" "$SOCKET_PATH" "toggle" 2>/dev/null; then
+        exit 0
+    fi
+fi
 
 if [ -S "$SOCKET_PATH" ]; then
-    if echo "toggle" | nc -w 1 -U "$SOCKET_PATH" 2>/dev/null; then
+    if python3 -c "import socket; s = socket.socket(socket.AF_UNIX); s.settimeout(0.3); s.connect('$SOCKET_PATH'); s.sendall(b'toggle\n'); s.close()" 2>/dev/null; then
         exit 0
     fi
     rm -f "$SOCKET_PATH"

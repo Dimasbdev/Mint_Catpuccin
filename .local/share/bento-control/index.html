@@ -537,6 +537,21 @@
       transform: scale(1.1);
     }
 
+    .btn-media:active {
+      transform: scale(0.94);
+    }
+
+    .btn-media svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: block;
+    }
+
     .btn-media.play-pause {
       width: 38px;
       height: 38px;
@@ -551,11 +566,18 @@
       box-shadow: 0 6px 18px var(--accent-glow);
     }
 
+    .btn-media.play-pause:active {
+      transform: scale(0.96);
+    }
+
     .btn-media.play-pause svg {
       width: 16px;
       height: 16px;
       stroke: var(--mantle);
       fill: var(--mantle);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     /* ----------------------------------------------------
@@ -727,14 +749,14 @@
         <span class="media-artist" id="mediaArtist">Music is idle</span>
       </div>
       <div class="media-controls">
-        <button class="btn-media" id="btnPrev" title="Previous">
-          <svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5" stroke-width="2"></line></svg>
+        <button class="btn-media" id="btnPrev" title="Previous Track">
+          <svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
         </button>
         <button class="btn-media play-pause" id="btnPlayPause" title="Play / Pause">
           <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
         </button>
-        <button class="btn-media" id="btnNext" title="Next">
-          <svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke-width="2"></line></svg>
+        <button class="btn-media" id="btnNext" title="Next Track">
+          <svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
         </button>
       </div>
     </div>

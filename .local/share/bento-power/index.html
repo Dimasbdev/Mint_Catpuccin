@@ -235,17 +235,9 @@
       --card-color: var(--flamingo);
       --card-glow: rgba(245, 194, 231, 0.35);
     }
-    #cardLogout {
-      --card-color: var(--mauve);
-      --card-glow: rgba(203, 166, 247, 0.35);
-    }
     #cardSuspend {
       --card-color: var(--sapphire);
       --card-glow: rgba(116, 199, 236, 0.35);
-    }
-    #cardHibernate {
-      --card-color: var(--teal);
-      --card-glow: rgba(148, 226, 213, 0.35);
     }
     #cardReboot {
       --card-color: var(--peach);
@@ -295,7 +287,7 @@
       <div class="avatar-circle">
         <img src="avatar.jpeg" alt="avatar">
       </div>
-      <span class="user-name" id="userNameLabel">df@t480</span>
+      <span class="user-name" id="userNameLabel">User</span>
       <div class="user-divider"></div>
       <span class="uptime-text" id="uptimeLabel">up 4h 20m</span>
     </div>
@@ -312,17 +304,8 @@
       <span class="key-badge">L</span>
     </div>
 
-    <!-- Logout -->
-    <div class="power-card" id="cardLogout" data-action="logout" tabindex="2">
-      <div class="icon-wrap">
-        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-      </div>
-      <span class="card-label">Logout</span>
-      <span class="key-badge">E</span>
-    </div>
-
     <!-- Suspend -->
-    <div class="power-card" id="cardSuspend" data-action="suspend" tabindex="3">
+    <div class="power-card" id="cardSuspend" data-action="suspend" tabindex="2">
       <div class="icon-wrap">
         <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
       </div>
@@ -330,17 +313,8 @@
       <span class="key-badge">U</span>
     </div>
 
-    <!-- Hibernate -->
-    <div class="power-card" id="cardHibernate" data-action="hibernate" tabindex="4">
-      <div class="icon-wrap">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-      </div>
-      <span class="card-label">Hibernate</span>
-      <span class="key-badge">H</span>
-    </div>
-
     <!-- Reboot -->
-    <div class="power-card" id="cardReboot" data-action="reboot" tabindex="5">
+    <div class="power-card" id="cardReboot" data-action="reboot" tabindex="3">
       <div class="icon-wrap">
         <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
       </div>
@@ -349,7 +323,7 @@
     </div>
 
     <!-- Shutdown -->
-    <div class="power-card" id="cardShutdown" data-action="shutdown" tabindex="6">
+    <div class="power-card" id="cardShutdown" data-action="shutdown" tabindex="4">
       <div class="icon-wrap">
         <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
       </div>
@@ -361,9 +335,7 @@
   <!-- Bottom keyboard navigation tips -->
   <div class="footer-hint">
     <div class="hint-item"><span class="hint-key">L</span> Lock</div>
-    <div class="hint-item"><span class="hint-key">E</span> Logout</div>
     <div class="hint-item"><span class="hint-key">U</span> Suspend</div>
-    <div class="hint-item"><span class="hint-key">H</span> Hibernate</div>
     <div class="hint-item"><span class="hint-key">R</span> Reboot</div>
     <div class="hint-item"><span class="hint-key">S</span> Shutdown</div>
     <div class="hint-item"><span class="hint-key">Esc</span> Cancel</div>
@@ -413,12 +385,8 @@
         sendAction('close');
       } else if (key === 'l') {
         sendAction('lock');
-      } else if (key === 'e') {
-        sendAction('logout');
       } else if (key === 'u') {
         sendAction('suspend');
-      } else if (key === 'h') {
-        sendAction('hibernate');
       } else if (key === 'r') {
         sendAction('reboot');
       } else if (key === 's') {

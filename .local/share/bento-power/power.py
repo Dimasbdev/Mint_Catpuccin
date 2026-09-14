@@ -124,7 +124,7 @@ class BentoPowerWindow(Gtk.Window):
 
         # Push user & uptime details
         details = {
-            "user": f"{self.current_user}@t480",
+            "user": f"{self.current_user}@{socket.gethostname()}",
             "uptime": get_uptime_str()
         }
         js_code = f"if (window.updatePowerDetails) {{ updatePowerDetails({json.dumps(details)}); }}"
@@ -156,15 +156,9 @@ class BentoPowerWindow(Gtk.Window):
             if action == "lock":
                 self.hide_popup()
                 subprocess.Popen([os.path.expanduser('~/.local/bin/bento-lock')])
-            elif action == "logout":
-                self.hide_popup()
-                subprocess.run(['cinnamon-session-quit', '--logout', '--no-prompt'])
             elif action == "suspend":
                 self.hide_popup()
                 subprocess.run(['systemctl', 'suspend'])
-            elif action == "hibernate":
-                self.hide_popup()
-                subprocess.run(['systemctl', 'hibernate'])
             elif action == "reboot":
                 self.hide_popup()
                 subprocess.run(['cinnamon-session-quit', '--reboot', '--no-prompt'])

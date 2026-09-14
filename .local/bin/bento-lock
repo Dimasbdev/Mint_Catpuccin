@@ -1,11 +1,62 @@
 #!/usr/bin/env bash
 SOCKET_PATH="/tmp/bento-lock-$UID.sock"
+FAST_SEND="$(dirname "$0")/bento-sock-send"
 
-if [ -S "$SOCKET_PATH" ]; then
-    if echo "lock" | nc -w 1 -U "$SOCKET_PATH" 2>/dev/null; then
+# 1. Instant fast path (<2ms) via compiled C socket helper
+if [ -x "$FAST_SEND" ] && [ -S "$SOCKET_PATH" ]; then
+    if "$FAST_SEND" "$SOCKET_PATH" "lock" 2>/dev/null; then
         exit 0
     fi
-    rm -f "$SOCKET_PATH"
 fi
+
+# 2. Python socket path (<35ms)
+if [ -S "$SOCKET_PATH" ]; then
+    ret=$(python3 -c "
+import socket, sys, os
+s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+s.settimeout(0.5)
+try:
+    s.connect('$SOCKET_PATH')
+    s.sendall(b'lock\n')
+    s.close()
+    sys.exit(0)
+except ConnectionRefusedError:
+    try: os.unlink('$SOCKET_PATH')
+    except OSError: pass
+    sys.exit(2)
+except Exception:
+    sys.exit(1)
+" 2>/dev/null; echo $?)
+    if [ "$ret" -eq 0 ]; then
+        exit 0
+    fi
+fi
+
+# 3. If bento-lock service is installed, ensure it is running
+if systemctl --user is-enabled bento-lock.service >/dev/null 2>&1; then
+    systemctl --user start bento-lock.service
+    for i in {1..10}; do
+        if [ -S "$SOCKET_PATH" ]; then
+            if [ -x "$FAST_SEND" ]; then
+                if "$FAST_SEND" "$SOCKET_PATH" "lock" 2>/dev/null; then
+                    exit 0
+                fi
+            else
+                if python3 -c "import socket; s = socket.socket(socket.AF_UNIX); s.settimeout(0.3); s.connect('$SOCKET_PATH'); s.sendall(b'lock\n'); s.close()" 2>/dev/null; then
+                    exit 0
+                fi
+            fi
+        fi
+        sleep 0.04
+    done
+fi
+
+# 4. Fallback: start standalone if daemon is not running
+if pgrep -f "bento-lock/lock.py" >/dev/null 2>&1; then
+    exit 0
+fi
+
+export GI_TYPELIB_PATH="/usr/libexec/cinnamon-screensaver/girepository-1.0:$GI_TYPELIB_PATH"
+export LD_LIBRARY_PATH="/usr/libexec/cinnamon-screensaver:$LD_LIBRARY_PATH"
 
 nohup python3 "$HOME/.local/share/bento-lock/lock.py" >/dev/null 2>&1 &
