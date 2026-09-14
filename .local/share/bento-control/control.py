@@ -377,7 +377,7 @@ class BentoControlWindow(Gtk.Window):
                 pass
 
         return {
-            "user": f"{self.current_user}@t480",
+            "user": f"{self.current_user}@{socket.gethostname()}",
             "volume": vol,
             "muted": muted,
             "brightness": brightness,
