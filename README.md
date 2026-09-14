@@ -46,7 +46,7 @@
   - **Starship Prompt**: Minimalist, responsive shell prompt displaying current directory, Git status, and timestamp.
   - **pipes.sh**: Retro animated terminal screensaver tuned to pastel Catppuccin colors.
   - **Btop**: Interactive system resource monitor styled in Catppuccin theme.
-  - **Cava & Sptlrx**: Audio visualizer bar and synchronized live music lyrics via MPRIS.
+  - **Cava & Sptlrx**: Audio visualizer featuring real-time dynamic workspace color synchronization via Bento Theme Engine, alongside synchronized live music lyrics via MPRIS.
 - **Floating Dock:** Clean, transparent Plank dock with intelligent auto-hide to avoid obstructing active windows or tiling layouts.
 
 ---

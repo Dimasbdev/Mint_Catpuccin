@@ -466,6 +466,54 @@ class WallpaperDaemon:
                         if os.path.exists(target_wp):
                             self.set_desktop_background(target_wp)
 
+    def update_cava_theme(self, palette):
+        try:
+            cava_config_path = os.path.expanduser("~/.config/cava/config")
+            if not os.path.exists(cava_config_path):
+                return
+
+            pri = palette.get("primary", "#f5c2e7")
+            sec = palette.get("secondary", "#cba6f7")
+
+            with open(cava_config_path, "r") as f:
+                lines = f.readlines()
+
+            new_lines = []
+            in_color_section = False
+            for line in lines:
+                stripped = line.strip()
+                if stripped.startswith("[") and stripped.endswith("]"):
+                    if stripped == "[color]":
+                        in_color_section = True
+                        new_lines.append(line)
+                        new_lines.append("gradient = 1\n")
+                        new_lines.append("gradient_count = 2\n")
+                        new_lines.append(f"gradient_color_1 = '{sec}'\n")
+                        new_lines.append(f"gradient_color_2 = '{pri}'\n")
+                        continue
+                    else:
+                        in_color_section = False
+
+                if in_color_section:
+                    if any(stripped.startswith(k) for k in ("gradient", "gradient_count", "gradient_color_", "foreground", "background")):
+                        continue
+                new_lines.append(line)
+
+            if not any("[color]" in l for l in lines):
+                new_lines.append("\n[color]\n")
+                new_lines.append("gradient = 1\n")
+                new_lines.append("gradient_count = 2\n")
+                new_lines.append(f"gradient_color_1 = '{sec}'\n")
+                new_lines.append(f"gradient_color_2 = '{pri}'\n")
+
+            with open(cava_config_path, "w") as f:
+                f.writelines(new_lines)
+
+            # Instantly reload CAVA colors via SIGUSR2 without disrupting audio
+            subprocess.run(["pkill", "-USR2", "cava"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception as e:
+            print(f"Error updating Cava theme: {e}", file=sys.stderr)
+
     def update_shared_theme(self, palette):
         try:
             with open(SHARED_COLORS_FILE, "w") as f:
@@ -480,6 +528,9 @@ class WallpaperDaemon:
 """
             with open(SHARED_CSS_FILE, "w") as f:
                 f.write(css_content)
+
+            # Synchronize CAVA visualizer gradient colors
+            self.update_cava_theme(palette)
 
             # Note: No ReloadTheme() called here! Workspace class is switched via JS (0ms lag).
             if self.theme_service:
