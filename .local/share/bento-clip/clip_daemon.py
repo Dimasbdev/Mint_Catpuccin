@@ -15,13 +15,18 @@ DB_PATH = os.path.join(DATA_DIR, "clipboard.db")
 
 os.makedirs(IMG_DIR, exist_ok=True)
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+def recover_corrupt_db():
+    try:
+        if os.path.exists(DB_PATH):
+            backup_path = f"{DB_PATH}.corrupt.{int(time.time())}"
+            os.rename(DB_PATH, backup_path)
+    except Exception:
+        pass
+    _create_tables()
 
-def init_db():
-    with get_db() as conn:
+def _create_tables():
+    try:
+        conn = sqlite3.connect(DB_PATH)
         conn.execute('''
             CREATE TABLE IF NOT EXISTS clipboard (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +44,44 @@ def init_db():
         conn.execute('CREATE INDEX IF NOT EXISTS idx_clip_time ON clipboard(timestamp DESC)')
         conn.execute('CREATE INDEX IF NOT EXISTS idx_clip_hash ON clipboard(hash)')
         conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
+def get_db():
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        conn.execute('PRAGMA schema_version;')
+        return conn
+    except sqlite3.DatabaseError:
+        recover_corrupt_db()
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+def init_db():
+    try:
+        with get_db() as conn:
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS clipboard (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    type TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    preview TEXT,
+                    char_count INTEGER DEFAULT 0,
+                    img_width INTEGER DEFAULT 0,
+                    img_height INTEGER DEFAULT 0,
+                    hash TEXT UNIQUE NOT NULL,
+                    timestamp INTEGER NOT NULL,
+                    pinned INTEGER DEFAULT 0
+                )
+            ''')
+            conn.execute('CREATE INDEX IF NOT EXISTS idx_clip_time ON clipboard(timestamp DESC)')
+            conn.execute('CREATE INDEX IF NOT EXISTS idx_clip_hash ON clipboard(hash)')
+            conn.commit()
+    except sqlite3.DatabaseError:
+        recover_corrupt_db()
 
 init_db()
 

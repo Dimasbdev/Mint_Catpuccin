@@ -1,0 +1,13 @@
+[Unit]
+Description=Bento Clipboard History Daemon
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.local/share/bento-clip/clip_daemon.py
+Restart=always
+RestartSec=2
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=default.target

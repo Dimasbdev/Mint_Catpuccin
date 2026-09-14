@@ -24,13 +24,18 @@ DB_PATH = os.path.join(DATA_DIR, "clipboard.db")
 os.makedirs(IMG_DIR, exist_ok=True)
 
 # --- Database Management ---
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+def recover_corrupt_db():
+    try:
+        if os.path.exists(DB_PATH):
+            backup_path = f"{DB_PATH}.corrupt.{int(time.time())}"
+            os.rename(DB_PATH, backup_path)
+    except Exception:
+        pass
+    _create_tables()
 
-def init_db():
-    with get_db() as conn:
+def _create_tables():
+    try:
+        conn = sqlite3.connect(DB_PATH)
         conn.execute('''
             CREATE TABLE IF NOT EXISTS clipboard (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,6 +53,44 @@ def init_db():
         conn.execute('CREATE INDEX IF NOT EXISTS idx_clip_time ON clipboard(timestamp DESC)')
         conn.execute('CREATE INDEX IF NOT EXISTS idx_clip_hash ON clipboard(hash)')
         conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
+def get_db():
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        conn.execute('PRAGMA schema_version;')
+        return conn
+    except sqlite3.DatabaseError:
+        recover_corrupt_db()
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+def init_db():
+    try:
+        with get_db() as conn:
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS clipboard (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    type TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    preview TEXT,
+                    char_count INTEGER DEFAULT 0,
+                    img_width INTEGER DEFAULT 0,
+                    img_height INTEGER DEFAULT 0,
+                    hash TEXT UNIQUE NOT NULL,
+                    timestamp INTEGER NOT NULL,
+                    pinned INTEGER DEFAULT 0
+                )
+            ''')
+            conn.execute('CREATE INDEX IF NOT EXISTS idx_clip_time ON clipboard(timestamp DESC)')
+            conn.execute('CREATE INDEX IF NOT EXISTS idx_clip_hash ON clipboard(hash)')
+            conn.commit()
+    except sqlite3.DatabaseError:
+        recover_corrupt_db()
 
 init_db()
 
@@ -118,6 +161,7 @@ class BentoClipWindow(Gtk.Window):
         self.webview.set_settings(settings)
         self.webview.set_background_color(Gdk.RGBA(0.0, 0.0, 0.0, 0.0))
         self.webview.connect("context-menu", lambda *args: True)
+        self.webview.connect("load-changed", self.on_webview_load_changed)
         
         html_path = os.path.join(DATA_DIR, "index.html")
         self.webview.load_uri(f"file://{html_path}")
@@ -146,6 +190,11 @@ class BentoClipWindow(Gtk.Window):
         self.clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         self.clipboard.connect("owner-change", self.on_clipboard_owner_change)
 
+    def on_webview_load_changed(self, webview, load_event):
+        if load_event == WebKit2.LoadEvent.FINISHED:
+            self.apply_theme_from_file()
+            self.refresh_ui()
+
     def on_theme_changed(self, colors_path):
         GLib.idle_add(self.apply_theme_from_file, colors_path)
 
@@ -156,15 +205,23 @@ class BentoClipWindow(Gtk.Window):
         try:
             with open(path, "r") as f:
                 theme = json.load(f)
+            pri = theme.get("primary", "#f5c2e7")
+            sec = theme.get("secondary", "#cba6f7")
+            glow = theme.get("accent_subtle", f"rgba({theme.get('primary_rgb', '245, 194, 231')}, 0.20)")
+            b_act = theme.get("border_active", f"rgba({theme.get('primary_rgb', '245, 194, 231')}, 0.45)")
+            b_sub = theme.get("border_subtle", f"rgba({theme.get('primary_rgb', '245, 194, 231')}, 0.20)")
             js = f"""
             (function() {{
                 const root = document.documentElement;
-                root.style.setProperty('--flamingo', '{theme['primary']}');
-                root.style.setProperty('--accent', '{theme['primary']}');
-                root.style.setProperty('--mauve', '{theme['secondary']}');
-                root.style.setProperty('--border-active', '{theme['border_active']}');
-                root.style.setProperty('--border-subtle', '{theme['border_subtle']}');
-                root.style.setProperty('--glow', '{theme['accent_subtle']}');
+                root.style.setProperty('--flamingo', '{pri}');
+                root.style.setProperty('--accent', '{pri}');
+                root.style.setProperty('--mauve', '{sec}');
+                root.style.setProperty('--border-active', '{b_act}');
+                root.style.setProperty('--border-subtle', '{b_sub}');
+                root.style.setProperty('--glow', '{glow}');
+                if (window.setTheme) {{
+                    window.setTheme({json.dumps(theme)});
+                }}
             }})();
             """
             self.webview.run_javascript(js)
@@ -319,25 +376,28 @@ class BentoClipWindow(Gtk.Window):
             self.show_popup()
 
     def refresh_ui(self):
-        with get_db() as conn:
-            rows = conn.execute('''
-                SELECT id, type, content, preview, char_count, img_width, img_height, timestamp, pinned
-                FROM clipboard ORDER BY pinned DESC, timestamp DESC LIMIT 100
-            ''').fetchall()
-            
-            items = []
-            for r in rows:
-                items.append({
-                    "id": r['id'],
-                    "type": r['type'],
-                    "content": r['content'] if r['type'] != 'image' else '',
-                    "preview": r['preview'],
-                    "char_count": r['char_count'],
-                    "img_width": r['img_width'],
-                    "img_height": r['img_height'],
-                    "timestamp": r['timestamp'],
-                    "pinned": bool(r['pinned'])
-                })
+        items = []
+        try:
+            with get_db() as conn:
+                rows = conn.execute('''
+                    SELECT id, type, content, preview, char_count, img_width, img_height, timestamp, pinned
+                    FROM clipboard ORDER BY pinned DESC, timestamp DESC LIMIT 100
+                ''').fetchall()
+                
+                for r in rows:
+                    items.append({
+                        "id": r['id'],
+                        "type": r['type'],
+                        "content": r['content'] if r['type'] != 'image' else '',
+                        "preview": r['preview'],
+                        "char_count": r['char_count'],
+                        "img_width": r['img_width'],
+                        "img_height": r['img_height'],
+                        "timestamp": r['timestamp'],
+                        "pinned": bool(r['pinned'])
+                    })
+        except Exception:
+            pass
                 
         js_code = f"if (window.renderClipboard) {{ renderClipboard({json.dumps(items)}); }}"
         self.webview.run_javascript(js_code)
@@ -349,7 +409,10 @@ class BentoClipWindow(Gtk.Window):
             action = data.get("action")
             item_id = data.get("id")
 
-            if action == "paste":
+            if action == "ready":
+                self.apply_theme_from_file()
+                self.refresh_ui()
+            elif action == "paste":
                 self.paste_item(item_id)
             elif action == "copy":
                 self.copy_item(item_id)

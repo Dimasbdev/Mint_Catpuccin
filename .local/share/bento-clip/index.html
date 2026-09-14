@@ -37,9 +37,9 @@
             width: 100%;
             height: 100%;
             background: rgba(24, 24, 37, 0.94);
-            border: 1px solid rgba(245, 194, 231, 0.22);
+            border: 1px solid var(--border-active);
             border-radius: 24px;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 2px var(--glow);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 20px var(--glow);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -66,7 +66,7 @@
         .logo-icon {
             width: 28px;
             height: 28px;
-            background: rgba(245, 194, 231, 0.15);
+            background: var(--glow);
             border: 1px solid var(--border-active);
             border-radius: 8px;
             display: flex;
@@ -85,9 +85,9 @@
         .badge-count {
             font-size: 11px;
             font-weight: 600;
-            background: rgba(49, 50, 68, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #a6adc8;
+            background: var(--glow);
+            border: 1px solid var(--border-subtle);
+            color: var(--accent);
             padding: 2px 8px;
             border-radius: 12px;
         }
@@ -225,7 +225,7 @@
         }
 
         .tab-btn.active {
-            background: rgba(245, 194, 231, 0.16);
+            background: var(--glow);
             border-color: var(--border-active);
             color: var(--accent);
         }
@@ -472,7 +472,7 @@
                 <span class="badge-count" id="badge-count">0 items</span>
             </div>
             <div class="actions-group">
-                <button class="btn-clear" onclick="clearAllItems()" title="Hapus semua riwayat">
+                <button class="btn-clear" onclick="clearAllItems()" title="Clear all history">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -778,8 +778,30 @@
             applyFilterAndRender();
         });
 
+        window.setTheme = function(theme) {
+            if (!theme) return;
+            const root = document.documentElement;
+            if (theme.primary) {
+                root.style.setProperty('--flamingo', theme.primary);
+                root.style.setProperty('--accent', theme.primary);
+            }
+            if (theme.secondary) {
+                root.style.setProperty('--mauve', theme.secondary);
+            }
+            if (theme.border_active) {
+                root.style.setProperty('--border-active', theme.border_active);
+            }
+            if (theme.border_subtle) {
+                root.style.setProperty('--border-subtle', theme.border_subtle);
+            }
+            if (theme.accent_subtle) {
+                root.style.setProperty('--glow', theme.accent_subtle);
+            }
+        };
+
         window.onload = () => {
             document.getElementById('search-inp').focus();
+            sendPython('ready');
         };
     </script>
 </body>
