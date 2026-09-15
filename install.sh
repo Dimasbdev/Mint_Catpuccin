@@ -50,7 +50,7 @@ backup_item() {
 }
 
 install_packages() {
-    info "Memeriksa paket dependensi sistem..."
+    info "Checking system package dependencies..."
     local PKGS=(
         plank
         kitty
@@ -90,22 +90,22 @@ install_packages() {
     done
 
     if [ ${#MISSING[@]} -gt 0 ]; then
-        info "Paket berikut perlu di-install: ${MISSING[*]}"
-        read -rp "Install paket dependensi sekarang dengan sudo apt? (y/N): " ans
+        info "The following packages need to be installed: ${MISSING[*]}"
+        read -rp "Install dependency packages now using sudo apt? (y/N): " ans
         if [[ "$ans" =~ ^[Yy]$ ]]; then
             sudo apt update
             sudo apt install -y "${MISSING[@]}"
-            success "Paket dependensi berhasil di-install."
+            success "Dependency packages installed successfully."
         else
-            warn "Melewati instalasi dependensi. Beberapa fitur ricing mungkin memerlukan paket tersebut."
+            warn "Skipping dependency installation. Some ricing features may require these packages."
         fi
     else
-        success "Semua paket dependensi utama sudah terpasang."
+        success "All core dependency packages are already installed."
     fi
 }
 
 deploy_configs() {
-    info "Memasang konfigurasi ke $HOME..."
+    info "Deploying configurations to $HOME..."
     mkdir -p "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share" "$HOME/.themes"
 
     # Backup & deploy .config
@@ -118,7 +118,7 @@ deploy_configs() {
         else
             cp -a "$item" "$HOME/.config/$name"
         fi
-        success "Terkonfigurasi: ~/.config/$name"
+        success "Configured: ~/.config/$name"
     done
 
     # Fix absolute paths to current user's $HOME in autostart, systemd, and plank launchers
@@ -136,7 +136,7 @@ deploy_configs() {
     if [ -f "$DOTFILES_DIR/.config/starship.toml" ]; then
         backup_item "$HOME/.config/starship.toml"
         cp "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
-        success "Terkonfigurasi: ~/.config/starship.toml"
+        success "Configured: ~/.config/starship.toml"
     fi
 
     # Backup & deploy .local/bin
@@ -162,7 +162,7 @@ deploy_configs() {
                 rm -rf "$TMP_DIR"
             ) || true
         fi
-        success "Skrip terpasang di ~/.local/bin/ (Module launchers, utilities)"
+        success "Scripts installed to ~/.local/bin/ (Module launchers, utilities)"
     fi
 
     # Backup & deploy .local/share/bento-*
@@ -172,7 +172,7 @@ deploy_configs() {
             backup_item "$HOME/.local/share/$aname"
             mkdir -p "$HOME/.local/share/$aname"
             rsync -a --exclude="*.db" --exclude="*.sqlite*" --exclude="__pycache__" "$app/" "$HOME/.local/share/$aname/"
-            success "Desktop modules terpasang: ~/.local/share/$aname"
+            success "Desktop modules installed: ~/.local/share/$aname"
         fi
     done
 
@@ -183,7 +183,7 @@ deploy_configs() {
             local apname="$(basename "$applet")"
             backup_item "$HOME/.local/share/cinnamon/applets/$apname"
             rsync -a "$applet/" "$HOME/.local/share/cinnamon/applets/$apname/"
-            success "Cinnamon Applet terpasang: $apname"
+            success "Cinnamon applet installed: $apname"
         done
     fi
 
@@ -192,14 +192,14 @@ deploy_configs() {
         mkdir -p "$HOME/.themes"
         backup_item "$HOME/.themes/Catppuccin-Flamingo-Dark"
         rsync -a "$DOTFILES_DIR/themes/Catppuccin-Flamingo-Dark/" "$HOME/.themes/Catppuccin-Flamingo-Dark/"
-        success "GTK Theme terpasang: ~/.themes/Catppuccin-Flamingo-Dark"
+        success "GTK theme installed: ~/.themes/Catppuccin-Flamingo-Dark"
     fi
 
     # Deploy icons & cursor theme
     if [ -d "$DOTFILES_DIR/.icons" ]; then
         mkdir -p "$HOME/.icons"
         cp -a "$DOTFILES_DIR/.icons"/* "$HOME/.icons/" 2>/dev/null || true
-        success "Cursor theme terpasang: ~/.icons/"
+        success "Cursor theme installed: ~/.icons/"
     fi
 
     # Deploy Wallpapers
@@ -208,7 +208,7 @@ deploy_configs() {
         cp -a "$DOTFILES_DIR/assets/wallpapers"/* "$HOME/Pictures/Wallpapers/" 2>/dev/null || true
         cp -a "$DOTFILES_DIR/assets/wallpapers"/default.jpg "$HOME/.cache/bento-wallpaper/optimized/135449b36a8398ec09a9d3337f84607a.jpg" 2>/dev/null || true
         cp -a "$DOTFILES_DIR/assets/wallpapers"/ws_* "$HOME/.cache/bento-wallpaper/optimized/" 2>/dev/null || true
-        success "Wallpaper terpasang di ~/Pictures/Wallpapers/ & cache Bento"
+        success "Wallpapers installed to ~/Pictures/Wallpapers/ & Bento cache"
     fi
 
     # Enable systemd user services if available
@@ -221,44 +221,44 @@ deploy_configs() {
             fi
         done
         systemctl --user start kitty-daemon.service 2>/dev/null || true
-        success "Systemd user services terpasang & aktif (termasuk kitty-daemon)"
+        success "Systemd user services installed and enabled (including kitty-daemon)"
     fi
 
     if [ -d "$BACKUP_DIR" ]; then
-        info "Backup file sebelumnya tersimpan aman di: $BACKUP_DIR"
+        info "Previous backup safely saved to: $BACKUP_DIR"
     fi
 }
 
 apply_dconf() {
-    info "Menerapkan pengaturan Cinnamon & Interface via dconf..."
+    info "Applying Cinnamon & interface settings via dconf..."
     if command -v dconf >/dev/null 2>&1; then
         if [ -f "$DOTFILES_DIR/dconf/cinnamon.dconf" ]; then
             sed -e "s|__HOME__|$HOME|g" -e "s|/home/df/|$HOME/|g" "$DOTFILES_DIR/dconf/cinnamon.dconf" | dconf load /org/cinnamon/
-            success "Pengaturan Cinnamon diterapkan (panel, applets, themes)."
+            success "Cinnamon settings applied (panels, applets, themes)."
         fi
         if [ -f "$DOTFILES_DIR/dconf/gnome-interface.dconf" ]; then
             sed -e "s|__HOME__|$HOME|g" -e "s|/home/df/|$HOME/|g" "$DOTFILES_DIR/dconf/gnome-interface.dconf" | dconf load /org/gnome/desktop/interface/
-            success "Pengaturan GNOME/GTK Interface diterapkan."
+            success "GNOME/GTK interface settings applied."
         fi
         if [ -f "$DOTFILES_DIR/dconf/plank.dconf" ]; then
             sed -e "s|__HOME__|$HOME|g" -e "s|/home/df/|$HOME/|g" "$DOTFILES_DIR/dconf/plank.dconf" | dconf load /net/launchpad/plank/
-            success "Pengaturan Plank dock diterapkan."
+            success "Plank dock settings applied."
         fi
     else
-        warn "dconf tidak ditemukan! Silakan install dconf-cli terlebih dahulu."
+        warn "dconf command not found! Please install dconf-cli first."
     fi
 }
 
 main() {
     print_banner
-    echo -e "Pilih opsi instalasi:"
-    echo "  1) Full Install (Rekomendasi: Dependensi + Konfigurasi + dconf Cinnamon)"
-    echo "  2) Konfigurasi Saja (Deploy file .config, .local/share, .local/bin)"
-    echo "  3) Dconf Saja (Restore tema, panel, dan shortcut Cinnamon)"
-    echo "  4) Install Paket Dependensi Saja"
-    echo "  5) Keluar"
+    echo -e "Select installation option:"
+    echo "  1) Full Install (Recommended: Dependencies + Configurations + Cinnamon dconf)"
+    echo "  2) Configurations Only (Deploy .config, .local/share, .local/bin)"
+    echo "  3) Dconf Only (Restore theme, panel, and Cinnamon shortcuts)"
+    echo "  4) Dependencies Only (Install required packages)"
+    echo "  5) Exit"
     echo ""
-    read -rp "Pilihan Anda [1-5]: " choice
+    read -rp "Your choice [1-5]: " choice
 
     case "$choice" in
         1)
@@ -266,25 +266,25 @@ main() {
             deploy_configs
             apply_dconf
             echo ""
-            success "Instalasi selesai! Disarankan untuk me-restart Cinnamon (Alt+F2 -> ketik 'r' -> Enter) atau relog."
+            success "Installation complete! It is recommended to restart Cinnamon (Alt+F2 -> type 'r' -> Enter) or re-login."
             ;;
         2)
             deploy_configs
-            success "Konfigurasi berhasil dipasang."
+            success "Configurations deployed successfully."
             ;;
         3)
             apply_dconf
-            success "Pengaturan dconf berhasil dipulihkan."
+            success "dconf settings restored successfully."
             ;;
         4)
             install_packages
             ;;
         5)
-            echo "Dibatalkan."
+            echo "Installation canceled."
             exit 0
             ;;
         *)
-            warn "Pilihan tidak valid!"
+            warn "Invalid option selected!"
             exit 1
             ;;
     esac

@@ -1071,7 +1071,7 @@
                     <span>System</span>
                 </div>
                 <div class="fetch-body">
-                    <img class="fetch-logo" src="avatar.jpeg" alt="Avatar">
+                    <img class="fetch-logo" id="fetch-logo" src="avatar.jpeg" alt="Avatar" onerror="this.src='avatar.jpeg'">
                     <div class="fetch-info">
                         <div class="fetch-row"><span class="fetch-key">OS:</span><span class="fetch-val">Linux Mint 22.3</span></div>
                         <div class="fetch-row"><span class="fetch-key">Host:</span><span class="fetch-val">Linux PC</span></div>
@@ -1317,7 +1317,7 @@
 
                 <!-- Anime Art Banner (Flush & Filled) -->
                 <div class="status-art-banner">
-                    <img src="avatar.jpeg" alt="Avatar" class="status-art-img">
+                    <img id="status-art-img" src="avatar.jpeg" alt="Avatar" class="status-art-img" onerror="this.src='avatar.jpeg'">
                 </div>
             </div>
         </div>
@@ -1341,13 +1341,33 @@
             }
         }
 
+        let is24HourFormat = false;
+
+        function setClockFormat(fmt) {
+            is24HourFormat = (fmt === '24h' || fmt === '24' || fmt === true);
+            updateClock();
+        }
+
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-            const hourStr = String(hours).padStart(2, '0');
+            const ampmEl = document.getElementById('t-ampm');
+            let hourStr;
+
+            if (is24HourFormat) {
+                hourStr = String(hours).padStart(2, '0');
+                if (ampmEl) ampmEl.style.display = 'none';
+            } else {
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                hourStr = String(hours).padStart(2, '0');
+                if (ampmEl) {
+                    ampmEl.style.display = '';
+                    ampmEl.innerText = ampm;
+                }
+            }
+
             const minStr = String(now.getMinutes()).padStart(2, '0');
 
             const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
@@ -1356,7 +1376,6 @@
 
             document.getElementById('t-hour').innerText = hourStr;
             document.getElementById('t-min').innerText = minStr;
-            document.getElementById('t-ampm').innerText = ampm;
             document.getElementById('t-date').innerText = dateStr;
 
             updateGreeting();
@@ -1369,6 +1388,40 @@
             if (path) {
                 document.body.style.backgroundImage = `url('${path}')`;
             }
+        }
+
+        function setBannerArt(path) {
+            const el = document.getElementById('status-art-img');
+            if (!el || !path) return;
+            const cleanPath = path.trim();
+            if (cleanPath === 'avatar.jpeg' || cleanPath === 'default' || cleanPath === 'reset') {
+                el.src = 'avatar.jpeg';
+                return;
+            }
+            const fullUrl = (cleanPath.startsWith('file://') || cleanPath.startsWith('http://') || cleanPath.startsWith('https://'))
+                ? cleanPath
+                : (cleanPath.startsWith('/') ? `file://${cleanPath}` : cleanPath);
+            const cacheBuster = fullUrl.includes('?') ? '' : `?t=${Date.now()}`;
+            el.src = `${fullUrl}${cacheBuster}`;
+        }
+
+        function setUserAvatar(path) {
+            const uAvatar = document.getElementById('u-avatar');
+            const fLogo = document.getElementById('fetch-logo');
+            if (!path) return;
+            const cleanPath = path.trim();
+            let src;
+            if (cleanPath === 'avatar.jpeg' || cleanPath === 'default' || cleanPath === 'reset') {
+                src = 'avatar.jpeg';
+            } else {
+                const fullUrl = (cleanPath.startsWith('file://') || cleanPath.startsWith('http://') || cleanPath.startsWith('https://'))
+                    ? cleanPath
+                    : (cleanPath.startsWith('/') ? `file://${cleanPath}` : cleanPath);
+                const cacheBuster = fullUrl.includes('?') ? '' : `?t=${Date.now()}`;
+                src = `${fullUrl}${cacheBuster}`;
+            }
+            if (uAvatar) uAvatar.src = src;
+            if (fLogo) fLogo.src = src;
         }
 
         // --- Caps Lock Detection ---

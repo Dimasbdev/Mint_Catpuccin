@@ -94,6 +94,65 @@ def get_current_wallpaper():
         return default_wp
     return os.path.expanduser("~/Pictures/Wallpapers/workspace-4.jpg")
 
+LOCK_CONFIG_FILE = os.path.expanduser("~/.config/bento/lock.json")
+LEGACY_BANNER_FILE = os.path.expanduser("~/.config/bento/lock-banner.path")
+
+def load_lock_config():
+    cfg = {
+        "banner": "default",
+        "avatar": "auto",
+        "wallpaper": "desktop",
+        "clock_format": "12h"
+    }
+    if os.path.exists(LEGACY_BANNER_FILE) and not os.path.exists(LOCK_CONFIG_FILE):
+        try:
+            with open(LEGACY_BANNER_FILE, "r") as f:
+                b = f.read().strip()
+                if b and os.path.exists(b):
+                    cfg["banner"] = b
+        except Exception:
+            pass
+    if os.path.exists(LOCK_CONFIG_FILE):
+        try:
+            with open(LOCK_CONFIG_FILE, "r") as f:
+                loaded = json.load(f)
+                if isinstance(loaded, dict):
+                    cfg.update(loaded)
+        except Exception:
+            pass
+    return cfg
+
+def save_lock_config(cfg):
+    try:
+        os.makedirs(os.path.dirname(LOCK_CONFIG_FILE), exist_ok=True)
+        with open(LOCK_CONFIG_FILE, "w") as f:
+            json.dump(cfg, f, indent=2)
+    except Exception:
+        pass
+
+def resolve_banner(cfg):
+    banner = cfg.get("banner", "default")
+    if banner and banner not in ("default", "reset", "avatar.jpeg") and os.path.exists(banner):
+        return f"file://{os.path.abspath(banner)}"
+    return "avatar.jpeg"
+
+def resolve_avatar(cfg):
+    avatar = cfg.get("avatar", "auto")
+    if avatar == "auto":
+        user_face = os.path.expanduser("~/.face")
+        if os.path.exists(user_face):
+            return f"file://{user_face}"
+        return "avatar.jpeg"
+    elif avatar and avatar not in ("default", "reset", "avatar.jpeg") and os.path.exists(avatar):
+        return f"file://{os.path.abspath(avatar)}"
+    return "avatar.jpeg"
+
+def resolve_wallpaper(cfg):
+    wp = cfg.get("wallpaper", "desktop")
+    if wp and wp != "desktop" and os.path.exists(wp):
+        return os.path.abspath(wp)
+    return get_current_wallpaper()
+
 cached_weather = {
     "temp": "28°C",
     "status": "Partly Cloudy",
@@ -279,12 +338,26 @@ class BentoLockWindow(Gtk.Window):
                 self.stick()
         return False
 
+    def apply_lock_config(self):
+        cfg = load_lock_config()
+        banner = resolve_banner(cfg)
+        avatar = resolve_avatar(cfg)
+        wp = resolve_wallpaper(cfg)
+        clock_fmt = cfg.get("clock_format", "12h")
+        js = f"""
+        if (window.setBannerArt) setBannerArt('{banner}');
+        if (window.setUserAvatar) setUserAvatar('{avatar}');
+        if (window.setWallpaper) setWallpaper('{wp}');
+        if (window.setClockFormat) setClockFormat('{clock_fmt}');
+        """
+        self.webview.run_javascript(js)
+
     def on_webview_load_changed(self, webview, event):
         if event == WebKit2.LoadEvent.FINISHED:
             self.apply_theme_from_file()
+            self.apply_lock_config()
             if self.is_locked:
-                wp = get_current_wallpaper()
-                self.webview.run_javascript(f"if (window.setWallpaper) setWallpaper('{wp}'); if (window.startLockSequence) startLockSequence();")
+                self.webview.run_javascript("if (window.startLockSequence) startLockSequence();")
 
     def on_theme_changed(self, colors_path):
         GLib.idle_add(self.apply_theme_from_file, colors_path)
@@ -322,8 +395,8 @@ class BentoLockWindow(Gtk.Window):
         self.set_keep_above(True)
         self.fullscreen()
         
-        wp = get_current_wallpaper()
-        self.webview.run_javascript(f"if (window.setWallpaper) setWallpaper('{wp}'); if (window.startLockSequence) startLockSequence();")
+        self.apply_lock_config()
+        self.webview.run_javascript("if (window.startLockSequence) startLockSequence();")
         
         self.show_all()
         self.present()
@@ -897,9 +970,40 @@ def setup_glib_socket(win_holder):
                     action = msg.split(":", 1)[1]
                     win.control_media(action)
                 elif msg.startswith("wallpaper:"):
-                    new_wp = msg.split(":", 1)[1]
-                    if os.path.exists(new_wp):
-                        win.webview.run_javascript(f"if (window.setWallpaper) setWallpaper('{new_wp}');")
+                    target = msg.split(":", 1)[1].strip()
+                    cfg = load_lock_config()
+                    cfg["wallpaper"] = target
+                    save_lock_config(cfg)
+                    win.apply_lock_config()
+                elif msg.startswith("banner:"):
+                    target = msg.split(":", 1)[1].strip()
+                    cfg = load_lock_config()
+                    cfg["banner"] = target
+                    save_lock_config(cfg)
+                    win.apply_lock_config()
+                elif msg.startswith("avatar:"):
+                    target = msg.split(":", 1)[1].strip()
+                    cfg = load_lock_config()
+                    cfg["avatar"] = target
+                    save_lock_config(cfg)
+                    win.apply_lock_config()
+                elif msg.startswith("clock:"):
+                    target = msg.split(":", 1)[1].strip()
+                    cfg = load_lock_config()
+                    cfg["clock_format"] = target
+                    save_lock_config(cfg)
+                    win.apply_lock_config()
+                elif msg == "reset":
+                    cfg = {
+                        "banner": "default",
+                        "avatar": "auto",
+                        "wallpaper": "desktop",
+                        "clock_format": "12h"
+                    }
+                    save_lock_config(cfg)
+                    win.apply_lock_config()
+                elif msg == "reload":
+                    win.apply_lock_config()
             conn.close()
         except Exception:
             pass

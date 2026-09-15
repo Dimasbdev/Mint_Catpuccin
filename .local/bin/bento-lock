@@ -2,6 +2,182 @@
 SOCKET_PATH="/tmp/bento-lock-$UID.sock"
 FAST_SEND="$(dirname "$0")/bento-sock-send"
 
+send_sock_msg() {
+    local msg="$1"
+    if [ -x "$FAST_SEND" ] && [ -S "$SOCKET_PATH" ]; then
+        "$FAST_SEND" "$SOCKET_PATH" "$msg" 2>/dev/null
+    elif [ -S "$SOCKET_PATH" ]; then
+        python3 -c "import socket; s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM); s.settimeout(0.5); s.connect('$SOCKET_PATH'); s.sendall(b'$msg\n'); s.close()" 2>/dev/null
+    fi
+}
+
+# --- Interactive Visual Configuration Menu ---
+if [ "$1" = "--config" ] || [ "$1" = "-c" ] || [ "$1" = "--settings" ]; then
+    if ! command -v zenity >/dev/null 2>&1; then
+        echo "[ERROR] zenity is required for visual settings menu."
+        exit 1
+    fi
+
+    while true; do
+        CHOICE=$(zenity --list --title="Bento Lockscreen Settings" \
+            --column="No" --column="Option" --column="Description" \
+            --width=620 --height=340 \
+            "1" "Status Banner" "Select image for the right status panel" \
+            "2" "User Avatar" "Configure avatar picture (Custom / Auto ~/.face / Default)" \
+            "3" "Lockscreen Wallpaper" "Set custom wallpaper or sync with desktop" \
+            "4" "Clock Format" "Toggle between 12-hour (AM/PM) and 24-hour display" \
+            "5" "Reset Preferences" "Restore all lockscreen settings to default" 2>/dev/null)
+
+        [ -z "$CHOICE" ] && exit 0
+
+        case "$CHOICE" in
+            1)
+                IMG=$(zenity --file-selection --title="Select Status Banner Image" --file-filter="Images | *.jpg *.jpeg *.png *.webp *.JPG *.PNG" 2>/dev/null)
+                if [ -n "$IMG" ] && [ -f "$IMG" ]; then
+                    ABS_IMG="$(realpath "$IMG")"
+                    send_sock_msg "banner:$ABS_IMG"
+                    zenity --info --text="Banner image updated successfully:\n$ABS_IMG" --timeout=3 2>/dev/null
+                fi
+                ;;
+            2)
+                SUB_AV=$(zenity --list --title="Select Avatar Mode" --column="Option" --column="Description" \
+                    --width=540 --height=240 \
+                    "auto" "Synchronize automatically with system account picture (~/.face)" \
+                    "custom" "Choose a custom image file" \
+                    "default" "Use default Bento avatar" 2>/dev/null)
+                if [ "$SUB_AV" = "custom" ]; then
+                    IMG=$(zenity --file-selection --title="Select Profile Avatar" --file-filter="Images | *.jpg *.jpeg *.png *.webp *.JPG *.PNG" 2>/dev/null)
+                    if [ -n "$IMG" ] && [ -f "$IMG" ]; then
+                        ABS_IMG="$(realpath "$IMG")"
+                        send_sock_msg "avatar:$ABS_IMG"
+                        zenity --info --text="Avatar image updated successfully." --timeout=3 2>/dev/null
+                    fi
+                elif [ "$SUB_AV" = "auto" ] || [ "$SUB_AV" = "default" ]; then
+                    send_sock_msg "avatar:$SUB_AV"
+                    zenity --info --text="Avatar set to: $SUB_AV" --timeout=3 2>/dev/null
+                fi
+                ;;
+            3)
+                SUB_WP=$(zenity --list --title="Select Wallpaper Mode" --column="Option" --column="Description" \
+                    --width=540 --height=240 \
+                    "desktop" "Synchronize dynamically with active desktop wallpaper" \
+                    "custom" "Choose a dedicated lockscreen wallpaper file" 2>/dev/null)
+                if [ "$SUB_WP" = "custom" ]; then
+                    IMG=$(zenity --file-selection --title="Select Lockscreen Wallpaper" --file-filter="Images | *.jpg *.jpeg *.png *.webp *.JPG *.PNG" 2>/dev/null)
+                    if [ -n "$IMG" ] && [ -f "$IMG" ]; then
+                        ABS_IMG="$(realpath "$IMG")"
+                        send_sock_msg "wallpaper:$ABS_IMG"
+                        zenity --info --text="Lockscreen wallpaper updated successfully." --timeout=3 2>/dev/null
+                    fi
+                elif [ "$SUB_WP" = "desktop" ]; then
+                    send_sock_msg "wallpaper:desktop"
+                    zenity --info --text="Lockscreen wallpaper synchronized with desktop." --timeout=3 2>/dev/null
+                fi
+                ;;
+            4)
+                SUB_CLK=$(zenity --list --title="Select Clock Format" --column="Format" --column="Description" \
+                    --width=460 --height=220 \
+                    "12h" "12-hour format with AM / PM badge" \
+                    "24h" "24-hour standard format" 2>/dev/null)
+                if [ -n "$SUB_CLK" ]; then
+                    send_sock_msg "clock:$SUB_CLK"
+                    zenity --info --text="Clock format updated to: $SUB_CLK" --timeout=3 2>/dev/null
+                fi
+                ;;
+            5)
+                if zenity --question --text="Are you sure you want to reset all lockscreen preferences to default?" 2>/dev/null; then
+                    send_sock_msg "reset"
+                    zenity --info --text="All lockscreen preferences have been reset to default." --timeout=3 2>/dev/null
+                fi
+                ;;
+        esac
+    done
+    exit 0
+fi
+
+# --- CLI Arguments ---
+if [ "$1" = "--banner" ] || [ "$1" = "-b" ]; then
+    IMG_PATH="$2"
+    if [ -z "$IMG_PATH" ]; then
+        if command -v zenity >/dev/null 2>&1; then
+            IMG_PATH=$(zenity --file-selection --title="Select Status Banner Image" --file-filter="Images | *.jpg *.jpeg *.png *.webp *.JPG *.PNG" 2>/dev/null)
+        fi
+    fi
+    if [ -n "$IMG_PATH" ] && [ -f "$IMG_PATH" ]; then
+        ABS_IMG="$(realpath "$IMG_PATH")"
+        send_sock_msg "banner:$ABS_IMG"
+        echo "[OK] Banner image updated: $ABS_IMG"
+        exit 0
+    fi
+    echo "[ERROR] Invalid image path or operation canceled."
+    exit 1
+fi
+
+if [ "$1" = "--avatar" ] || [ "$1" = "-a" ]; then
+    ARG="$2"
+    if [ "$ARG" = "auto" ] || [ "$ARG" = "default" ]; then
+        send_sock_msg "avatar:$ARG"
+        echo "[OK] Avatar set to mode: $ARG"
+        exit 0
+    elif [ -n "$ARG" ] && [ -f "$ARG" ]; then
+        ABS_IMG="$(realpath "$ARG")"
+        send_sock_msg "avatar:$ABS_IMG"
+        echo "[OK] Avatar image updated: $ABS_IMG"
+        exit 0
+    elif [ -z "$ARG" ] && command -v zenity >/dev/null 2>&1; then
+        IMG_PATH=$(zenity --file-selection --title="Select Profile Avatar" --file-filter="Images | *.jpg *.jpeg *.png *.webp *.JPG *.PNG" 2>/dev/null)
+        if [ -n "$IMG_PATH" ] && [ -f "$IMG_PATH" ]; then
+            ABS_IMG="$(realpath "$IMG_PATH")"
+            send_sock_msg "avatar:$ABS_IMG"
+            echo "[OK] Avatar image updated: $ABS_IMG"
+            exit 0
+        fi
+    fi
+    echo "[ERROR] Invalid argument. Usage: bento-lock --avatar [auto|default|<image_path>]"
+    exit 1
+fi
+
+if [ "$1" = "--wallpaper" ] || [ "$1" = "-w" ]; then
+    ARG="$2"
+    if [ "$ARG" = "desktop" ] || [ "$ARG" = "default" ]; then
+        send_sock_msg "wallpaper:desktop"
+        echo "[OK] Lockscreen wallpaper synchronized with desktop."
+        exit 0
+    elif [ -n "$ARG" ] && [ -f "$ARG" ]; then
+        ABS_IMG="$(realpath "$ARG")"
+        send_sock_msg "wallpaper:$ABS_IMG"
+        echo "[OK] Lockscreen wallpaper updated: $ABS_IMG"
+        exit 0
+    elif [ -z "$ARG" ] && command -v zenity >/dev/null 2>&1; then
+        IMG_PATH=$(zenity --file-selection --title="Select Lockscreen Wallpaper" --file-filter="Images | *.jpg *.jpeg *.png *.webp *.JPG *.PNG" 2>/dev/null)
+        if [ -n "$IMG_PATH" ] && [ -f "$IMG_PATH" ]; then
+            ABS_IMG="$(realpath "$IMG_PATH")"
+            send_sock_msg "wallpaper:$ABS_IMG"
+            echo "[OK] Lockscreen wallpaper updated: $ABS_IMG"
+            exit 0
+        fi
+    fi
+    echo "[ERROR] Invalid argument. Usage: bento-lock --wallpaper [desktop|<image_path>]"
+    exit 1
+fi
+
+if [ "$1" = "--clock" ]; then
+    FMT="$2"
+    if [ "$FMT" = "12h" ] || [ "$FMT" = "24h" ]; then
+        send_sock_msg "clock:$FMT"
+        echo "[OK] Clock format updated: $FMT"
+        exit 0
+    fi
+    echo "[ERROR] Invalid format. Usage: bento-lock --clock [12h|24h]"
+    exit 1
+fi
+
+if [ "$1" = "--reset" ] || [ "$1" = "--reset-banner" ]; then
+    send_sock_msg "reset"
+    echo "[OK] All lockscreen preferences restored to default."
+    exit 0
+fi
+
 # 1. Instant fast path (<2ms) via compiled C socket helper
 if [ -x "$FAST_SEND" ] && [ -S "$SOCKET_PATH" ]; then
     if "$FAST_SEND" "$SOCKET_PATH" "lock" 2>/dev/null; then
